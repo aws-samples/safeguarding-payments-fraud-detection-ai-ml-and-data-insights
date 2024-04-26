@@ -4,7 +4,7 @@ help()
 {
   echo "Deploy AWS resource using Terraform and Terragrunt"
   echo
-  echo "Syntax: deploy.sh [-a|-b|c|d|i|r|t]"
+  echo "Syntax: deploy.sh [-a|b|c|d|i|r|t]"
   echo "Options:"
   echo "a     Specify AWS application ARN (e.g. arn:aws:resource-groups:us-east-1:123456789012:group/SPF/abcd1234)"
   echo "b     Specify Terraform backend config (e.g. {\"us-east-1\"=\"spf-backend-us-east-1\"})"
