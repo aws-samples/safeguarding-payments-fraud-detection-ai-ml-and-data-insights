@@ -8,4 +8,5 @@ q = {
   sse_algorithm       = "AES256" # "aws:kms"
   versioning_status   = "Enabled"
   logs_prefix         = "s3_runtime_logs"
+  assume_role_name    = "spf-cicd-assume-role"
 }
