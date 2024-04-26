@@ -34,7 +34,7 @@ output "region2" {
 }
 
 output "role_name" {
-  value = local.role_name
+  value = format("%s-%s-%s", var.q.assume_role_name, aws_s3_bucket.this.region, local.spf_gid)
 }
 
 output "spf_gid" {
