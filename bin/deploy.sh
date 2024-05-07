@@ -57,8 +57,8 @@ aws --version > /dev/null 2>&1 || { echo "[ERROR] aws is missing. aborting..."; 
 terraform -version > /dev/null 2>&1 || { echo "[ERROR] terraform is missing. aborting..."; exit 1; }
 terragrunt -version > /dev/null 2>&1 || { echo "[ERROR] terragrunt is missing. aborting..."; exit 1; }
 
-if [ -z "${SPF_REGION}" ] && [ ! -z "${AWS_DEFAULT_REGION}" ]; then SPF_REGION="${AWS_DEFAULT_REGION}"; fi
-if [ -z "${SPF_REGION}" ] && [ ! -z "${AWS_REGION}" ]; then SPF_REGION="${AWS_REGION}"; fi
+if [ -z "${SPF_REGION}" ] && [ -n "${AWS_DEFAULT_REGION}" ]; then SPF_REGION="${AWS_DEFAULT_REGION}"; fi
+if [ -z "${SPF_REGION}" ] && [ -n "${AWS_REGION}" ]; then SPF_REGION="${AWS_REGION}"; fi
 
 if [ -z "${SPF_REGION}" ]; then
   echo "[DEBUG] SPF_REGION: ${SPF_REGION}"
@@ -77,15 +77,15 @@ fi
 WORKDIR="$( cd "$(dirname "$0")/../" > /dev/null 2>&1 || exit 1; pwd -P )"
 OPTIONS="-var backend_bucket=${SPF_BACKEND}"
 
-if [ ! -z "${SPF_GID}" ]; then
+if [ -n "${SPF_GID}" ]; then
   OPTIONS="${OPTIONS} -var spf_gid=${SPF_GID}"
 fi
 
-if [ ! -z "${SPF_ACCOUNT}" ]; then
+if [ -n "${SPF_ACCOUNT}" ]; then
   OPTIONS="${OPTIONS} -var account=${SPF_ACCOUNT}"
 fi
 
-if [ ! -z "${SPF_APP_ARN}" ]; then
+if [ -n "${SPF_APP_ARN}" ]; then
   OPTIONS="${OPTIONS} -var app_arn=${SPF_APP_ARN}"
 fi
 
@@ -100,7 +100,7 @@ cd "${WORKDIR}/${SPF_DIR}/"
 echo "[EXEC] terragrunt run-all init -backend-config region=${SPF_REGION} -backend-config bucket=${SPF_BUCKET}"
 terragrunt run-all init -backend-config region="${SPF_REGION}" -backend-config="bucket=${SPF_BUCKET}" || { echo "[ERROR] terragrunt run-all init failed. aborting..."; cd -; exit 1; }
 
-if [ ! -z "${CLEANUP}" ] && [ "${CLEANUP}" == "true" ]; then
+if [ -n "${CLEANUP}" ] && [ "${CLEANUP}" == "true" ]; then
   echo "[EXEC] terragrunt run-all destroy -auto-approve -var-file default.tfvars ${OPTIONS}"
   echo "Y" | terragrunt run-all destroy -auto-approve -var-file default.tfvars ${OPTIONS} || { echo "[ERROR] terragrunt run-all destroy failed. aborting..."; cd -; exit 1; }
 else

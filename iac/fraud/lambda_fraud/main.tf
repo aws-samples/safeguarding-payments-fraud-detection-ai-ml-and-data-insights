@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 resource "aws_lambda_function" "this" {
   #checkov:skip=CKV_AWS_50:This solution does not require XRay in production (false positive)
   #checkov:skip=CKV_AWS_117:This solution does not support VPC due to container based images (false positive)

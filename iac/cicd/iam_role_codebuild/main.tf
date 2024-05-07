@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 resource "aws_iam_role" "this" {
   name               = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
   description        = var.q.description

@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 resource "aws_s3_bucket" "this" {
   #checkov:skip=CKV_AWS_18:This solution implemented access logging as a separate terraform resource (false positive)
   #checkov:skip=CKV_AWS_19:This solution implemented encryption at rest as a separate terraform resource (false positive)

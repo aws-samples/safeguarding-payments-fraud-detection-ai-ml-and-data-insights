@@ -25,7 +25,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.45.0"
+      version = "5.48.0"
     }
   }
 }
@@ -56,4 +56,56 @@ variable "account" {
 variable "app_arn" {
   type    = string
   default = ""
+  # default = ""
+}
+
+variable "vpc_id" {
+  type    = string
+  default = ""
+  # default = "vpc-1234567890abcdef"
+}
+
+variable "vpce_services" {
+  type    = string
+  default = ""
+  # default = "dynamodb,s3:ec2,ec2messages,ecr.api,ecr.dkr,eks,kms,logs,s3,sts"
+}
+
+variable "vpc_subnets_create" {
+  type    = bool
+  default = false
+}
+
+variable "vpc_subnets_source" {
+  type    = string
+  default = "availability_zones"
+
+  validation {
+    condition     = contains(["availability_zones", "local_zones", "outpost_zones", "wavelength_zones"], var.vpc_subnets_source)
+    error_message = "Valid values: availability_zones, local_zones, outpost_zones, wavelength_zones"
+  }
+}
+
+variable "vpc_subnets_azs" {
+  type    = string
+  default = ""
+  # default = "use1-az1:172.31.0.0/20,use1-az2:172.31.80.0/20,use1-az3:172.31.48.0/20"
+}
+
+variable "vpc_subnets_lzs" {
+  type    = string
+  default = ""
+  # default = "{{local_zone_id}}:{{local_zone_cidr}},{{local_zone_id}}:{{local_zone_cidr}}"
+}
+
+variable "vpc_subnets_ozs" {
+  type    = string
+  default = ""
+  # default = "{{outpost_zone_id}}:{{outpost_zone_cidr}},{{outpost_zone_id}}:{{outpost_zone_cidr}}"
+}
+
+variable "vpc_subnets_wzs" {
+  type    = string
+  default = ""
+  # default = "use1-wl1-nyc-wlz1:10.0.100.0/24,use1-wl1-bos-wlz1:10.0.110.0/24"
 }

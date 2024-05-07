@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 locals {
   spf_gid = (var.spf_gid == null ? data.terraform_remote_state.iam.outputs.spf_gid : var.spf_gid)
   environment_variables = [

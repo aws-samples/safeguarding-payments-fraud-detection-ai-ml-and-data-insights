@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 locals {
   spf_gid = data.terraform_remote_state.s3.outputs.spf_gid
   statements = [

@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 data "aws_iam_policy_document" "role" {
   statement {
     effect  = "Allow"

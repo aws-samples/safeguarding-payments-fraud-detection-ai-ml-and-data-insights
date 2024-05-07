@@ -57,10 +57,10 @@ aws --version > /dev/null 2>&1 || { pip install awscli; }
 aws --version > /dev/null 2>&1 || { echo "[ERROR] aws is missing. aborting..."; exit 1; }
 docker --version > /dev/null 2>&1 || { echo "[ERROR] docker is missing. aborting..."; exit 1; }
 
-if [ -z "${SPF_ROLE_NAME}" ] && [ ! -z "${TF_VAR_ROLE_NAME}" ]; then SPF_ROLE_NAME="${TF_VAR_ROLE_NAME}"; fi
-if [ -z "${SPF_REGION}" ] && [ ! -z "${TF_VAR_SPF_REGION}" ]; then SPF_REGION="${TF_VAR_SPF_REGION}"; fi
-if [ -z "${SPF_REGION}" ] && [ ! -z "${AWS_DEFAULT_REGION}" ]; then SPF_REGION="${AWS_DEFAULT_REGION}"; fi
-if [ -z "${SPF_REGION}" ] && [ ! -z "${AWS_REGION}" ]; then SPF_REGION="${AWS_REGION}"; fi
+if [ -z "${SPF_ROLE_NAME}" ] && [ -n "${TF_VAR_ROLE_NAME}" ]; then SPF_ROLE_NAME="${TF_VAR_ROLE_NAME}"; fi
+if [ -z "${SPF_REGION}" ] && [ -n "${TF_VAR_SPF_REGION}" ]; then SPF_REGION="${TF_VAR_SPF_REGION}"; fi
+if [ -z "${SPF_REGION}" ] && [ -n "${AWS_DEFAULT_REGION}" ]; then SPF_REGION="${AWS_DEFAULT_REGION}"; fi
+if [ -z "${SPF_REGION}" ] && [ -n "${AWS_REGION}" ]; then SPF_REGION="${AWS_REGION}"; fi
 
 if [ -z "${SPF_REGION}" ]; then
   echo "[DEBUG] SPF_REGION: ${SPF_REGION}"
@@ -95,7 +95,7 @@ mkdir -p "${DOCKER_CONFIG}" && touch "${DOCKER_CONFIG}/config.json" && echo "{\"
 echo "[INFO] aws ecr get-login-password --region ${SPF_REGION} | docker login --username AWS --password-stdin ${ENDPOINT}"
 aws ecr get-login-password --region "${SPF_REGION}" | docker login --username AWS --password-stdin "${ENDPOINT}" || { echo "[ERROR] docker login failed. aborting..."; exit 1; }
 
-if [ ! -z "${SPF_ROLE_NAME}" ]; then
+if [ -n "${SPF_ROLE_NAME}" ]; then
   echo "[INFO] aws sts assume-role --role-arn arn:aws:iam::${ACCOUNT}:role/${SPF_ROLE_NAME} --role-session-name ${ACCOUNT}"
   ASSUME_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::${ACCOUNT}:role/${SPF_ROLE_NAME}" --role-session-name "${ACCOUNT}")
   OPTIONS="${OPTIONS} --build-arg AWS_DEFAULT_REGION=${SPF_REGION}"
@@ -111,12 +111,13 @@ echo "[INFO] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOS
 docker tag "${SPF_REPOSITORY}:${SPF_VERSION}" "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}" || { echo "[ERROR] docker tag failed. aborting..."; exit 1; }
 
 echo "[INFO] docker push ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
-OUTPUT=$(docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}") || { echo "[ERROR] docker push failed. aborting..."; exit 1; }
+docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
+# OUTPUT=$(docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}") || { echo "[ERROR] docker push failed. aborting..."; exit 1; }
 
-echo "[INFO] OUTPUT: ${OUTPUT}"
-IFS=' ' read -ra ARR <<< "$(echo "${OUTPUT}" | tr '\n' ' ')"
+# echo "[INFO] OUTPUT: ${OUTPUT}"
+# IFS=' ' read -ra ARR <<< "$(echo "${OUTPUT}" | tr '\n' ' ')"
 
-# if [ ! -z "${UPDATE}" ] && [ "${UPDATE}" == "true" ]; then
+# if [ -n "${UPDATE}" ] && [ "${UPDATE}" == "true" ]; then
 #   echo "[INFO] aws lambda update-function-code --region ${SPF_REGION} --function-name ${SPF_REPOSITORY} --image-uri ${ENDPOINT}/${SPF_REPOSITORY}@${ARR[${#ARR[@]} - 3]}"
 #   aws lambda update-function-code --region "${SPF_REGION}" --function-name "${SPF_REPOSITORY}" --image-uri "${ENDPOINT}/${SPF_REPOSITORY}@${ARR[${#ARR[@]} - 3]}"
 # fi

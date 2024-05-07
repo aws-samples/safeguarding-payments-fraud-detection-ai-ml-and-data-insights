@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 resource "aws_ecr_repository" "this" {
   #checkov:skip=CKV_AWS_51:This solution leverages mutable ECR repository tags (false positive)
   #checkov:skip=CKV_AWS_136:This solution leverages KMS encryption using AWS managed keys instead of CMKs (false positive)

@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 data "terraform_remote_state" "s3" {
   count = (
     data.aws_region.this.name == element(keys(var.backend_bucket), 1)
