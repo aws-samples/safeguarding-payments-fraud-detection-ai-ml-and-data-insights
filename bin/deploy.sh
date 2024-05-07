@@ -24,6 +24,12 @@ SPF_BUCKET=""
 SPF_BACKEND=""
 SPF_GID=""
 SPF_DIR="iac/cicd"
+# SPF_VPC_ID=""
+# SPF_VPCE_SERVICES=""
+# SPF_VPC_SUBNETS_CREATE="false"
+# SPF_VPC_SUBNETS_SOURCE="availability_zones"
+# SPF_VPC_SUBNETS_AZS=""
+# SPF_VPC_SUBNETS_WZS=""
 CLEANUP=""
 
 while getopts "h:a:b:c:d:i:r:t:" option; do
@@ -87,6 +93,26 @@ fi
 
 if [ -n "${SPF_APP_ARN}" ]; then
   OPTIONS="${OPTIONS} -var app_arn=${SPF_APP_ARN}"
+fi
+
+if [ -n "${SPF_VPC_ID}" ]; then
+  OPTIONS="${OPTIONS} -var vpc_id=${SPF_VPC_ID}"
+fi
+
+if [ -n "${SPF_VPCE_SERVICES}" ]; then
+  OPTIONS="${OPTIONS} -var vpce_services=${SPF_VPCE_SERVICES}"
+fi
+
+if [ -n "${SPF_VPC_SUBNETS_CREATE}" ]; then
+  OPTIONS="${OPTIONS} -var vpc_subnets_create=${SPF_VPC_SUBNETS_CREATE}"
+fi
+
+if [ -n "${SPF_VPC_SUBNETS_SOURCE}" ]; then
+  OPTIONS="${OPTIONS} -var vpc_subnets_source=${SPF_VPC_SUBNETS_SOURCE}"
+fi
+
+if [ -n "${SPF_VPC_SUBNETS_WZS}" ]; then
+  OPTIONS="${OPTIONS} -var vpc_subnets_wzs=${SPF_VPC_SUBNETS_WZS}"
 fi
 
 if [ ! -d "${WORKDIR}/${SPF_DIR}/" ]; then
