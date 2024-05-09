@@ -58,6 +58,15 @@ variable "app_arn" {
   default = ""
 }
 
+variable "eks_node_type" {
+  type    = string
+  default = "self-managed"
+  validation {
+    condition     = contains(["self-managed", "eks-managed", "fargate"], var.eks_node_type)
+    error_message = "Valid values: self-managed, eks-managed, fargate"
+  }
+}
+
 variable "vpc_id" {
   type    = string
   default = ""
