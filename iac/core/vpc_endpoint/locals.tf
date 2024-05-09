@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: MIT-0
 
 locals {
-  gateways   = split(",", element(split(":", try(var.vpce_services, ":")), 0))
-  interfaces = split(",", element(split(":", try(var.vpce_services, ":")), 1))
+  gateways   = split(",", element(split(":", try(var.vpce_mapping, ":")), 0))
+  interfaces = split(",", element(split(":", try(var.vpce_mapping, ":")), 1))
 }

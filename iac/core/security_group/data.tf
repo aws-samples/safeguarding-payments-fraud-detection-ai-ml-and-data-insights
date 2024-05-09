@@ -8,20 +8,16 @@ data "aws_vpcs" "this" {
   }
 }
 
-data "aws_subnets" "this" {
+data "aws_availability_zones" "az" {
   filter {
-    name   = "vpc-id"
-    values = [length(data.aws_vpcs.this.ids) > 0 ? element(data.aws_vpcs.this.ids, 0) : "vpc-id"]
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
   }
+}
 
-  filter {
-    name   = local.zone_ids == {"" = ""} ? "availability-zone" : "availability-zone-id"
-    values = local.zone_ids == {"" = ""} ? [
-      format("%sa", data.aws_region.this.name),
-      format("%sb", data.aws_region.this.name),
-      format("%sc", data.aws_region.this.name),
-    ] : keys(local.zone_ids)
-  }
+data "aws_availability_zones" "lz" {
+  all_availability_zones = true
+  exclude_zone_ids       = data.aws_availability_zones.az.zone_ids
 }
 
 data "terraform_remote_state" "s3" {

@@ -36,10 +36,3 @@ resource "aws_security_group" "this" {
     }
   }
 }
-
-resource "aws_subnet" "this" {
-  count                = var.vpc_subnets_create ? length(values(local.zone_ids)) : 0
-  vpc_id               = aws_security_group.this.vpc_id
-  cidr_block           = element(values(local.zone_ids), count.index)
-  availability_zone_id = element(keys(local.zone_ids), count.index)
-}

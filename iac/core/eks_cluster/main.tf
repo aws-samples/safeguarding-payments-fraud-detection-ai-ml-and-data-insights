@@ -19,7 +19,7 @@ resource "aws_eks_cluster" "this" {
   }
 
   vpc_config {
-    subnet_ids              = data.terraform_remote_state.sg.outputs.subnet_ids
+    subnet_ids              = data.terraform_remote_state.subnet.outputs.igw_subnet_ids
     security_group_ids      = [data.terraform_remote_state.sg.outputs.id]
     endpoint_public_access  = var.q.public
     endpoint_private_access = var.q.private

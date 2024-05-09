@@ -9,7 +9,7 @@ help()
   echo "a     Specify AWS application ARN (e.g. arn:aws:resource-groups:us-east-1:123456789012:group/SPF/abcd1234)"
   echo "b     Specify Terraform backend config (e.g. {\"us-east-1\"=\"spf-backend-us-east-1\"})"
   echo "c     Specify cleanup / destroy resources (e.g. true)"
-  echo "d     Specify directory (e.g. iac/cicd)"
+  echo "d     Specify directory (e.g. iac/core)"
   echo "i     Specify global id (e.g. abcd1234)"
   echo "r     Specify AWS region (e.g. us-east-1)"
   echo "t     Specify S3 bucket (e.g. spf-backend-us-east-1)"
@@ -23,13 +23,7 @@ SPF_REGION=""
 SPF_BUCKET=""
 SPF_BACKEND=""
 SPF_GID=""
-SPF_DIR="iac/cicd"
-# SPF_VPC_ID=""
-# SPF_VPCE_SERVICES=""
-# SPF_VPC_SUBNETS_CREATE="false"
-# SPF_VPC_SUBNETS_SOURCE="availability_zones"
-# SPF_VPC_SUBNETS_AZS=""
-# SPF_VPC_SUBNETS_WZS=""
+SPF_DIR="iac/core"
 CLEANUP=""
 
 while getopts "h:a:b:c:d:i:r:t:" option; do
@@ -99,20 +93,32 @@ if [ -n "${SPF_VPC_ID}" ]; then
   OPTIONS="${OPTIONS} -var vpc_id=${SPF_VPC_ID}"
 fi
 
-if [ -n "${SPF_VPCE_SERVICES}" ]; then
-  OPTIONS="${OPTIONS} -var vpce_services=${SPF_VPCE_SERVICES}"
+if [ -n "${SPF_VPCE_MAPPING}" ]; then
+  OPTIONS="${OPTIONS} -var vpce_mapping=${SPF_VPCE_MAPPING}"
 fi
 
-if [ -n "${SPF_VPC_SUBNETS_CREATE}" ]; then
-  OPTIONS="${OPTIONS} -var vpc_subnets_create=${SPF_VPC_SUBNETS_CREATE}"
+if [ -n "${SPF_SUBNETS_IGW_CREATE}" ]; then
+  OPTIONS="${OPTIONS} -var subnets_igw_create=${SPF_SUBNETS_IGW_CREATE}"
 fi
 
-if [ -n "${SPF_VPC_SUBNETS_SOURCE}" ]; then
-  OPTIONS="${OPTIONS} -var vpc_subnets_source=${SPF_VPC_SUBNETS_SOURCE}"
+if [ -n "${SPF_SUBNETS_IGW_MAPPING}" ]; then
+  OPTIONS="${OPTIONS} -var subnets_igw_mapping=${SPF_SUBNETS_IGW_MAPPING}"
 fi
 
-if [ -n "${SPF_VPC_SUBNETS_WZS}" ]; then
-  OPTIONS="${OPTIONS} -var vpc_subnets_wzs=${SPF_VPC_SUBNETS_WZS}"
+if [ -n "${SPF_SUBNETS_NAT_CREATE}" ]; then
+  OPTIONS="${OPTIONS} -var subnets_nat_create=${SPF_SUBNETS_IGW_CREATE}"
+fi
+
+if [ -n "${SPF_SUBNETS_NAT_MAPPING}" ]; then
+  OPTIONS="${OPTIONS} -var subnets_nat_mapping=${SPF_SUBNETS_NAT_MAPPING}"
+fi
+
+if [ -n "${SPF_SUBNETS_CAGW_CREATE}" ]; then
+  OPTIONS="${OPTIONS} -var subnets_cagw_create=${SPF_SUBNETS_CAGW_CREATE}"
+fi
+
+if [ -n "${SPF_SUBNETS_CAGW_MAPPING}" ]; then
+  OPTIONS="${OPTIONS} -var subnets_cagw_mapping=${SPF_SUBNETS_CAGW_MAPPING}"
 fi
 
 if [ ! -d "${WORKDIR}/${SPF_DIR}/" ]; then
