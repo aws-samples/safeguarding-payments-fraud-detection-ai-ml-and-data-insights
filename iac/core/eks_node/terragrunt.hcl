@@ -6,12 +6,7 @@ dependency "eks" {
   skip_outputs = true
 }
 
-dependency "iam_fargate" {
-  config_path  = "../iam_role_fargate"
-  skip_outputs = true
-}
-
-dependency "iam_node" {
+dependency "iam" {
   config_path  = "../iam_role_node"
   skip_outputs = true
 }

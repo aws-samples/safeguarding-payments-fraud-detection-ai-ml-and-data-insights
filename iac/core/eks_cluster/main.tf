@@ -3,7 +3,7 @@
 
 resource "aws_eks_cluster" "this" {
   name     = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
-  role_arn = data.terraform_remote_state.iam.outputs.arn
+  role_arn = data.terraform_remote_state.iam_cluster.outputs.arn
   version  = var.q.version
 
   enabled_cluster_log_types = split(",", var.q.log_types)
@@ -27,6 +27,20 @@ resource "aws_eks_cluster" "this" {
   }
 }
 
+resource "aws_eks_fargate_profile" "this" {
+  cluster_name           = aws_eks_cluster.this.name
+  pod_execution_role_arn = data.terraform_remote_state.iam_fargate.outputs.arn
+  fargate_profile_name   = var.q.namespace
+  subnet_ids             = concat(
+    data.terraform_remote_state.subnet.outputs.nat_subnet_ids,
+    data.terraform_remote_state.subnet.outputs.igw_subnet_ids
+  )
+
+  selector {
+    namespace = var.q.namespace
+  }
+}
+
 resource "aws_eks_addon" "this" {
   count                       = length(split(",", var.q.addons))
   cluster_name                = aws_eks_cluster.this.name
@@ -34,18 +48,19 @@ resource "aws_eks_addon" "this" {
   addon_version               = element(split(",", var.q.addons_version), count.index)
   resolve_conflicts_on_create = var.q.addons_create
   resolve_conflicts_on_update = var.q.addons_update
+  depends_on                  = [aws_eks_fargate_profile.this]
 }
 
 resource "aws_eks_access_entry" "this" {
   cluster_name      = aws_eks_cluster.this.name
-  principal_arn     = data.terraform_remote_state.iam.outputs.arn
+  principal_arn     = data.terraform_remote_state.iam_cluster.outputs.arn
   kubernetes_groups = var.q.groups != "" ? split(",", var.q.groups) : null
   type              = var.q.entry_type
 }
 
 resource "aws_eks_access_policy_association" "this" {
   cluster_name  = aws_eks_cluster.this.name
-  principal_arn = data.terraform_remote_state.iam.outputs.arn
+  principal_arn = data.terraform_remote_state.iam_cluster.outputs.arn
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
 
   access_scope {

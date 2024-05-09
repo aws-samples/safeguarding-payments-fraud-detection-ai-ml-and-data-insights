@@ -1,8 +1,13 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-dependency "iam" {
+dependency "iam_cluster" {
   config_path  = "../iam_role_cluster"
+  skip_outputs = true
+}
+
+dependency "iam_fargate" {
+  config_path  = "../iam_role_fargate"
   skip_outputs = true
 }
 

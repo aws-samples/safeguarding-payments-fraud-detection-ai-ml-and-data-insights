@@ -3,6 +3,7 @@
 
 q = {
   name           = "spf-eks-cluster"
+  namespace      = "default"
   version        = "1.29"
   public         = true
   private        = true

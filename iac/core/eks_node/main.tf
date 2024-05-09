@@ -1,20 +1,6 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-resource "aws_eks_fargate_profile" "this" {
-  cluster_name           = data.terraform_remote_state.eks.outputs.id
-  pod_execution_role_arn = data.terraform_remote_state.iam_fargate.outputs.arn
-  fargate_profile_name   = var.q.namespace
-  subnet_ids             = concat(
-    data.terraform_remote_state.subnet.outputs.nat_subnet_ids,
-    data.terraform_remote_state.subnet.outputs.igw_subnet_ids
-  )
-
-  selector {
-    namespace = var.q.namespace
-  }
-}
-
 module "self_managed_node_group" {
   count                = var.eks_node_type == "self-managed" ? 1 : 0
   source               = "terraform-aws-modules/eks/aws//modules/self-managed-node-group"
@@ -71,12 +57,12 @@ module "ebs_kms_key" {
   aliases     = [format("eks/%s-%s-%s/ebs", var.q.name, data.aws_region.this.name, local.spf_gid)]
 
   key_administrators = [
-    data.terraform_remote_state.iam_node.outputs.arn,
+    data.terraform_remote_state.iam.outputs.arn,
     format("arn:aws:iam::%s:root", data.aws_caller_identity.this.account_id)
   ]
 
   key_service_roles_for_autoscaling = [
-    data.terraform_remote_state.iam_node.outputs.arn,
+    data.terraform_remote_state.iam.outputs.arn,
     format("arn:aws:iam::%s:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling", data.aws_caller_identity.this.account_id),
   ]
 }
@@ -85,7 +71,7 @@ resource "aws_eks_node_group" "this" {
   count           = var.eks_node_type == "eks-managed" ? 1 : 0
   cluster_name    = data.terraform_remote_state.eks.outputs.id
   node_group_name = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
-  node_role_arn   = data.terraform_remote_state.iam_node.outputs.arn
+  node_role_arn   = data.terraform_remote_state.iam.outputs.arn
   subnet_ids      = local.subnet_ids
 
   ami_type        = var.q.ami_type

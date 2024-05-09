@@ -12,18 +12,7 @@ data "terraform_remote_state" "eks" {
   }
 }
 
-data "terraform_remote_state" "iam_fargate" {
-  backend = "s3"
-  config = {
-    skip_region_validation = true
-
-    region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "iam_role_fargate")
-  }
-}
-
-data "terraform_remote_state" "iam_node" {
+data "terraform_remote_state" "iam" {
   backend = "s3"
   config = {
     skip_region_validation = true

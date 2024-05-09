@@ -1,7 +1,7 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-data "terraform_remote_state" "iam" {
+data "terraform_remote_state" "iam_cluster" {
   backend = "s3"
   config = {
     skip_region_validation = true
@@ -9,6 +9,17 @@ data "terraform_remote_state" "iam" {
     region = data.aws_region.this.name
     bucket = var.backend_bucket[data.aws_region.this.name]
     key    = format(var.backend_pattern, "iam_role_cluster")
+  }
+}
+
+data "terraform_remote_state" "iam_fargate" {
+  backend = "s3"
+  config = {
+    skip_region_validation = true
+
+    region = data.aws_region.this.name
+    bucket = var.backend_bucket[data.aws_region.this.name]
+    key    = format(var.backend_pattern, "iam_role_fargate")
   }
 }
 
