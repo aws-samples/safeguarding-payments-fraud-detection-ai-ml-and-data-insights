@@ -14,8 +14,9 @@ resource "aws_eks_cluster" "this" {
   }
 
   kubernetes_network_config {
-    ip_family         = "ipv4"
-    service_ipv4_cidr = "172.20.0.0/16"
+    ip_family         = var.q.ip_family
+    service_ipv4_cidr = var.q.ipv4_cidr
+    service_ipv6_cidr = var.q.ipv6_cidr
   }
 
   vpc_config {
@@ -27,9 +28,12 @@ resource "aws_eks_cluster" "this" {
 }
 
 resource "aws_eks_addon" "this" {
-  count        = length(split(",", var.q.addons))
-  cluster_name = aws_eks_cluster.this.name
-  addon_name   = element(split(",", var.q.addons), count.index)
+  count                       = length(split(",", var.q.addons))
+  cluster_name                = aws_eks_cluster.this.name
+  addon_name                  = element(split(",", var.q.addons), count.index)
+  addon_version               = element(split(",", var.q.addons_version), count.index)
+  resolve_conflicts_on_create = var.q.addons_create
+  resolve_conflicts_on_update = var.q.addons_update
 }
 
 resource "aws_eks_access_entry" "this" {
