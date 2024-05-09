@@ -106,7 +106,7 @@ if [ -n "${SPF_SUBNETS_IGW_MAPPING}" ]; then
 fi
 
 if [ -n "${SPF_SUBNETS_NAT_CREATE}" ]; then
-  OPTIONS="${OPTIONS} -var subnets_nat_create=${SPF_SUBNETS_IGW_CREATE}"
+  OPTIONS="${OPTIONS} -var subnets_nat_create=${SPF_SUBNETS_NAT_CREATE}"
 fi
 
 if [ -n "${SPF_SUBNETS_NAT_MAPPING}" ]; then
