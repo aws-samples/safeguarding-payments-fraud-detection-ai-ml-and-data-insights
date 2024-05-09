@@ -11,10 +11,7 @@ resource "aws_vpc_endpoint" "this" {
     data.terraform_remote_state.sg.outputs.igw_subnet_ids,
     data.terraform_remote_state.sg.outputs.nat_subnet_ids
   )
-  security_group_ids  = [
-    data.terraform_remote_state.eks.outputs.cluster_security_group_id,
-    data.terraform_remote_state.sg.outputs.id,
-  ]
+  security_group_ids  = [data.terraform_remote_state.sg.outputs.id]
   depends_on = [aws_vpc_endpoint.that]
 }
 
