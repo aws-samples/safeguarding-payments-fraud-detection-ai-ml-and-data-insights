@@ -3,6 +3,7 @@
 
 q = {
   name            = "spf-eks"
+  namespace       = "default"
   ami_type        = "AL2_ARM_64"
   capacity_type   = "ON_DEMAND"
   instance_types  = "t3.medium,t3.large"
