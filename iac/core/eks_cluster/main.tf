@@ -26,11 +26,11 @@ resource "aws_eks_cluster" "this" {
   }
 }
 
-resource "aws_eks_addon" "this" {
-  count        = length(split(",", var.q.addons))
-  cluster_name = aws_eks_cluster.this.name
-  addon_name   = element(split(",", var.q.addons), count.index)
-}
+# resource "aws_eks_addon" "this" {
+#   count        = length(split(",", var.q.addons))
+#   cluster_name = aws_eks_cluster.this.name
+#   addon_name   = element(split(",", var.q.addons), count.index)
+# }
 
 resource "aws_cloudwatch_log_group" "this" {
   name              = format("/aws/eks/%s/cluster", aws_eks_cluster.this.name)
