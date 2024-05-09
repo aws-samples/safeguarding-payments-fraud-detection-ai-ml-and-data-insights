@@ -26,11 +26,29 @@ resource "aws_eks_cluster" "this" {
   }
 }
 
-# resource "aws_eks_addon" "this" {
-#   count        = length(split(",", var.q.addons))
-#   cluster_name = aws_eks_cluster.this.name
-#   addon_name   = element(split(",", var.q.addons), count.index)
-# }
+resource "aws_eks_addon" "this" {
+  count        = length(split(",", var.q.addons))
+  cluster_name = aws_eks_cluster.this.name
+  addon_name   = element(split(",", var.q.addons), count.index)
+}
+
+resource "aws_eks_access_entry" "this" {
+  cluster_name      = aws_eks_cluster.this.name
+  principal_arn     = data.terraform_remote_state.iam.outputs.arn
+  kubernetes_groups = var.q.groups != "" ? split(",", var.q.groups) : null
+  type              = var.q.entry_type
+}
+
+resource "aws_eks_access_policy_association" "this" {
+  cluster_name  = aws_eks_cluster.this.name
+  principal_arn = data.terraform_remote_state.iam.outputs.arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
+
+  access_scope {
+    type       = var.q.access_type
+    namespaces = var.q.namespaces != "" ? split(",", var.q.namespaces) : null
+  }
+}
 
 resource "aws_cloudwatch_log_group" "this" {
   name              = format("/aws/eks/%s/cluster", aws_eks_cluster.this.name)

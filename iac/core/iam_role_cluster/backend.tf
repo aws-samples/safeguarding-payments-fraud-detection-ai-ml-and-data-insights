@@ -5,6 +5,6 @@ terraform {
   backend "s3" {
     skip_region_validation = true
 
-    key = "terraform/github/spf/iam_role_eks/terraform.tfstate"
+    key = "terraform/github/spf/iam_role_cluster/terraform.tfstate"
   }
 }

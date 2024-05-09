@@ -25,6 +25,10 @@ output "platform_version" {
   value = aws_eks_cluster.this.platform_version
 }
 
+output "version" {
+  value = aws_eks_cluster.this.version
+}
+
 output "status" {
   value = aws_eks_cluster.this.status
 }
@@ -39,4 +43,12 @@ output "node_security_group_ids" {
 
 output "certificate_authority" {
   value = aws_eks_cluster.this.certificate_authority.0.data
+}
+
+output "service_ipv4_cidr" {
+  value = aws_eks_cluster.this.kubernetes_network_config.0.service_ipv4_cidr
+}
+
+output "service_ipv6_cidr" {
+  value = aws_eks_cluster.this.kubernetes_network_config.0.service_ipv6_cidr
 }
