@@ -31,10 +31,7 @@ resource "aws_eks_fargate_profile" "this" {
   cluster_name           = aws_eks_cluster.this.name
   pod_execution_role_arn = data.terraform_remote_state.iam_fargate.outputs.arn
   fargate_profile_name   = var.q.namespace
-  subnet_ids             = concat(
-    data.terraform_remote_state.subnet.outputs.nat_subnet_ids,
-    data.terraform_remote_state.subnet.outputs.igw_subnet_ids
-  )
+  subnet_ids             = data.terraform_remote_state.subnet.outputs.nat_subnet_ids
 
   selector {
     namespace = var.q.namespace
