@@ -7,7 +7,7 @@ resource "aws_vpc_endpoint" "this" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   service_name        = format("com.amazonaws.%s.%s", data.aws_region.this.name, element(local.interfaces, count.index))
-  subnet_ids          = concat(
+  subnet_ids          = merge(
     data.terraform_remote_state.sg.outputs.igw_subnet_ids,
     data.terraform_remote_state.sg.outputs.nat_subnet_ids
   )
