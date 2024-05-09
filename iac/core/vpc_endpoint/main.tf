@@ -9,12 +9,12 @@ resource "aws_vpc_endpoint" "this" {
   service_name        = format("com.amazonaws.%s.%s", data.aws_region.this.name, element(local.interfaces, count.index))
   subnet_ids          = local.subnet_ids
   security_group_ids  = [data.terraform_remote_state.sg.outputs.id]
-  depends_on = [aws_vpc_endpoint.that]
+  depends_on          = [aws_vpc_endpoint.that]
 }
 
 resource "aws_vpc_endpoint" "that" {
-  count               = trimspace(element(local.gateways, 0)) != "" ? length(local.gateways) : 0
-  vpc_id              = data.terraform_remote_state.sg.outputs.vpc_id
-  vpc_endpoint_type   = "Gateway"
-  service_name        = format("com.amazonaws.%s.%s", data.aws_region.this.name, element(local.gateways, count.index))
+  count             = trimspace(element(local.gateways, 0)) != "" ? length(local.gateways) : 0
+  vpc_id            = data.terraform_remote_state.sg.outputs.vpc_id
+  vpc_endpoint_type = "Gateway"
+  service_name      = format("com.amazonaws.%s.%s", data.aws_region.this.name, element(local.gateways, count.index))
 }
