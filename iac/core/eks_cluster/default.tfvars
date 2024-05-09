@@ -3,7 +3,7 @@
 
 q = {
   name           = "spf-eks-cluster"
-  namespace      = "default"
+  namespace      = "kube-system"
   version        = "1.29"
   public         = true
   private        = true
