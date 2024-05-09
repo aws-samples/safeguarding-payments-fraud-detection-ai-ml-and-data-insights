@@ -66,7 +66,3 @@ resource "aws_eks_access_policy_association" "this" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "this" {
-  name              = format("/aws/eks/%s/cluster", aws_eks_cluster.this.name)
-  retention_in_days = var.q.retention
-}

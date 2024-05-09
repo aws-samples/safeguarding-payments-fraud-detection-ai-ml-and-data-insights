@@ -21,5 +21,4 @@ q = {
   access_type    = "cluster"
   namespaces     = ""
   log_types      = "api,audit,authenticator,controllerManager,scheduler"
-  retention      = 7
 }
