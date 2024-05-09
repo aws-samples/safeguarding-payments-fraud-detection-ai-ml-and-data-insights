@@ -65,4 +65,3 @@ resource "aws_eks_access_policy_association" "this" {
     namespaces = var.q.namespaces != "" ? split(",", var.q.namespaces) : null
   }
 }
-

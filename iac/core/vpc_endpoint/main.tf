@@ -8,8 +8,8 @@ resource "aws_vpc_endpoint" "this" {
   private_dns_enabled = true
   service_name        = format("com.amazonaws.%s.%s", data.aws_region.this.name, element(local.interfaces, count.index))
   subnet_ids          = merge(
-    data.terraform_remote_state.sg.outputs.igw_subnet_ids,
-    data.terraform_remote_state.sg.outputs.nat_subnet_ids
+    data.terraform_remote_state.subnet.outputs.igw_subnet_ids,
+    data.terraform_remote_state.subnet.outputs.nat_subnet_ids
   )
   security_group_ids  = [data.terraform_remote_state.sg.outputs.id]
   depends_on = [aws_vpc_endpoint.that]

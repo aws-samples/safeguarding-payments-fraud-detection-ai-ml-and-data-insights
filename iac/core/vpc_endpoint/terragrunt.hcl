@@ -5,3 +5,8 @@ dependency "sg" {
   config_path  = "../security_group"
   skip_outputs = true
 }
+
+dependency "subnet" {
+  config_path  = "../vpc_subnet"
+  skip_outputs = true
+}
