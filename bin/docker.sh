@@ -4,33 +4,35 @@ help()
 {
   echo "Build image based on Dockerfile and push it to private container registry"
   echo
-  echo "Syntax: docker.sh [-q|r|p|t|s|d|f]"
+  echo "Syntax: docker.sh [-d|f|q|r|p|t|s]"
   echo "Options:"
+  echo "d     Specify directory (e.g. app/fraud)"
+  echo "f     Specify Dockerfile (e.g. Dockerfile)"
   echo "q     Specify repository name (e.g. spf-fraud)"
   echo "r     Specify AWS region (e.g. us-east-1)"
   echo "p     Specify platform (e.g. linux/arm64)"
   echo "t     Specify version (e.g. latest)"
   echo "s     Specify CI/CD role name (e.g. spf-cicd-assume-role-abcd1234)"
-  echo "d     Specify directory (e.g. app/fraud)"
-  echo "f     Specify Dockerfile (e.g. Dockerfile)"
   echo
 }
 
 set -o pipefail
 
-SPF_REPOSITORY=""
-SPF_REGION=""
-SPF_VERSION="latest"
-SPF_PLATFORM="linux/arm64"
-SPF_ROLE_NAME=""
 DIRECTORY="app/fraud"
 DOCKERFILE="Dockerfile"
+SPF_ROLE_NAME=""
+SPF_PLATFORM="linux/arm64"
+SPF_VERSION="latest"
 
-while getopts "h:q:r:p:t:s:d:f:" option; do
+while getopts "h:d:f:q:r:p:t:s:" option; do
   case $option in
     h)
       help
       exit;;
+    d)
+      DIRECTORY="$OPTARG";;
+    f)
+      DOCKERFILE="$OPTARG";;
     q)
       SPF_REPOSITORY="$OPTARG";;
     r)
@@ -41,10 +43,6 @@ while getopts "h:q:r:p:t:s:d:f:" option; do
       SPF_VERSION="$OPTARG";;
     s)
       SPF_ROLE_NAME="$OPTARG";;
-    d)
-      DIRECTORY="$OPTARG";;
-    f)
-      DOCKERFILE="$OPTARG";;
     \?)
       echo "[ERROR] invalid option"
       echo
@@ -53,7 +51,6 @@ while getopts "h:q:r:p:t:s:d:f:" option; do
   esac
 done
 
-aws --version > /dev/null 2>&1 || { pip install awscli; }
 aws --version > /dev/null 2>&1 || { echo "[ERROR] aws is missing. aborting..."; exit 1; }
 docker --version > /dev/null 2>&1 || { echo "[ERROR] docker is missing. aborting..."; exit 1; }
 
@@ -104,8 +101,13 @@ if [ -n "${SPF_ROLE_NAME}" ]; then
   OPTIONS="${OPTIONS} --build-arg AWS_SESSION_TOKEN=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.SessionToken')"
 fi
 
-echo "[INFO] docker build -t ${SPF_REPOSITORY}:${SPF_VERSION} -f ${WORKDIR}/${DOCKERFILE} ${WORKDIR}/${DIRECTORY}/ --platform ${SPF_PLATFORM}"
-docker build -t "${SPF_REPOSITORY}:${SPF_VERSION}" -f "${WORKDIR}/${DOCKERFILE}" "${WORKDIR}/${DIRECTORY}/" --platform "${SPF_PLATFORM}" ${OPTIONS} || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
+DOCKERDIR="$( cd "${WORKDIR}/${DIRECTORY}/" > /dev/null 2>&1 || exit 1; pwd -P )"
+while [ "${DOCKERDIR}" != "${WORKDIR}" ] && [ ! -f "${DOCKERDIR}/${DOCKERFILE}" ]; do
+  DOCKERDIR="$( cd "${DOCKERDIR}/../" > /dev/null 2>&1 || exit 1; pwd -P )"
+done
+
+echo "[INFO] docker build -t ${SPF_REPOSITORY}:${SPF_VERSION} -f ${DOCKERDIR}/${DOCKERFILE} ${WORKDIR}/${DIRECTORY}/ --platform ${SPF_PLATFORM}"
+docker build -t "${SPF_REPOSITORY}:${SPF_VERSION}" -f "${DOCKERDIR}/${DOCKERFILE}" "${WORKDIR}/${DIRECTORY}/" --platform "${SPF_PLATFORM}" ${OPTIONS} || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
 
 echo "[INFO] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 docker tag "${SPF_REPOSITORY}:${SPF_VERSION}" "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}" || { echo "[ERROR] docker tag failed. aborting..."; exit 1; }
