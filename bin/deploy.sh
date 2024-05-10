@@ -106,7 +106,7 @@ case ${SPF_DIR} in app*)
   fi
   echo "[DEBUG] SPF_RESULT: ${SPF_RESULT}"
 
-  ./docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
+  ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
 esac
 
 ##########################################################################
