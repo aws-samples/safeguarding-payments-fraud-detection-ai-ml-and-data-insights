@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  labels:
+    app: payment-fraud-detect-deploy
+  name: payment-data-collector
+  namespace: payment-fraud-detect-app
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+         labels:
+          job: payment-data-collector-job
+        spec:
+          containers:
+          - image: public.ecr.aws/s5s3y9s1/payment-fraud-app:latest
+            name: payment-fraud-detect-deploy
+            command: ["java"]
+            args: ["-jar", "/app/runner.jar"]
+            ports:
+            - containerPort: 8080
+            volumeMounts:
+              - name: data
+                mountPath: /data    
+            resources:
+          restartPolicy: OnFailure
+          volumes:
+          - name: data
+            emptyDir:
+              sizeLimit: 500Mi   
+          
