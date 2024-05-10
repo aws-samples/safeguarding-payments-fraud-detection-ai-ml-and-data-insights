@@ -102,7 +102,6 @@ case ${SPF_DIR} in app*)
       --image-tag-mutability MUTABLE \
       --image-scanning-configuration scanOnPush=true \
       --encryption-configuration encryptionType=KMS
-      || { echo "[ERROR] creating new ecr repository failed. aborting..."; exit 1; }
     )
   fi
   echo "[DEBUG] SPF_RESULT: ${SPF_RESULT}"
