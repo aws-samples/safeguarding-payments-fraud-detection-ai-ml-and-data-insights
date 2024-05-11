@@ -1,15 +1,7 @@
-# Usage
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 #
-# To build image - 
-# finch build  -t fraud-app .   
-# OR 
-# docker build  -t fraud-app .
-
-# To Run
-# finch run -it --rm fraud-app 
-# OR
-# docker run -it --rm fraud-app 
-
 # Build stage
 #
 FROM maven AS build
