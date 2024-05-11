@@ -4,7 +4,7 @@
 q = {
   name            = "spf-eks"
   description     = "SPF EKS NODE"
-  namespaces      = "spf-data-collector,spf-postgres"
+  namespaces      = "spf-app-data-collector,spf-app-postgres"
   ami_type        = "AL2_ARM_64"
   capacity_type   = "ON_DEMAND"
   instance_types  = "t4g.medium,t4g.micro"
