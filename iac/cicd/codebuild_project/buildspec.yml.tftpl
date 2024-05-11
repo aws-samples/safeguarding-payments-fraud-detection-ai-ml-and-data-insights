@@ -9,9 +9,6 @@ phases:
       - if [ -d "temp" ]; then cp -R temp/ $CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/; rm -rf temp; fi
       - cd $CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/
       - if [ ! -z "$SPF_GITHUB_BRANCH" ]; then git checkout $SPF_GITHUB_BRANCH; fi
-      - terraform -v > /dev/null 2>&1 || { wget https://releases.hashicorp.com/terraform/1.8.0/terraform_1.8.0_linux_arm64.zip; unzip terraform_*.zip; mv terraform $CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/bin/terraform; }
-      - terragrunt -v > /dev/null 2>&1 || { wget https://github.com/gruntwork-io/terragrunt/releases/download/v0.57.0/terragrunt_linux_arm64; chmod 0755 terragrunt_*; mv terragrunt_* $CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/bin/terragrunt; }
-      - kubectl version --client > /dev/null 2>&1 || { wget https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl; chmod 0755 kubectl; mv kubectl $CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/bin/kubectl; }
       - AWS_ASSUME_ROLE=$(aws sts assume-role --role-arn ${role_arn} --role-session-name spf-`date '+%Y-%m-%d-%H-%M-%S'`) && export AWS_ASSUME_ROLE
       - AWS_ACCESS_KEY_ID=$(echo "$AWS_ASSUME_ROLE" | jq -r '.Credentials.AccessKeyId') && export AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY=$(echo "$AWS_ASSUME_ROLE" | jq -r '.Credentials.SecretAccessKey') && export AWS_SECRET_ACCESS_KEY

@@ -48,10 +48,7 @@ while getopts "h:a:b:c:d:e:i:r:s:" option; do
   esac
 done
 
-aws --version > /dev/null 2>&1 || { echo "[ERROR] aws is missing. aborting..."; exit 1; }
-kubectl version --client > /dev/null 2>&1 || { echo "[ERROR] kubectl is missing. aborting..."; exit 1; }
-terraform -version > /dev/null 2>&1 || { echo "[ERROR] terraform is missing. aborting..."; exit 1; }
-terragrunt -version > /dev/null 2>&1 || { echo "[ERROR] terragrunt is missing. aborting..."; exit 1; }
+
 
 if [ -z "${SPF_REGION}" ] && [ -n "${AWS_DEFAULT_REGION}" ]; then SPF_REGION="${AWS_DEFAULT_REGION}"; fi
 if [ -z "${SPF_REGION}" ] && [ -n "${AWS_REGION}" ]; then SPF_REGION="${AWS_REGION}"; fi
@@ -61,13 +58,12 @@ if [ -z "${SPF_REGION}" ]; then
   echo "[ERROR] SPF_REGION is missing..."; exit 1;
 fi
 
-WORKDIR="$( cd "$(dirname "$0")/../" > /dev/null 2>&1 || exit 1; pwd -P )"
-
 if [ -z "${SPF_DIR}" ]; then
   echo "[DEBUG] SPF_DIR: ${SPF_DIR}"
   echo "[ERROR] SPF_DIR is missing..."; exit 1;
 fi
 
+WORKDIR="$( cd "$(dirname "$0")/../" > /dev/null 2>&1 || exit 1; pwd -P )"
 if [ ! -d "${WORKDIR}/${SPF_DIR}/" ]; then
   echo "[DEBUG] SPF_DIR: ${SPF_DIR}"
   echo "[ERROR] ${WORKDIR}/${SPF_DIR}/ does not exist..."; exit 1;
@@ -82,6 +78,9 @@ case ${SPF_DIR} in app*)
   # 3. run kubectl on manifest yaml files (leverage templates) #
   ##############################################################
   "
+
+  aws --version > /dev/null 2>&1 || { wget -q https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip; unzip awscli-exe-linux-aarch64.zip; sudo ./aws/install; ln -s /usr/local/bin/aws ${WORKDIR}/bin/aws; }
+  kubectl version --client > /dev/null 2>&1 || { wget -q https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl; chmod 0755 kubectl; mv kubectl ${WORKDIR}/bin/kubectl; }
 
   if [ -n "${SPF_ECR}" ]; then
     SPF_ECR_NAME="${SPF_ECR}"
@@ -109,18 +108,38 @@ case ${SPF_DIR} in app*)
       --image-scanning-configuration scanOnPush=true \
       --encryption-configuration encryptionType=KMS
     )
+    SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".repository.repositoryName")
+  else
+    SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".[0].repositoryName")
   fi
 
   echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR}"
   ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
 
-  if [ -d "${WORKDIR}/${SPF_DIR}/k8s/" ]; then
+  K8SDIR=${WORKDIR}/${SPF_DIR}/k8s
+  if [ -d "${K8SDIR}" ]; then
     if [ -n "${SPF_EKS_NAME}" ]; then
       echo "[EXEC] aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME}"
-      aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME} || { echo "[ERROR] aws eks update kubeconfig failed. aborting..."; exit 1; }
+      aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME} || { echo "[ERROR] aws eks update-kubeconfig failed. aborting..."; exit 1; }
     fi
 
-    # @TODO: transform .tpl files to .yml and run kubectl apply -f *.yml
+    export SPF_ECR_URI="${SPF_ECR_URI}"
+    echo "[EXEC] env > ${K8SDIR}/config.txt"
+    env > ${K8SDIR}/config.txt
+
+    for i in "${K8SDIR}"/*; do
+      if [ "${i: -4}" == ".tpl" ]; then
+        echo "[EXEC] ${WORKDIR}/bin/templater.sh ${i} -f ${K8SDIR}/config.txt -s > ${i/.tpl/.yml}"
+        ${WORKDIR}/bin/templater.sh ${i} -f ${K8SDIR}/config.txt -s > ${i/.tpl/.yml}
+        i=${i/.tpl/.yml}
+      fi
+
+      if [ "${i: -4}" == ".yml" ] || [ "${i: -5}" == ".yaml" ]; then
+        echo "[EXEC] kubectl apply -f ${i}"
+        kubectl apply -f ${i}
+        sleep 5
+      fi
+    done
   fi
 esac
 
@@ -132,6 +151,9 @@ case ${SPF_DIR} in iac*)
   # 2. run terragrunt commands across specific directory          #
   #################################################################
   "
+
+  terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.8.3/terraform_1.8.3_linux_arm64.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
+  terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.58.4/terragrunt_linux_arm64; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
 
   if [ -z "${SPF_BUCKET}" ]; then
     echo "[DEBUG] SPF_BUCKET: ${SPF_BUCKET}"
