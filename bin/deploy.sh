@@ -123,7 +123,7 @@ case ${SPF_DIR} in app*)
       aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME} || { echo "[ERROR] aws eks update-kubeconfig failed. aborting..."; exit 1; }
     fi
 
-    if [ -z "${SPF_ECR_NAME}" ]; then
+    if [ -n "${SPF_ECR_NAME}" ]; then
       echo "[EXEC] kubectl create namespace "${SPF_ECR_NAME}" --dry-run=client -o yaml | kubectl apply -f -"
       kubectl create namespace "${SPF_ECR_NAME}" --dry-run=client -o yaml | kubectl apply -f -
 

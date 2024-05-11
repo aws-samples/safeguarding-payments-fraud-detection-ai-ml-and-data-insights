@@ -86,14 +86,14 @@ ENDPOINT="${ACCOUNT}.dkr.ecr.${SPF_REGION}.amazonaws.com"
 DOCKER_CONFIG="${WORKDIR}/.docker"
 OPTIONS=""
 
-echo "[INFO] echo {\"credsStore\":\"ecr-login\"} > ${DOCKER_CONFIG}/config.json"
+echo "[EXEC] echo {\"credsStore\":\"ecr-login\"} > ${DOCKER_CONFIG}/config.json"
 mkdir -p "${DOCKER_CONFIG}" && touch "${DOCKER_CONFIG}/config.json" && echo "{\"credsStore\":\"ecr-login\"}" > "${DOCKER_CONFIG}/config.json"
 
-echo "[INFO] aws ecr get-login-password --region ${SPF_REGION} | docker login --username AWS --password-stdin ${ENDPOINT}"
+echo "[EXEC] aws ecr get-login-password --region ${SPF_REGION} | docker login --username AWS --password-stdin ${ENDPOINT}"
 aws ecr get-login-password --region "${SPF_REGION}" | docker login --username AWS --password-stdin "${ENDPOINT}" || { echo "[ERROR] docker login failed. aborting..."; exit 1; }
 
 if [ -n "${SPF_ROLE_NAME}" ]; then
-  echo "[INFO] aws sts assume-role --role-arn arn:aws:iam::${ACCOUNT}:role/${SPF_ROLE_NAME} --role-session-name ${ACCOUNT}"
+  echo "[EXEC] aws sts assume-role --role-arn arn:aws:iam::${ACCOUNT}:role/${SPF_ROLE_NAME} --role-session-name ${ACCOUNT}"
   ASSUME_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::${ACCOUNT}:role/${SPF_ROLE_NAME}" --role-session-name "${ACCOUNT}")
   OPTIONS="${OPTIONS} --build-arg AWS_DEFAULT_REGION=${SPF_REGION}"
   OPTIONS="${OPTIONS} --build-arg AWS_ACCESS_KEY_ID=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.AccessKeyId')"
@@ -106,20 +106,15 @@ while [ "${DOCKERDIR}" != "${WORKDIR}" ] && [ ! -f "${DOCKERDIR}/${DOCKERFILE}" 
   DOCKERDIR="$( cd "${DOCKERDIR}/../" > /dev/null 2>&1 || exit 1; pwd -P )"
 done
 
-echo "[INFO] docker build -t ${SPF_REPOSITORY}:${SPF_VERSION} -f ${DOCKERDIR}/${DOCKERFILE} ${WORKDIR}/${DIRECTORY}/ --platform ${SPF_PLATFORM}"
+echo "[EXEC] docker build -t ${SPF_REPOSITORY}:${SPF_VERSION} -f ${DOCKERDIR}/${DOCKERFILE} ${WORKDIR}/${DIRECTORY}/ --platform ${SPF_PLATFORM}"
 docker build -t "${SPF_REPOSITORY}:${SPF_VERSION}" -f "${DOCKERDIR}/${DOCKERFILE}" "${WORKDIR}/${DIRECTORY}/" --platform "${SPF_PLATFORM}" ${OPTIONS} || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
 
-echo "[INFO] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
+echo "[EXEC] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 docker tag "${SPF_REPOSITORY}:${SPF_VERSION}" "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}" || { echo "[ERROR] docker tag failed. aborting..."; exit 1; }
 
-echo "[INFO] docker push ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
+echo "[EXEC] docker push ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 # OUTPUT=$(docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}") || { echo "[ERROR] docker push failed. aborting..."; exit 1; }
 
 # echo "[INFO] OUTPUT: ${OUTPUT}"
 # IFS=' ' read -ra ARR <<< "$(echo "${OUTPUT}" | tr '\n' ' ')"
-
-# if [ -n "${UPDATE}" ] && [ "${UPDATE}" == "true" ]; then
-#   echo "[INFO] aws lambda update-function-code --region ${SPF_REGION} --function-name ${SPF_REPOSITORY} --image-uri ${ENDPOINT}/${SPF_REPOSITORY}@${ARR[${#ARR[@]} - 3]}"
-#   aws lambda update-function-code --region "${SPF_REGION}" --function-name "${SPF_REPOSITORY}" --image-uri "${ENDPOINT}/${SPF_REPOSITORY}@${ARR[${#ARR[@]} - 3]}"
-# fi
