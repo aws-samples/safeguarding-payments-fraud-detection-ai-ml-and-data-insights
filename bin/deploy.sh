@@ -48,8 +48,6 @@ while getopts "h:a:b:c:d:e:i:r:s:" option; do
   esac
 done
 
-
-
 if [ -z "${SPF_REGION}" ] && [ -n "${AWS_DEFAULT_REGION}" ]; then SPF_REGION="${AWS_DEFAULT_REGION}"; fi
 if [ -z "${SPF_REGION}" ] && [ -n "${AWS_REGION}" ]; then SPF_REGION="${AWS_REGION}"; fi
 
@@ -125,10 +123,10 @@ case ${SPF_DIR} in app*)
 
     if [ -n "${SPF_ECR_NAME}" ]; then
       echo "[EXEC] kubectl create namespace "${SPF_ECR_NAME}" --dry-run=client -o yaml | kubectl apply -f -"
-      kubectl create namespace "${SPF_ECR_NAME}" --dry-run=client -o yaml | kubectl apply -f -
+      kubectl create namespace "${SPF_ECR_NAME}" --dry-run=client -o yaml | kubectl apply -f - || { echo "[ERROR] kubectl create namespace failed. aborting..."; exit 1; }
 
       echo "[EXEC] kubectl config set-context --current --namespace=${SPF_ECR_NAME}"
-      kubectl config set-context --current --namespace=${SPF_ECR_NAME}
+      kubectl config set-context --current --namespace=${SPF_ECR_NAME} || { echo "[ERROR] kubectl config set-context failed. aborting..."; exit 1; }
     fi
 
     export SPF_ECR_URI="${SPF_ECR_URI}"
@@ -145,7 +143,7 @@ case ${SPF_DIR} in app*)
 
       if [ "${i: -4}" == ".yml" ] || [ "${i: -5}" == ".yaml" ]; then
         echo "[EXEC] kubectl apply -f ${i}"
-        kubectl apply -f ${i}
+        kubectl apply -f ${i} || { echo "[ERROR] kubectl apply failed. aborting..."; exit 1; }
         sleep 5
       fi
     done
