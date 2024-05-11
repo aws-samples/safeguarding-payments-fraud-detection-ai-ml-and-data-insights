@@ -73,13 +73,16 @@ if [ ! -d "${WORKDIR}/${SPF_DIR}/" ]; then
   echo "[ERROR] ${WORKDIR}/${SPF_DIR}/ does not exist..."; exit 1;
 fi
 
-##########################################################################
-# Deployment Process for Application Code                                #
-# 1. create ECR repo if missing (aws cli)                                #
-# 2. build image and push to ECR (docker cli)                            #
-# 3. run kubectl on manifest (leverage templates, not hard-coded values) #
-##########################################################################
 case ${SPF_DIR} in app*)
+  echo "
+  ##########################################################################
+  # Deployment Process for Application Code                                #
+  # 1. create ECR repo if missing (aws cli)                                #
+  # 2. build image and push to ECR (docker cli)                            #
+  # 3. run kubectl on manifest (leverage templates, not hard-coded values) #
+  ##########################################################################
+  "
+
   if [ -n "${SPF_ECR}" ]; then
     SPF_ECR_NAME="${SPF_ECR}"
   else
@@ -119,12 +122,15 @@ case ${SPF_DIR} in app*)
   fi
 esac
 
-##########################################################################
-# Deployment Process for Infrastructure as Code                          #
-# 1. pass through environment variables as terraform variables           #
-# 2. run terragrunt commands across specific directory                   #
-##########################################################################
 case ${SPF_DIR} in iac*)
+  echo "
+  ##########################################################################
+  # Deployment Process for Infrastructure as Code                          #
+  # 1. pass through environment variables as terraform variables           #
+  # 2. run terragrunt commands across specific directory                   #
+  ##########################################################################
+  "
+
   if [ -z "${SPF_BUCKET}" ]; then
     echo "[DEBUG] SPF_BUCKET: ${SPF_BUCKET}"
     echo "[ERROR] SPF_BUCKET is missing..."; exit 1;
