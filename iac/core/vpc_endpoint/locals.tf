@@ -5,7 +5,7 @@ locals {
   gateways   = split(",", element(split(":", try(var.vpce_mapping, ":")), 0))
   interfaces = split(",", element(split(":", try(var.vpce_mapping, ":")), 1))
   subnet_ids = (
-    data.terraform_remote_state.subnet.outputs.nat_subnet_ids != [] ?
+    length(data.terraform_remote_state.subnet.outputs.nat_subnet_ids) > 0 ?
     data.terraform_remote_state.subnet.outputs.nat_subnet_ids :
     data.terraform_remote_state.subnet.outputs.igw_subnet_ids
   )
