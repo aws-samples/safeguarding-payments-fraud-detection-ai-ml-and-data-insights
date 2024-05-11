@@ -1,6 +1,49 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+resource "aws_eks_fargate_profile" "this" {
+  count                  = var.eks_node_type == "fargate" ? length(local.namespaces) : 0
+  cluster_name           = data.terraform_remote_state.eks.outputs.id
+  pod_execution_role_arn = data.terraform_remote_state.iam_fargate.outputs.arn
+  fargate_profile_name   = element(local.namespaces, count.index)
+  subnet_ids             = data.terraform_remote_state.subnet.outputs.nat_subnet_ids
+
+  selector {
+    namespace = format("%s-%s-%s", element(local.namespaces, count.index), data.aws_region.this.name, local.spf_gid)
+  }
+}
+
+resource "aws_eks_node_group" "this" {
+  count           = var.eks_node_type == "eks-managed" ? 1 : 0
+  cluster_name    = data.terraform_remote_state.eks.outputs.id
+  node_group_name = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
+  node_role_arn   = data.terraform_remote_state.iam_node.outputs.arn
+  subnet_ids      = local.subnet_ids
+
+  ami_type        = var.q.ami_type
+  capacity_type   = var.q.capacity_type
+  instance_types  = split(",", var.q.instance_types)
+  disk_size       = var.q.disk_size
+  labels          = local.labels == {"" = ""} ? {} : local.labels
+  release_version = var.q.release_version
+  version         = var.q.version
+
+  scaling_config {
+    desired_size = var.q.desired_size
+    min_size     = var.q.min_size
+    max_size     = var.q.max_size
+  }
+
+  update_config {
+    max_unavailable            = var.q.max_unavailable
+    max_unavailable_percentage = var.q.max_percentage
+  }
+
+  lifecycle {
+    ignore_changes = [scaling_config[0].desired_size]
+  }
+}
+
 module "self_managed_node_group" {
   count                = var.eks_node_type == "self-managed" ? 1 : 0
   source               = "terraform-aws-modules/eks/aws//modules/self-managed-node-group"
@@ -53,47 +96,16 @@ module "ebs_kms_key" {
   count       = var.eks_node_type == "self-managed" ? 1 : 0
   source      = "terraform-aws-modules/kms/aws"
   version     = "2.2.1"
-  description = "Customer managed key to encrypt EKS managed node group volumes"
+  description = var.q.description
   aliases     = [format("eks/%s-%s-%s/ebs", var.q.name, data.aws_region.this.name, local.spf_gid)]
 
   key_administrators = [
-    data.terraform_remote_state.iam.outputs.arn,
+    data.terraform_remote_state.iam_node.outputs.arn,
     format("arn:aws:iam::%s:root", data.aws_caller_identity.this.account_id)
   ]
 
   key_service_roles_for_autoscaling = [
-    data.terraform_remote_state.iam.outputs.arn,
+    data.terraform_remote_state.iam_node.outputs.arn,
     format("arn:aws:iam::%s:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling", data.aws_caller_identity.this.account_id),
   ]
-}
-
-resource "aws_eks_node_group" "this" {
-  count           = var.eks_node_type == "eks-managed" ? 1 : 0
-  cluster_name    = data.terraform_remote_state.eks.outputs.id
-  node_group_name = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
-  node_role_arn   = data.terraform_remote_state.iam.outputs.arn
-  subnet_ids      = local.subnet_ids
-
-  ami_type        = var.q.ami_type
-  capacity_type   = var.q.capacity_type
-  instance_types  = split(",", var.q.instance_types)
-  disk_size       = var.q.disk_size
-  labels          = local.labels == {"" = ""} ? {} : local.labels
-  release_version = var.q.release_version
-  version         = var.q.version
-
-  scaling_config {
-    desired_size = var.q.desired_size
-    min_size     = var.q.min_size
-    max_size     = var.q.max_size
-  }
-
-  update_config {
-    max_unavailable            = var.q.max_unavailable
-    max_unavailable_percentage = var.q.max_percentage 
-  }
-
-  lifecycle {
-    ignore_changes = [scaling_config[0].desired_size]
-  }
 }

@@ -3,9 +3,11 @@
 
 q = {
   name            = "spf-eks"
+  description     = "SPF EKS NODE"
+  namespaces      = "spf-data-collector,spf-postgres"
   ami_type        = "AL2_ARM_64"
   capacity_type   = "ON_DEMAND"
-  instance_types  = "t4g.micro,t4g.medium"
+  instance_types  = "t4g.medium,t4g.micro"
   disk_size       = 50
   disk_type       = "gp2"
   desired_size    = 1

@@ -65,10 +65,10 @@ variable "eks_cluster_name" {
 
 variable "eks_node_type" {
   type    = string
-  default = "self-managed"
+  default = "fargate"
   validation {
-    condition     = contains(["self-managed", "eks-managed", "fargate"], var.eks_node_type)
-    error_message = "Valid values: self-managed, eks-managed, fargate"
+    condition     = contains(["fargate", "eks-managed", "self-managed"], var.eks_node_type)
+    error_message = "Valid values: fargate, eks-managed, self-managed"
   }
 }
 
