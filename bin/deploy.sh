@@ -49,7 +49,7 @@ while getopts "h:a:b:c:d:e:i:r:s:" option; do
 done
 
 aws --version > /dev/null 2>&1 || { echo "[ERROR] aws is missing. aborting..."; exit 1; }
-# kubectl version > /dev/null 2>&1 || { echo "[ERROR] kubectl is missing. aborting..."; exit 1; }
+kubectl version --client > /dev/null 2>&1 || { echo "[ERROR] kubectl is missing. aborting..."; exit 1; }
 terraform -version > /dev/null 2>&1 || { echo "[ERROR] terraform is missing. aborting..."; exit 1; }
 terragrunt -version > /dev/null 2>&1 || { echo "[ERROR] terragrunt is missing. aborting..."; exit 1; }
 
@@ -75,12 +75,12 @@ fi
 
 case ${SPF_DIR} in app*)
   echo "
-  ##########################################################################
-  # Deployment Process for Application Code                                #
-  # 1. create ECR repo if missing (aws cli)                                #
-  # 2. build image and push to ECR (docker cli)                            #
-  # 3. run kubectl on manifest (leverage templates, not hard-coded values) #
-  ##########################################################################
+  ##############################################################
+  # Deployment Process for Application Code                    #
+  # 1. create ECR repository if missing (aws cli)              #
+  # 2. build image and push to ECR (docker cli)                #
+  # 3. run kubectl on manifest yaml files (leverage templates) #
+  ##############################################################
   "
 
   if [ -n "${SPF_ECR}" ]; then
@@ -119,16 +119,18 @@ case ${SPF_DIR} in app*)
       echo "[EXEC] aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME}"
       aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME} || { echo "[ERROR] aws eks update kubeconfig failed. aborting..."; exit 1; }
     fi
+
+    # @TODO: transform .tpl files to .yml and run kubectl apply -f *.yml
   fi
 esac
 
 case ${SPF_DIR} in iac*)
   echo "
-  ##########################################################################
-  # Deployment Process for Infrastructure as Code                          #
-  # 1. pass through environment variables as terraform variables           #
-  # 2. run terragrunt commands across specific directory                   #
-  ##########################################################################
+  #################################################################
+  # Deployment Process for Infrastructure as Code                 #
+  # 1. pass specific environment variables as terraform variables #
+  # 2. run terragrunt commands across specific directory          #
+  #################################################################
   "
 
   if [ -z "${SPF_BUCKET}" ]; then
