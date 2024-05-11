@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: spf-data-collector
-  namespace: spf-data-collector-app
+  name: spf-data-collector-app
+  namespace: {{SPF_ECR_NAME}}
   labels:
     app: spf-data-collector-image
 spec:
