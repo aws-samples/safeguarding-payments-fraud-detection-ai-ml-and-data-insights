@@ -95,8 +95,11 @@ case ${SPF_DIR} in app*)
   fi
 
   SPF_QUERY="repositories[?repositoryName==\`${SPF_ECR_NAME}\`]"
+  echo "[EXEC] aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY}"
   SPF_RESULT=$(aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY})
+
   if [ "${SPF_RESULT}" == "[]" ]; then
+    echo "[EXEC] aws ecr create-repository --region ${SPF_REGION} --repository-name ${SPF_ECR_NAME}"
     SPF_RESULT=$(aws ecr create-repository --region ${SPF_REGION} \
       --repository-name ${SPF_ECR_NAME} \
       --image-tag-mutability MUTABLE \
@@ -104,9 +107,16 @@ case ${SPF_DIR} in app*)
       --encryption-configuration encryptionType=KMS
     )
   fi
-  echo "[DEBUG] SPF_RESULT: ${SPF_RESULT}"
 
+  echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR}"
   ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
+
+  if [ -d "${WORKDIR}/${SPF_DIR}/k8s/" ]; then
+    if [ -n "${SPF_EKS_NAME}" ]; then
+      echo "[EXEC] aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME}"
+      aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME} || { echo "[ERROR] aws eks update kubeconfig failed. aborting..."; exit 1; }
+    fi
+  fi
 esac
 
 ##########################################################################

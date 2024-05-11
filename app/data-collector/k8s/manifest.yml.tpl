@@ -1,10 +1,10 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
+  name: spf-data-collector
+  namespace: spf-data-collector-app
   labels:
-    app: payment-fraud-detect-deploy
-  name: payment-data-collector
-  namespace: payment-fraud-detect-app
+    app: spf-data-collector-image
 spec:
   schedule: "*/5 * * * *"
   jobTemplate:
@@ -12,11 +12,11 @@ spec:
       template:
         metadata:
          labels:
-          job: payment-data-collector-job
+          job: spf-data-collector-job
         spec:
           containers:
-          - image: public.ecr.aws/s5s3y9s1/payment-fraud-app:latest
-            name: payment-fraud-detect-deploy
+          - image: ${SPF_ECR_ENDPOINT}/spf-data-collector-${SPF_REGION}-${SPF_GID}:latest
+            name: spf-data-collector-image
             command: ["java"]
             args: ["-jar", "/app/runner.jar"]
             ports:
@@ -30,4 +30,3 @@ spec:
           - name: data
             emptyDir:
               sizeLimit: 500Mi   
-          
