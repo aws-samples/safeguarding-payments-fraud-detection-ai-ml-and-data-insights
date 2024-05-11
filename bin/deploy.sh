@@ -116,9 +116,9 @@ case ${SPF_DIR} in app*)
 
   K8SDIR=${WORKDIR}/${SPF_DIR}/k8s
   if [ -d "${K8SDIR}" ]; then
-    if [ -n "${SPF_EKS_NAME}" ]; then
-      echo "[EXEC] aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME}"
-      aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_NAME} || { echo "[ERROR] aws eks update-kubeconfig failed. aborting..."; exit 1; }
+    if [ -n "${SPF_EKS_CLUSTER_NAME}" ]; then
+      echo "[EXEC] aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_CLUSTER_NAME}"
+      aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_CLUSTER_NAME} || { echo "[ERROR] aws eks update-kubeconfig failed. aborting..."; exit 1; }
     fi
 
     if [ -n "${SPF_ECR_NAME}" ]; then
@@ -183,6 +183,14 @@ case ${SPF_DIR} in iac*)
 
   if [ -n "${SPF_APP_ARN}" ]; then
     OPTIONS="${OPTIONS} -var app_arn=${SPF_APP_ARN}"
+  fi
+
+  if [ -n "${SPF_EKS_CLUSTER_NAME}" ]; then
+    OPTIONS="${OPTIONS} -var eks_cluster_name=${SPF_EKS_CLUSTER_NAME}"
+  fi
+
+  if [ -n "${SPF_EKS_NODE_TYPE}" ]; then
+    OPTIONS="${OPTIONS} -var eks_node_type=${SPF_EKS_NODE_TYPE}"
   fi
 
   if [ -n "${SPF_VPC_ID}" ]; then

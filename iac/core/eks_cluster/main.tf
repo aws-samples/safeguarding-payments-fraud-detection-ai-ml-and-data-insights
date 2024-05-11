@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 resource "aws_eks_cluster" "this" {
-  name     = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
+  name     = local.name
   role_arn = data.terraform_remote_state.iam_cluster.outputs.arn
   version  = var.q.version
 

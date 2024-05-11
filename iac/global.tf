@@ -58,6 +58,11 @@ variable "app_arn" {
   default = ""
 }
 
+variable "eks_cluster_name" {
+  type    = string
+  default = ""
+}
+
 variable "eks_node_type" {
   type    = string
   default = "self-managed"
