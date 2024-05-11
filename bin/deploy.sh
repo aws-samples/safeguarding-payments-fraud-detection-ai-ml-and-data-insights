@@ -129,6 +129,7 @@ case ${SPF_DIR} in app*)
       kubectl config set-context --current --namespace=${SPF_ECR_NAME} || { echo "[ERROR] kubectl config set-context failed. aborting..."; exit 1; }
     fi
 
+    unset AWS_ASSUME_ROLE
     export SPF_ECR_URI="${SPF_ECR_URI}"
     export SPF_ECR_NAME="${SPF_ECR_NAME}"
     echo "[EXEC] env > ${K8SDIR}/config.txt"
