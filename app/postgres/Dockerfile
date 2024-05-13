@@ -3,7 +3,7 @@
 
 FROM postgres:14
 
-RUN apt-get update
+RUN apt update
 RUN apt install -y postgresql-common
 RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 RUN apt install curl ca-certificates
