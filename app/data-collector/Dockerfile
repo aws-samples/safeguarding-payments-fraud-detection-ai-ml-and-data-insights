@@ -5,7 +5,7 @@
 # Build stage
 #
 # FROM maven AS build
-FROM public.ecr.aws/docker/library/maven:3-amazoncorretto-21-al2023 AS build
+FROM public.ecr.aws/docker/library/maven:3-eclipse-temurin-22 AS build
 ENV HOME=/usr/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
