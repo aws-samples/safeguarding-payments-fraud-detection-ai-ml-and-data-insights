@@ -1,29 +1,32 @@
-kind: PersistentVolume # Create a PV
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: postgres-pv-volume # Sets PV's name
+  name: postgres-pv-volume
   labels:
-    type: local # Sets PV's type to local
+    type: local
     app: postgres
 spec:
   storageClassName: manual
   capacity:
-    storage: 1Gi # Sets PV Volume
+    storage: 10Gi
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: "/mtd/data" # Sets the volume's path
+    path: "/mnt/data"
 ---
-kind: PersistentVolumeClaim # Create PVC
+kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: postgres-pv-claim # Sets name of PV
+  name: postgres-pv-claim
   labels:
     app: postgres
 spec:
   storageClassName: manual
   accessModes:
-    - ReadWriteMany # Sets read and write access
+    - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi # Sets volume size
+      storage: 10Gi

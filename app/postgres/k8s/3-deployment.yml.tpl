@@ -1,10 +1,13 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 apiVersion: apps/v1
-kind: Deployment # Create a deployment
+kind: Deployment
 metadata:
   namespace: {{SPF_ECR_NAME}}
-  name: postgres # Set the name of the deployment
+  name: postgres
 spec:
-  replicas: 1 # Set deployment replicas
+  replicas: 1
   selector:
     matchLabels:
       app: postgres
@@ -15,10 +18,10 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:14-alpine # Docker image
+          image: {{SPF_ECR_URI}}:latest
           imagePullPolicy: "IfNotPresent"
           ports:
-            - containerPort: 5432 # Exposing the container port 5432 for PostgreSQL client connections.
+            - containerPort: 5432
           env:
             - name: POSTGRES_USER
               valueFrom:
@@ -26,16 +29,14 @@ spec:
                   name: postgres-secret
                   key: POSTGRES_USER
                   optional:
-                    false # same as default; "postgres-secret" must exist
-                    # and include a key named "username"
+                    false
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
                   optional:
-                    false # same as default; "postgres-secret" must exist
-                    # and include a key named "password"
+                    false
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data

@@ -1,12 +1,14 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 apiVersion: v1
-kind: Service # Create service
+kind: Service
 metadata:
   namespace: {{SPF_ECR_NAME}}
-  name: postgres # Sets the service name
+  name: postgres
   labels:
-    app: postgres # Defines app to create service for
+    app: postgres
 spec:
-  #type:  # Sets the service type
   ports:
     - protocol: TCP
       port: 35432
