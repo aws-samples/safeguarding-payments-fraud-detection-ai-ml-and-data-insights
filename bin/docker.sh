@@ -24,7 +24,7 @@ set -o pipefail
 DIRECTORY="app/fraud"
 DOCKERFILE="Dockerfile"
 SPF_ROLE_NAME=""
-SPF_PLATFORM="linux/arm64"
+SPF_PLATFORM="linux/x86_64"
 SPF_VERSION="latest"
 
 while getopts "h:d:f:q:r:p:t:s:" option; do
