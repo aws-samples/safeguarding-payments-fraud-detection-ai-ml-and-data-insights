@@ -113,10 +113,10 @@ echo "[EXEC] docker buildx build -t ${SPF_REPOSITORY}:${SPF_VERSION} -f ${DOCKER
 docker buildx build -t "${SPF_REPOSITORY}:${SPF_VERSION}" -f "${DOCKERDIR}/${DOCKERFILE}" "${WORKDIR}/${DIRECTORY}/" --platform "${SPF_PLATFORM}" ${OPTIONS} || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
 
 echo "[EXEC] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
-docker buildx tag "${SPF_REPOSITORY}:${SPF_VERSION}" "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}" || { echo "[ERROR] docker tag failed. aborting..."; exit 1; }
+docker tag "${SPF_REPOSITORY}:${SPF_VERSION}" "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}" || { echo "[ERROR] docker tag failed. aborting..."; exit 1; }
 
 echo "[EXEC] docker push ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
-docker buildx push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
+docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 # OUTPUT=$(docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}") || { echo "[ERROR] docker push failed. aborting..."; exit 1; }
 
 # echo "[INFO] OUTPUT: ${OUTPUT}"
