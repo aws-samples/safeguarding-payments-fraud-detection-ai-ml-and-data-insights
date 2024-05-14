@@ -141,8 +141,8 @@ case ${SPF_DIR} in app*)
     unset AWS_ASSUME_ROLE
     export SPF_ECR_URI="${SPF_ECR_URI}"
     export SPF_ECR_NAME="${SPF_ECR_NAME}"
-    echo "[EXEC] env > ${K8SDIR}/config.txt"
-    env > ${K8SDIR}/config.txt
+    echo "[EXEC] env | grep SPF_ > ${K8SDIR}/config.txt"
+    env | grep SPF_ > ${K8SDIR}/config.txt
 
     for i in "${K8SDIR}"/*; do
       if [ "${i: -4}" == ".tpl" ]; then
