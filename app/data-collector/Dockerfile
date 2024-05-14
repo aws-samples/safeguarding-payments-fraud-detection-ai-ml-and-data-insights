@@ -6,7 +6,7 @@
 #
 # FROM maven AS build
 FROM public.ecr.aws/docker/library/maven:amazoncorretto AS build
-ENV HOME=/usr/app
+ENV HOME=/var/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
 ADD . $HOME
@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f $HOME/pom.xml clean compile assem
 # Package stage
 #
 FROM public.ecr.aws/amazoncorretto/amazoncorretto:22-headless
-ARG JAR_FILE=/usr/app/target/*.jar
+ARG JAR_FILE=/var/app/target/*.jar
 COPY --from=build $JAR_FILE /app/runner.jar
 RUN mkdir /root/.aws
 ADD credentials /root/.aws
