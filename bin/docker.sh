@@ -13,7 +13,7 @@ help()
   echo "f     Specify Dockerfile (e.g. Dockerfile)"
   echo "q     Specify repository name (e.g. spf-fraud)"
   echo "r     Specify AWS region (e.g. us-east-1)"
-  echo "p     Specify platform (e.g. linux/arm64)"
+  echo "p     Specify platform (e.g. linux/amd64)"
   echo "t     Specify version (e.g. latest)"
   echo "s     Specify CI/CD role name (e.g. spf-cicd-assume-role-abcd1234)"
   echo
@@ -24,7 +24,7 @@ set -o pipefail
 DIRECTORY="app/fraud"
 DOCKERFILE="Dockerfile"
 SPF_ROLE_NAME=""
-SPF_PLATFORM="linux/x86_64"
+SPF_PLATFORM="linux/amd64"
 SPF_VERSION="latest"
 
 while getopts "h:d:f:q:r:p:t:s:" option; do
