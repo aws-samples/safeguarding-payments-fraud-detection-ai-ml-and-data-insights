@@ -111,9 +111,9 @@ case ${SPF_DIR} in app*)
       --image-scanning-configuration scanOnPush=true \
       --encryption-configuration encryptionType=KMS
     )
-    SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".repository.repositoryName")
+    SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".repository.repositoryUri")
   else
-    SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".[0].repositoryName")
+    SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".[0].repositoryUri")
   fi
 
   if [ -n "${SPF_EKS_ARCH}" ] && [ "${SPF_EKS_ARCH}" == "arm" ]; then
