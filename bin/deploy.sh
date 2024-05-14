@@ -122,8 +122,10 @@ case ${SPF_DIR} in app*)
     SPF_PLATFORM="linux/x86_64"
   fi
 
-  echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_PLATFORM}"
-  ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_PLATFORM} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
+  if [ -z "${SPF_CLEANUP}" ] || [ "${SPF_CLEANUP}" != "true" ]; then
+    echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_PLATFORM}"
+    ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_PLATFORM} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
+  fi
 
   K8SDIR=${WORKDIR}/${SPF_DIR}/k8s
   if [ -d "${K8SDIR}" ]; then
@@ -140,7 +142,6 @@ case ${SPF_DIR} in app*)
       kubectl config set-context --current --namespace=${SPF_ECR_NAME} || { echo "[ERROR] kubectl config set-context failed. aborting..."; exit 1; }
     fi
 
-    unset AWS_ASSUME_ROLE
     export SPF_ECR_URI="${SPF_ECR_URI}"
     export SPF_ECR_NAME="${SPF_ECR_NAME}"
     echo "[EXEC] env | grep SPF_" > ${K8SDIR}/config.txt
