@@ -90,7 +90,7 @@ variable "eks_node_ebs" {
   type    = string
   default = "gp2"
   validation {
-    condition     = contains(["gp2", "gp3"], var.eks_node_arch)
+    condition     = contains(["gp2", "gp3"], var.eks_node_ebs)
     error_message = "Valid values: gp2, gp3"
   }
 }
