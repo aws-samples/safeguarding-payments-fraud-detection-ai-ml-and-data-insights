@@ -72,6 +72,29 @@ variable "eks_node_type" {
   }
 }
 
+variable "eks_node_arch" {
+  type    = string
+  default = "x86"
+  validation {
+    condition     = contains(["x86", "arm", "amd"], var.eks_node_arch)
+    error_message = "Valid values: x86, arm, amd"
+  }
+}
+
+variable "eks_node_ec2" {
+  type    = string
+  default = "t3.medium,t3.xlarge"
+}
+
+variable "eks_node_ebs" {
+  type    = string
+  default = "gp2"
+  validation {
+    condition     = contains(["gp2", "gp3"], var.eks_node_arch)
+    error_message = "Valid values: gp2, gp3"
+  }
+}
+
 variable "vpc_id" {
   type    = string
   default = ""
