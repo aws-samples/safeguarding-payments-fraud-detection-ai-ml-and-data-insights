@@ -117,7 +117,7 @@ case ${SPF_DIR} in app*)
   if [ -n "${SPF_EKS_ARCH}" ] && [ "${SPF_EKS_ARCH}" == "arm" ]; then
     SPF_PLATFORM="linux/arm64"
   else
-    SPF_PLATFORM="linux/x86_64"
+    SPF_PLATFORM="linux/amd64"
   fi
 
   echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_PLATFORM}"
