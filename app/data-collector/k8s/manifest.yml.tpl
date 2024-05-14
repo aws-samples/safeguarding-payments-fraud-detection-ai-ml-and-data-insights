@@ -1,8 +1,11 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: spf-data-collector-app
   namespace: {{SPF_ECR_NAME}}
+  name: spf-data-collector
   labels:
     app: spf-data-collector-image
 spec:
@@ -23,7 +26,7 @@ spec:
             - containerPort: 8080
             volumeMounts:
               - name: data
-                mountPath: /data    
+                mountPath: /data
             resources:
           restartPolicy: OnFailure
           volumes:

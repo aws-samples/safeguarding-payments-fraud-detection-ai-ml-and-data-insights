@@ -4,8 +4,8 @@
 #
 # Build stage
 #
-FROM maven AS build
-# FROM public.ecr.aws/docker/library/maven:3-eclipse-temurin-22 AS build
+# FROM maven AS build
+FROM public.ecr.aws/docker/library/maven:amazoncorretto AS build
 ENV HOME=/usr/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
@@ -21,4 +21,4 @@ COPY --from=build $JAR_FILE /app/runner.jar
 RUN mkdir /root/.aws
 ADD credentials /root/.aws
 EXPOSE 8080
-#ENTRYPOINT java -jar /app/runner.jar
+ENTRYPOINT java -jar /app/runner.jar
