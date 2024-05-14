@@ -154,9 +154,14 @@ case ${SPF_DIR} in app*)
       fi
 
       if [ "${i: -4}" == ".yml" ] || [ "${i: -5}" == ".yaml" ]; then
-        echo "[EXEC] kubectl apply -f ${i}"
-        kubectl apply -f ${i} || { echo "[ERROR] kubectl apply failed. aborting..."; exit 1; }
-        sleep 5
+        if [ -n "${SPF_CLEANUP}" ] && [ "${SPF_CLEANUP}" == "true" ]; then
+          echo "[EXEC] kubectl delete -f ${i}"
+          kubectl delete -f ${i} || { echo "[ERROR] kubectl delete failed. aborting..."; exit 1; }
+        else
+          echo "[EXEC] kubectl apply -f ${i}"
+          kubectl apply -f ${i} || { echo "[ERROR] kubectl apply failed. aborting..."; exit 1; }
+          sleep 5
+        fi
       fi
     done
   fi
