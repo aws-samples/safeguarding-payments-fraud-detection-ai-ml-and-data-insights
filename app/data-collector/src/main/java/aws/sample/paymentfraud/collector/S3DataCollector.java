@@ -2,8 +2,6 @@ package aws.sample.paymentfraud.collector;
 
 import java.util.List;
 
-import org.springframework.stereotype.Component;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -15,7 +13,6 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
-@Component
 public class S3DataCollector implements DataCollector {
     Region region = Region.US_EAST_1;
     SqsClient sqsClient = SqsClient.builder()

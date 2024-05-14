@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.springframework.stereotype.Component;
-
 import com.amazonaws.util.StringUtils;
 
 import software.amazon.awssdk.regions.Region;
@@ -19,7 +17,6 @@ import software.amazon.awssdk.services.ssm.model.ParameterType;
 import software.amazon.awssdk.services.ssm.model.PutParameterRequest;
 import software.amazon.awssdk.services.ssm.model.PutParameterResponse;
 
-@Component
 public class CollectorConfig {
 
     private static final SsmClient ssmClient = SsmClient.builder().region(Region.US_EAST_1).build();

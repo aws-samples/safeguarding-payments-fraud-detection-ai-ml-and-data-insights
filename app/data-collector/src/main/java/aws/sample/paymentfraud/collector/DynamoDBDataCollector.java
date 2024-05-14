@@ -8,16 +8,12 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
-
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
-@RestController
 public class DynamoDBDataCollector implements DataCollector {
 
   private final static Logger LOGGER = Logger.getLogger(DynamoDBDataCollector.class.getName());
@@ -31,10 +27,8 @@ public class DynamoDBDataCollector implements DataCollector {
       .region(Region.US_EAST_1)
       .build();
 
-  @Autowired
   private CollectorConfig collectorConfig = new CollectorConfig();
 
-  @Autowired
   private StorageService storageService = new StorageService();
 
   @Override

@@ -3,7 +3,6 @@ package aws.sample.paymentfraud.collector;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Set;
 import java.util.logging.Level;
@@ -11,7 +10,6 @@ import java.util.logging.Logger;
 
 import org.json.JSONObject;
 import org.json.XML;
-import org.springframework.stereotype.Component;
 
 import com.amazonaws.util.StringUtils;
 
@@ -27,7 +25,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-@Component
 public class StorageService {
 
     private final static Logger LOGGER = Logger.getLogger(StorageService.class.getName());

@@ -22,8 +22,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <!-- <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target> -->
   </properties>
 
   <dependencies>
@@ -150,6 +150,9 @@
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <release>11</release>
+          </configuration>
           <version>3.8.0</version>
         </plugin>
         <plugin>
@@ -164,7 +167,7 @@
             </execution>
         </executions>
         <configuration>
-            <mainClass>aws.sample.paymentfraud.collector.DynamoDBDataCollector</mainClass>
+            <mainClass>aws.sample.paymentfraud.collector.PaymentDataCollector</mainClass>
         </configuration>
     </plugin>
         <plugin>
@@ -179,7 +182,7 @@
           <manifest>
             <addClasspath>true</addClasspath>
             <classpathPrefix>lib/</classpathPrefix>
-            <mainClass>aws.sample.paymentfraud.collector.DynamoDBDataCollector</mainClass>
+            <mainClass>aws.sample.paymentfraud.collector.PaymentDataCollector</mainClass>
           </manifest>
         </archive>
       </configuration>
@@ -206,7 +209,7 @@
       <configuration>
         <archive>
           <manifest>
-            <mainClass>aws.sample.paymentfraud.collector.DynamoDBDataCollector</mainClass>
+            <mainClass>aws.sample.paymentfraud.collector.PaymentDataCollector</mainClass>
           </manifest>
         </archive>
         <descriptorRefs>

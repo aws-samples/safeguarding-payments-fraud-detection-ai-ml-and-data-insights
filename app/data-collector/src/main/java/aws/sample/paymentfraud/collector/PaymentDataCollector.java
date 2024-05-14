@@ -8,21 +8,15 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class PaymentDataCollector implements DataCollector {
 
-    @Autowired
     private CollectorConfig collectorConfig = new CollectorConfig();
 
-    @Autowired
-      private StorageService storageService = new StorageService();
+    private StorageService storageService = new StorageService();
 
     private final static Logger LOGGER = Logger.getLogger(PaymentDataCollector.class.getName());
 
@@ -55,7 +49,7 @@ public class PaymentDataCollector implements DataCollector {
                      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                     String line;
                     int currentLineNumber = 1;
-                    int secondCouner = 1;   
+                    int secondCounter = 1;   
                     Object[] params = {fileUrl,startLineNumber,endLineNumber};
                     LOGGER.log(Level.INFO, "Reading {0} from line {1} to {2}", params);
                     while ((line = reader.readLine()) != null && currentLineNumber <= endLineNumber) {
@@ -65,18 +59,21 @@ public class PaymentDataCollector implements DataCollector {
                         else if (currentLineNumber >= startLineNumber) {
                             Calendar calendar = Calendar.getInstance();
                             //calendar.setTimeInMillis(System.currentTimeMillis() + 2000);
-                            calendar.add(Calendar.SECOND, secondCouner);
+                            calendar.add(Calendar.SECOND, secondCounter);
                             String dateString = Utils.getDateString(calendar);
                             Object[] fields = line.split(",");
                             fields[1] = dateString;
                             fields[2] = dateString;
                             //String finalData = Arrays.toString(fields);
                             StringBuilder row = new StringBuilder();
-                            for(Object field: fields){
-                                row.append(field).append(",");
+                            for(int i=0; i<fields.length; i++){
+                                row.append(fields[i]);
+                                if(i < fields.length-1) {
+                                    row.append(",");
+                                }
                             }
                             content.append(row).append(System.lineSeparator());
-                            secondCouner++;
+                            secondCounter++;
                         }
                         currentLineNumber++;
                     }
@@ -94,8 +91,8 @@ public class PaymentDataCollector implements DataCollector {
     public static void main(String[] args) {
         PaymentDataCollector collector = new PaymentDataCollector();
         try {
-            //System.out.println(collector.collect());
-            collector.collect();
+            String objectKey = collector.collect();
+            LOGGER.log(Level.INFO, "File stored at -> {0}", objectKey);
         } catch (Exception e) {
             e.printStackTrace();
         }
