@@ -6,11 +6,11 @@
 #
 # FROM maven AS build
 FROM public.ecr.aws/docker/library/maven:amazoncorretto AS build
-ENV HOME=/usr/local/app
-RUN mkdir -p $HOME
-WORKDIR $HOME
-ADD . $HOME
-RUN --mount=type=cache,target=/root/.m2 mvn -f $HOME/pom.xml clean compile assembly:single
+ENV WORKDIR=/usr/local/app
+RUN mkdir -p $WORKDIR
+WORKDIR $WORKDIR
+ADD . $WORKDIR
+RUN --mount=type=cache,target=/root/.m2 mvn -f $WORKDIR/pom.xml clean compile assembly:single
 
 #
 # Package stage
