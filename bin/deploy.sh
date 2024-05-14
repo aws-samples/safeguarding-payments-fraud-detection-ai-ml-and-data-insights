@@ -114,8 +114,14 @@ case ${SPF_DIR} in app*)
     SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".[0].repositoryName")
   fi
 
-  echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR}"
-  ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
+  if [ -n "${SPF_EKS_ARCH}" ] && [ "${SPF_EKS_ARCH}" == "arm" ]; then
+    SPF_DOCKER_ARCH="linux/arm64"
+  else
+    SPF_DOCKER_ARCH="linux/x86_64"
+  fi
+
+  echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_DOCKER_ARCH}"
+  ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_DOCKER_ARCH} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
 
   K8SDIR=${WORKDIR}/${SPF_DIR}/k8s
   if [ -d "${K8SDIR}" ]; then
@@ -195,6 +201,18 @@ case ${SPF_DIR} in iac*)
 
   if [ -n "${SPF_EKS_NODE_TYPE}" ]; then
     OPTIONS="${OPTIONS} -var eks_node_type=${SPF_EKS_NODE_TYPE}"
+  fi
+
+  if [ -n "${SPF_EKS_NODE_ARCH}" ]; then
+    OPTIONS="${OPTIONS} -var eks_node_arch=${SPF_EKS_NODE_ARCH}"
+  fi
+
+  if [ -n "${SPF_EKS_NODE_EC2}" ]; then
+    OPTIONS="${OPTIONS} -var eks_node_ec2=${SPF_EKS_NODE_EC2}"
+  fi
+
+  if [ -n "${SPF_EKS_NODE_EBS}" ]; then
+    OPTIONS="${OPTIONS} -var eks_node_ebs=${SPF_EKS_NODE_EBS}"
   fi
 
   if [ -n "${SPF_VPC_ID}" ]; then
