@@ -115,13 +115,13 @@ case ${SPF_DIR} in app*)
   fi
 
   if [ -n "${SPF_EKS_ARCH}" ] && [ "${SPF_EKS_ARCH}" == "arm" ]; then
-    SPF_DOCKER_ARCH="linux/arm64"
+    SPF_PLATFORM="linux/arm64"
   else
-    SPF_DOCKER_ARCH="linux/x86_64"
+    SPF_PLATFORM="linux/x86_64"
   fi
 
-  echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_DOCKER_ARCH}"
-  ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_DOCKER_ARCH} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
+  echo "[EXEC] ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_PLATFORM}"
+  ${WORKDIR}/bin/docker.sh -q ${SPF_ECR_NAME} -r ${SPF_REGION} -d ${SPF_DIR} -p ${SPF_PLATFORM} || { echo "[ERROR] docker script failed. aborting..."; exit 1; }
 
   K8SDIR=${WORKDIR}/${SPF_DIR}/k8s
   if [ -d "${K8SDIR}" ]; then
