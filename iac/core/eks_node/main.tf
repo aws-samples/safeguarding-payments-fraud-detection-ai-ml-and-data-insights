@@ -49,6 +49,7 @@ module "self_managed_node_group" {
   source               = "terraform-aws-modules/eks/aws//modules/self-managed-node-group"
   version              = "20.10.0"
   name                 = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
+  key_name             = "default"
   cluster_name         = data.terraform_remote_state.eks.outputs.id
   cluster_version      = data.terraform_remote_state.eks.outputs.version
   cluster_endpoint     = data.terraform_remote_state.eks.outputs.endpoint

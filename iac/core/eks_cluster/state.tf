@@ -52,3 +52,11 @@ output "service_ipv4_cidr" {
 output "service_ipv6_cidr" {
   value = aws_eks_cluster.this.kubernetes_network_config.0.service_ipv6_cidr
 }
+
+output "oidc_provider_arn" {
+  value = aws_iam_openid_connect_provider.this.arn
+}
+
+output "oidc_provider_url" {
+  value = aws_iam_openid_connect_provider.this.url
+}
