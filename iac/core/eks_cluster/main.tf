@@ -27,6 +27,17 @@ resource "aws_eks_cluster" "this" {
   }
 }
 
+resource "aws_iam_openid_connect_provider" "this" {
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.this.certificates.0.sha1_fingerprint]
+  url             = aws_eks_cluster.this.identity.0.oidc.0.issuer
+
+  tags = {
+    "alpha.eksctl.io/cluster-name"   = aws_eks_cluster.this.name
+    "alpha.eksctl.io/eksctl-version" = var.q.eksctl_version
+  }
+}
+
 resource "aws_eks_fargate_profile" "this" {
   cluster_name           = aws_eks_cluster.this.name
   pod_execution_role_arn = data.terraform_remote_state.iam_fargate.outputs.arn

@@ -1,6 +1,10 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+data "tls_certificate" "this" {
+  url = aws_eks_cluster.this.identity.0.oidc.0.issuer
+}
+
 data "terraform_remote_state" "iam_cluster" {
   backend = "s3"
   config = {
