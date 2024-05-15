@@ -19,3 +19,9 @@ resource "aws_secretsmanager_secret_version" "this" {
     create_before_destroy = true
   }
 }
+
+resource "random_password" "this" {
+  length = 16
+  special = true
+  override_special = "_%@"
+}

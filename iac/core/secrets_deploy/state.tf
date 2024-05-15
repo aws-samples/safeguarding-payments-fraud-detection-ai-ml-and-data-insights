@@ -21,14 +21,14 @@ output "replica_last_accessed_date" {
   value = aws_secretsmanager_secret.this.replica.last_accessed_date
 }
 
-output "secret_arn" {
-  value = aws_secretsmanager_secret_version.this.arn
-}
+# output "secret_arn" {
+#   value = aws_secretsmanager_secret_version.this.arn
+# }
 
-output "secret_id" {
-  value = aws_secretsmanager_secret_version.this.id
-}
+# output "secret_id" {
+#   value = aws_secretsmanager_secret_version.this.id
+# }
 
-output "secret_version_id" {
-  value = aws_secretsmanager_secret_version.this.version_id
-}
+# output "secret_version_id" {
+#   value = aws_secretsmanager_secret_version.this.version_id
+# }
