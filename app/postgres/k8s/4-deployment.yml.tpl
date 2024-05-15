@@ -16,6 +16,7 @@ spec:
       labels:
         app: postgres
     spec:
+      serviceAccountName: service-account
       containers:
         - name: postgres
           image: {{SPF_ECR_URI}}:latest
