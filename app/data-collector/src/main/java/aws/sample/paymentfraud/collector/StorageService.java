@@ -33,7 +33,7 @@ public class StorageService {
 
     S3Client s3 = S3Client.builder().region(Region.US_EAST_1).build();
 
-    Pac008Processor pac008Processor = new Pac008Processor();
+    //Pac008Processor pac008Processor = new Pac008Processor();
 
     public String storeObjects(String data, Set<String> files) {
         String dateString = Utils.now();
@@ -199,7 +199,8 @@ public class StorageService {
     }
 
     private Pac008Processor getPac008Processor() {
-        return pac008Processor;
+        throw new UnsupportedOperationException();
+        //return pac008Processor;
     }
 
 }
