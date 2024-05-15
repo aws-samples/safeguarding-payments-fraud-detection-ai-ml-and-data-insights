@@ -9,26 +9,26 @@ output "id" {
   value = aws_secretsmanager_secret.this.id
 }
 
-output "replica_status" {
-  value = aws_secretsmanager_secret.this.replica.status
-}
-
-output "replica_message" {
-  value = aws_secretsmanager_secret.this.replica.status_message
-}
-
-output "replica_last_accessed_date" {
-  value = aws_secretsmanager_secret.this.replica.last_accessed_date
-}
-
-# output "secret_arn" {
-#   value = aws_secretsmanager_secret_version.this.arn
+# output "replica_status" {
+#   value = aws_secretsmanager_secret.this.replica.status
 # }
 
-# output "secret_id" {
-#   value = aws_secretsmanager_secret_version.this.id
+# output "replica_message" {
+#   value = aws_secretsmanager_secret.this.replica.status_message
 # }
 
-# output "secret_version_id" {
-#   value = aws_secretsmanager_secret_version.this.version_id
+# output "replica_last_accessed_date" {
+#   value = aws_secretsmanager_secret.this.replica.last_accessed_date
 # }
+
+output "secret_arn" {
+  value = aws_secretsmanager_secret_version.this.arn
+}
+
+output "secret_id" {
+  value = aws_secretsmanager_secret_version.this.id
+}
+
+output "secret_version_id" {
+  value = aws_secretsmanager_secret_version.this.version_id
+}
