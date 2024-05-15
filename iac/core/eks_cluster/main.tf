@@ -55,7 +55,6 @@ resource "aws_eks_addon" "this" {
   addon_version               = element(split(",", var.q.addons_version), count.index)
   resolve_conflicts_on_create = var.q.addons_create
   resolve_conflicts_on_update = var.q.addons_update
-  depends_on                  = [aws_eks_fargate_profile.this]
 }
 
 resource "aws_eks_access_entry" "this" {
