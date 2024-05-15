@@ -9,21 +9,20 @@ help()
   echo
   echo "Syntax: docker.sh [-d|f|q|r|p|t|s]"
   echo "Options:"
-  echo "d     Specify directory (e.g. app/fraud)"
+  echo "d     Specify directory (e.g. app/postgres)"
   echo "f     Specify Dockerfile (e.g. Dockerfile)"
-  echo "q     Specify repository name (e.g. spf-fraud)"
+  echo "q     Specify repository name (e.g. spf-postgres)"
   echo "r     Specify AWS region (e.g. us-east-1)"
   echo "p     Specify platform (e.g. linux/x86_64)"
   echo "t     Specify version (e.g. latest)"
-  echo "s     Specify CI/CD role name (e.g. spf-cicd-assume-role-abcd1234)"
+  echo "s     Specify CI/CD role name (e.g. spf-cicd-assume-role)"
   echo
 }
 
 set -o pipefail
 
-DIRECTORY="app/fraud"
 DOCKERFILE="Dockerfile"
-SPF_ROLE_NAME=""
+SPF_DIR="app/postgres"
 SPF_PLATFORM="linux/x86_64"
 SPF_VERSION="latest"
 
@@ -32,10 +31,10 @@ while getopts "h:d:f:q:r:p:t:s:" option; do
     h)
       help
       exit;;
-    d)
-      DIRECTORY="$OPTARG";;
     f)
       DOCKERFILE="$OPTARG";;
+    d)
+      SPF_DIR="$OPTARG";;
     q)
       SPF_REPOSITORY="$OPTARG";;
     r)
@@ -104,20 +103,16 @@ if [ -n "${SPF_ROLE_NAME}" ]; then
   OPTIONS="${OPTIONS} --build-arg AWS_SESSION_TOKEN=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.SessionToken')"
 fi
 
-DOCKERDIR="$( cd "${WORKDIR}/${DIRECTORY}/" > /dev/null 2>&1 || exit 1; pwd -P )"
+DOCKERDIR="$( cd "${WORKDIR}/${SPF_DIR}/" > /dev/null 2>&1 || exit 1; pwd -P )"
 while [ "${DOCKERDIR}" != "${WORKDIR}" ] && [ ! -f "${DOCKERDIR}/${DOCKERFILE}" ]; do
   DOCKERDIR="$( cd "${DOCKERDIR}/../" > /dev/null 2>&1 || exit 1; pwd -P )"
 done
 
-echo "[EXEC] docker buildx build -t ${SPF_REPOSITORY}:${SPF_VERSION} -f ${DOCKERDIR}/${DOCKERFILE} ${WORKDIR}/${DIRECTORY}/ --platform ${SPF_PLATFORM}"
-docker buildx build -t "${SPF_REPOSITORY}:${SPF_VERSION}" -f "${DOCKERDIR}/${DOCKERFILE}" "${WORKDIR}/${DIRECTORY}/" --platform "${SPF_PLATFORM}" ${OPTIONS} || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
+echo "[EXEC] docker buildx build -t ${SPF_REPOSITORY}:${SPF_VERSION} -f ${DOCKERDIR}/${DOCKERFILE} ${WORKDIR}/${SPF_DIR}/ --platform ${SPF_PLATFORM}"
+docker buildx build -t "${SPF_REPOSITORY}:${SPF_VERSION}" -f "${DOCKERDIR}/${DOCKERFILE}" "${WORKDIR}/${SPF_DIR}/" --platform "${SPF_PLATFORM}" ${OPTIONS} || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
 
 echo "[EXEC] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 docker tag "${SPF_REPOSITORY}:${SPF_VERSION}" "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}" || { echo "[ERROR] docker tag failed. aborting..."; exit 1; }
 
 echo "[EXEC] docker push ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
-# OUTPUT=$(docker push "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}") || { echo "[ERROR] docker push failed. aborting..."; exit 1; }
-
-# echo "[INFO] OUTPUT: ${OUTPUT}"
-# IFS=' ' read -ra ARR <<< "$(echo "${OUTPUT}" | tr '\n' ' ')"

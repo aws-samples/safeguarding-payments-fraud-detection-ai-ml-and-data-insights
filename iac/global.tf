@@ -25,7 +25,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.48.0"
+      version = "5.49.0"
     }
   }
 }
@@ -83,7 +83,7 @@ variable "eks_node_arch" {
 
 variable "eks_node_ec2" {
   type    = string
-  default = "t3.medium,t3.xlarge"
+  default = ""
 }
 
 variable "eks_node_ebs" {
@@ -103,7 +103,7 @@ variable "vpc_id" {
 variable "vpce_mapping" {
   type    = string
   default = ""
-  # default = "{{gateway_name}},{{gateway_name}}:{{interface_name}},{{interface_name}}"
+  # default = "{{interface_name}},{{interface_name}}:{{gateway_name}},{{gateway_name}}"
 }
 
 variable "subnets_igw_create" {

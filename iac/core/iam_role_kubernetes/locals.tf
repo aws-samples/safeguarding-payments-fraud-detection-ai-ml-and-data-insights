@@ -14,5 +14,6 @@ locals {
   namespaces = [
     format("system:serviceaccount:spf-postgres-%s:spf-postgres-%s", local.suffix, local.suffix),
     format("system:serviceaccount:spf-app-data-collector-%s:spf-app-data-collector-%s", local.suffix, local.suffix),
+    format("system:serviceaccount:spf-app-fraud-%s:spf-app-data-collector-%s", local.suffix, local.suffix),
   ]
 }
