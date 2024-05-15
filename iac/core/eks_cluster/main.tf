@@ -38,6 +38,16 @@ resource "aws_iam_openid_connect_provider" "this" {
   }
 }
 
+resource "aws_eks_identity_provider_config" "this" {
+  cluster_name = aws_eks_cluster.this.name
+
+  oidc {
+    identity_provider_config_name = local.name
+    client_id                     = substr(aws_iam_openid_connect_provider.this.url, -32, -1)
+    issuer_url                    = format("https://%s", aws_iam_openid_connect_provider.this.url)
+  }
+}
+
 resource "aws_eks_fargate_profile" "this" {
   cluster_name           = aws_eks_cluster.this.name
   pod_execution_role_arn = data.terraform_remote_state.iam_fargate.outputs.arn
