@@ -17,6 +17,7 @@ spec:
          labels:
           job: spf-data-collector-job
         spec:
+          serviceAccountName: spf-service-account
           containers:
           - image: {{SPF_ECR_URI}}:latest
             name: spf-data-collector-image
