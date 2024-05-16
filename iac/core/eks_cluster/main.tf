@@ -38,6 +38,15 @@ resource "aws_eks_fargate_profile" "this" {
   }
 }
 
+resource "aws_eks_addon" "this" {
+  count                       = length(split(",", var.q.addons))
+  cluster_name                = aws_eks_cluster.this.name
+  addon_name                  = element(split(",", var.q.addons), count.index)
+  addon_version               = element(split(",", var.q.addons_version), count.index)
+  resolve_conflicts_on_create = var.q.addons_create
+  resolve_conflicts_on_update = var.q.addons_update
+  depends_on                  = [aws_eks_fargate_profile.this]
+}
 
 resource "aws_iam_openid_connect_provider" "this" {
   client_id_list  = ["sts.amazonaws.com"]
@@ -58,15 +67,6 @@ resource "aws_eks_identity_provider_config" "this" {
     identity_provider_config_name = local.name
     issuer_url                    = format("https://%s", aws_iam_openid_connect_provider.this.url)
   }
-}
-
-resource "aws_eks_addon" "this" {
-  count                       = length(split(",", var.q.addons))
-  cluster_name                = aws_eks_cluster.this.name
-  addon_name                  = element(split(",", var.q.addons), count.index)
-  addon_version               = element(split(",", var.q.addons_version), count.index)
-  resolve_conflicts_on_create = var.q.addons_create
-  resolve_conflicts_on_update = var.q.addons_update
 }
 
 resource "aws_eks_access_entry" "this" {
