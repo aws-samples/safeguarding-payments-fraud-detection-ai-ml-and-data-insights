@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,7 +46,7 @@ public class StorageService {
     }
 
     public String storeFile(String data) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         DecimalFormat mFormat= new DecimalFormat("00");
         String date = mFormat.format(calendar.get(Calendar.DATE));
         String month = mFormat.format(calendar.get(Calendar.MONTH)+1);
@@ -63,11 +64,11 @@ public class StorageService {
                     .append(minute).append("/")
                     .append(second).append("/").toString();
         
-        store(data, objectKey + "file.csv");
-        return objectKey;
+        String location = store(data, objectKey + "file.csv");
+        return location;
     }
 
-    public PutObjectResponse store(String data, String objectName) {
+    public String store(String data, String objectName) {
         if (StringUtils.isNullOrEmpty(data)) {
             LOGGER.info("No data to store for name " + objectName);
             return null;
@@ -78,7 +79,8 @@ public class StorageService {
                 .bucket(getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_S3_BUCKET))
                 .key(objectName)
                 .build();
-        return s3.putObject(request, RequestBody.fromBytes(data.getBytes()));
+        s3.putObject(request, RequestBody.fromBytes(data.getBytes()));
+        return getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_S3_BUCKET)+"/"+objectName;
     }
 
     public void processFilesAndStore(Set<String> files, String folderName) {
