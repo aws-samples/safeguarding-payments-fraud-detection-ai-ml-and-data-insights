@@ -27,6 +27,18 @@ resource "aws_eks_cluster" "this" {
   }
 }
 
+resource "aws_eks_fargate_profile" "this" {
+  cluster_name           = aws_eks_cluster.this.name
+  pod_execution_role_arn = data.terraform_remote_state.iam_fargate.outputs.arn
+  fargate_profile_name   = var.q.fargate
+  subnet_ids             = data.terraform_remote_state.subnet.outputs.nat_subnet_ids
+
+  selector {
+    namespace = var.q.fargate
+  }
+}
+
+
 resource "aws_iam_openid_connect_provider" "this" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.this.certificates.0.sha1_fingerprint]

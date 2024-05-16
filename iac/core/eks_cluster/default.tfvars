@@ -12,6 +12,7 @@ q = {
   ipv6_cidr      = null
   auth_mode      = "API_AND_CONFIG_MAP"
   eksctl_version = "0.176.0-dev+5b33f073a.2024-04-25T09:34:19Z"
+  fargate        = "kube-system"
   addons         = "vpc-cni,kube-proxy,eks-pod-identity-agent,coredns"
   addons_version = "v1.18.1-eksbuild.3,v1.29.3-eksbuild.2,v1.2.0-eksbuild.1,v1.11.1-eksbuild.9"
   addons_create  = "OVERWRITE"
