@@ -109,3 +109,13 @@ module "ebs_kms_key" {
     format("arn:aws:iam::%s:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling", data.aws_caller_identity.this.account_id),
   ]
 }
+
+resource "aws_eks_addon" "this" {
+  count                       = length(split(",", var.q.addons))
+  cluster_name                = data.terraform_remote_state.eks.outputs.id
+  addon_name                  = element(split(",", var.q.addons), count.index)
+  addon_version               = element(split(",", var.q.addons_version), count.index)
+  resolve_conflicts_on_create = var.q.addons_create
+  resolve_conflicts_on_update = var.q.addons_update
+  depends_on                  = [aws_eks_fargate_profile.this, aws_eks_node_group.this, self_managed_node_group]
+}
