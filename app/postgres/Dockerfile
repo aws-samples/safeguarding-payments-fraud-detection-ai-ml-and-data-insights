@@ -4,7 +4,7 @@
 FROM public.ecr.aws/docker/library/postgres:16
 
 RUN apt install -y postgresql-common
-RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+RUN echo -ne "\n" | /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 
 # RUN apt install -y postgresql-common
 # RUN install -d /usr/share/postgresql-common/pgdg
