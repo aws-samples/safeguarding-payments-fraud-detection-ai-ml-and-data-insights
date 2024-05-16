@@ -4,11 +4,9 @@
 FROM public.ecr.aws/docker/library/postgres:16
 
 RUN apt update -y
-RUN apt install -y postgresql-common
+RUN apt install -y postgresql-common ca-certificates curl
 RUN install -d /usr/share/postgresql-common/pgdg
 RUN sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-RUN apt install -y curl ca-certificates
-RUN install -d /usr/share/postgresql-common/pgdg
 RUN curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
 RUN echo -ne "\n" | /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 RUN apt update -y
