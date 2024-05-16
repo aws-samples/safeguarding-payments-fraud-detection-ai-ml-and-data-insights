@@ -5,15 +5,14 @@ locals {
   spf_gid = (var.spf_gid == null ? data.terraform_remote_state.s3.outputs.spf_gid : var.spf_gid)
   suffix = format("%s-%s", data.aws_region.this.name, local.spf_gid)
   policies = [
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
-    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
     "arn:aws:iam::aws:policy/AmazonS3FullAccess",
     "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
   ]
-  namespaces = [
-    format("system:serviceaccount:spf-postgres-%s:spf-postgres-%s", local.suffix, local.suffix),
-    format("system:serviceaccount:spf-app-data-collector-%s:spf-app-data-collector-%s", local.suffix, local.suffix),
-    format("system:serviceaccount:spf-app-fraud-%s:spf-app-data-collector-%s", local.suffix, local.suffix),
-  ]
+  namespace = format("spf-app-data-collector-%s:%s-%s", local.suffix, var.q.name, local.suffix)
+  # namespaces = [
+  #   format("system:serviceaccount:spf-app-postgres-%s:%s-%s", local.suffix, var.q.name, local.suffix),
+  #   format("system:serviceaccount:spf-app-data-collector-%s:%s-%s", local.suffix, var.q.name, local.suffix),
+  #   format("system:serviceaccount:spf-app-fraud-%s:%s-%s", local.suffix, var.q.name, local.suffix),
+  # ]
 }

@@ -21,6 +21,10 @@ output "endpoint" {
   value = aws_eks_cluster.this.endpoint
 }
 
+output "eksctl_version" {
+  value = var.q.eksctl_version
+}
+
 output "platform_version" {
   value = aws_eks_cluster.this.platform_version
 }

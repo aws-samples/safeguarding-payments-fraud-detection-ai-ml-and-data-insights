@@ -21,7 +21,7 @@ resource "aws_secretsmanager_secret_version" "this" {
 }
 
 resource "random_password" "this" {
-  length = 16
-  special = true
-  override_special = "_%@"
+  length           = var.q.length
+  special          = var.q.special
+  override_special = var.q.override
 }
