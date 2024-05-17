@@ -8,7 +8,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,9 +47,10 @@ public class PaymentDataCollector implements DataCollector {
         }
     }
     
-     public String readFileFromUrl(String fileUrl, int startLineNumber, int endLineNumber) throws URISyntaxException, InterruptedException {
+     public String readFileFromUrl(String fileUrl, int startLineNumber, int endLineNumber) throws URISyntaxException, InterruptedException, ParseException {
         StringBuilder content = new StringBuilder();
         try {
+            LOGGER.log(Level.INFO,"Attempting to read from url {0}",fileUrl);
             URL url = new URI(fileUrl).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -68,11 +72,20 @@ public class PaymentDataCollector implements DataCollector {
                         else if (currentLineNumber >= startLineNumber) {
                             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                             calendar.add(Calendar.SECOND, secondCounter);
-                            String dateString = Utils.getDateString(calendar);
+
                             Object[] fields = line.split(",");
+                            String dateField = (String)fields[1];
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                            Date tempDate = dateFormat.parse(dateField);
+                            Calendar tempCalendar = Calendar.getInstance();
+                            tempCalendar.setTime(tempDate);
+                            int month = tempCalendar.get(Calendar.MONTH);
+                            if(month < calendar.get(Calendar.MONTH)){
+                                calendar.set(Calendar.MONTH,month);
+                            }
+                            String dateString = Utils.getDateString(calendar);
                             fields[1] = dateString;
                             fields[2] = dateString;
-                            //String finalData = Arrays.toString(fields);
                             StringBuilder row = new StringBuilder();
                             for(int i=0; i<fields.length; i++){
                                 row.append(fields[i]);
@@ -88,7 +101,6 @@ public class PaymentDataCollector implements DataCollector {
                     if(content.length()>0){
                         content.insert(0,System.lineSeparator())
                             .insert(0, firstLine);
-                        //append(System.lineSeparator());
                     }
                 }
             } else {
