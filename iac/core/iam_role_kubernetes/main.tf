@@ -9,7 +9,7 @@ resource "aws_iam_role" "this" {
 
   tags = {
     "alpha.eksctl.io/cluster-name"                = data.terraform_remote_state.eks.outputs.id
-    "alpha.eksctl.io/iamserviceaccount-name"      = local.namespace
+    "alpha.eksctl.io/iamserviceaccount-name"      = element(local.service_accounts, 0)
     "alpha.eksctl.io/eksctl-version"              = data.terraform_remote_state.eks.outputs.eksctl_version
     "eksctl.cluster.k8s.io/v1alpha1/cluster-name" = data.terraform_remote_state.eks.outputs.id
   }

@@ -9,10 +9,9 @@ locals {
     "arn:aws:iam::aws:policy/AmazonS3FullAccess",
     "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
   ]
-  namespace = format("spf-app-data-collector-%s:%s-%s", local.suffix, var.q.name, local.suffix)
-  # namespaces = [
-  #   format("system:serviceaccount:spf-app-postgres-%s:%s-%s", local.suffix, var.q.name, local.suffix),
-  #   format("system:serviceaccount:spf-app-data-collector-%s:%s-%s", local.suffix, var.q.name, local.suffix),
-  #   format("system:serviceaccount:spf-app-fraud-%s:%s-%s", local.suffix, var.q.name, local.suffix),
-  # ]
+  service_accounts = [
+    format("system:serviceaccount:spf-app-data-collector-%s:service-account", local.suffix),
+    format("system:serviceaccount:spf-app-fraud-%s:service-account", local.suffix),
+    format("system:serviceaccount:spf-app-postgres-%s:service-account", local.suffix),
+  ]
 }

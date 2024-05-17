@@ -20,8 +20,7 @@ data "aws_iam_policy_document" "role" {
     condition {
       test     = "StringEquals"
       variable = format("%s:sub", replace(data.terraform_remote_state.eks.outputs.oidc_provider_url, "https://", ""))
-      values   = [format("system:serviceaccount:%s", local.namespace)]
-      # values   = local.namespaces
+      values   = local.service_accounts
     }
   }
 }
