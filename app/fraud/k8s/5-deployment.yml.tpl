@@ -14,7 +14,7 @@ spec:
   template:
     metadata:
       labels:
-        app: fraud-app
+        app: fraud-image
     spec:
       serviceAccountName: service-account
       containers:
