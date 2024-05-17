@@ -22,7 +22,7 @@ spec:
           image: {{SPF_ECR_URI}}:latest
           imagePullPolicy: "IfNotPresent"
           ports:
-            - containerPort: 5432
+            - containerPort: {{SPF_DBPORT}}
           env:
             - name: POSTGRES_USER
               valueFrom:

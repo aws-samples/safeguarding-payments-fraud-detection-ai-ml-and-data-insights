@@ -3,6 +3,12 @@
 
 FROM public.ecr.aws/docker/library/postgres:16
 
+ARG DBHOST=${DBHOST:-"localhost"}
+ARG DBPORT=${DBPORT:-"5432"}
+ARG DBNAME=${DBNAME:-"payments"}
+ARG DBUSER=${DBUSER:-"payments"}
+ARG DBPASS=${DBPASS:-""}
+
 RUN apt update -y
 RUN apt install -y postgresql-common ca-certificates curl
 RUN install -d /usr/share/postgresql-common/pgdg
@@ -11,3 +17,7 @@ RUN curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail http
 RUN echo -ne "\n" | /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 RUN apt update -y
 RUN apt install -y postgresql-16-pgvector
+
+COPY initdb.sql .
+ENV PGPASSWORD=${DBPASS}
+RUN psql -d "${DBNAME}" -h "${DBHOST}" -p "${DBPORT}" -U "${DBUSER}" -w -a -f initdb.sql

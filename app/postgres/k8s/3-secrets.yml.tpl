@@ -8,6 +8,6 @@ metadata:
   name: postgres-secret
 type: Opaque
 data:
-  POSTGRES_DB: "{{SPF_POSTGRES_DB}}"
-  POSTGRES_USER: "{{SPF_POSTGRES_USER}}"
-  POSTGRES_PASSWORD: "{{SPF_POSTGRES_PWD}}"
+  POSTGRES_DB: "{{SPF_DBNAME}}"
+  POSTGRES_USER: "{{SPF_DBUSER}}"
+  POSTGRES_PASSWORD: "{{SPF_DBPASS}}"

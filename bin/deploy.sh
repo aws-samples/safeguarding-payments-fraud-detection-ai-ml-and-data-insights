@@ -70,6 +70,29 @@ if [ ! -d "${WORKDIR}/${SPF_DIR}/" ]; then
   echo "[ERROR] ${WORKDIR}/${SPF_DIR}/ does not exist..."; exit 1;
 fi
 
+SPF_SECRET="spf-secrets-deploy-${SPF_REGION}"
+if [ -n "${SPF_GID}" ]; then
+  SPF_SECRET="${SPF_SECRET}-${SPF_GID}"
+fi
+SPF_QUERY="SecretList[?Name==\`${SPF_SECRET}\`]"
+
+echo "[EXEC] aws secretsmanager list-secrets --region ${SPF_REGION} --query ${SPF_QUERY}"
+SPR_RESULT=$(aws secretsmanager list-secrets --region ${SPF_REGION} --query ${SPF_QUERY})
+
+if [ "${SPF_RESULT}" != "[]" ]; then
+  echo "[EXEC] aws secretsmanager get-secret-value --region ${SPF_REGION} --secret-id ${SPF_SECRET} --query SecretString"
+  SPF_RESULT=$(aws secretsmanager get-secret-value --region ${SPF_REGION} --secret-id ${SPF_SECRET} --query SecretString)
+
+  case ${SPF_RESULT} in \"{*)
+    SPF_RESULT=$(echo "${SPF_RESULT}" | jq -r '.')
+    SPF_KEYS=( $(echo "${SPF_RESULT}" | jq -r 'keys[]') )
+    SPF_VALUES=( $(echo "${SPF_RESULT}" | jq -r 'values[]') )
+    for i in "${!SPF_KEYS[@]}"; do
+      export ${SPF_KEYS[i]}="${SPF_VALUES[i]}"
+    done
+  esac
+fi
+
 case ${SPF_DIR} in app*)
   echo "
   ##############################################################
@@ -140,26 +163,6 @@ case ${SPF_DIR} in app*)
 
       echo "[EXEC] kubectl config set-context --current --namespace=${SPF_ECR_NAME}"
       kubectl config set-context --current --namespace=${SPF_ECR_NAME} || { echo "[ERROR] kubectl config set-context failed. aborting..."; exit 1; }
-    fi
-
-    SPF_SECRET="spf-secrets-deploy-${SPF_REGION}-${SPF_GID}"
-    SPF_QUERY="SecretList[?Name==\`${SPF_SECRET}\`]"
-
-    echo "[EXEC] aws secretsmanager list-secrets --region ${SPF_REGION} --query ${SPF_QUERY}"
-    SPR_RESULT=$(aws secretsmanager list-secrets --region ${SPF_REGION} --query ${SPF_QUERY})
-
-    if [ "${SPF_RESULT}" != "[]" ]; then
-      echo "[EXEC] aws secretsmanager get-secret-value --region ${SPF_REGION} --secret-id ${SPF_SECRET} --query SecretString"
-      SPF_RESULT=$(aws secretsmanager get-secret-value --region ${SPF_REGION} --secret-id ${SPF_SECRET} --query SecretString)
-
-      case ${SPF_RESULT} in \"{*)
-        SPF_RESULT=$(echo "${SPF_RESULT}" | jq -r '.')
-        SPF_KEYS=( $(echo "${SPF_RESULT}" | jq -r 'keys[]') )
-        SPF_VALUES=( $(echo "${SPF_RESULT}" | jq -r 'values[]') )
-        for i in "${!SPF_KEYS[@]}"; do
-          export ${SPF_KEYS[i]}="${SPF_VALUES[i]}"
-        done
-      esac
     fi
 
     export SPF_ECR_URI="${SPF_ECR_URI}"

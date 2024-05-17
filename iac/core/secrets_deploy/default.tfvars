@@ -8,4 +8,8 @@ q = {
   length      = 16
   special     = true
   override    = "_%@"
+  dbname      = "payments"
+  dbuser      = "payments"
+  dbport      = "5432"
+  srvport     = "35432"
 }
