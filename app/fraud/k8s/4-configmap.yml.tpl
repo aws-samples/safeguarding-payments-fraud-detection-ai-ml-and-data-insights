@@ -7,14 +7,15 @@ metadata:
   namespace: {{SPF_ECR_NAME}}
   name: config-map
 data:
-  DBHOST: postgres.default
+  DBHOST: "localhost"
   DBPORT: "5432"
-  DBNAME: payments
-  DBUSER: postgres
-  DBPASS: Postgres123
-  REGION: us-east-1
-  SERVICE_NAME: postgres
-  NAMESPACE: default
-  SERVICE_PORT: "31653"
-  BUCKET_NAME: fraud-detection-payments
-  S3_FILE_PATH: payment/
+  DBNAME: "{{SPF_POSTGRES_DB}}"
+  DBUSER: "{{SPF_POSTGRES_USER}}"
+  DBPASS: "{{SPF_POSTGRES_PWD}}"
+  SERVICE_NAME: "postgres"
+  SERVICE_PORT: "35432"
+  NAMESPACE: "spf-app-postgres-{{SPF_REGION}}-{{SPF_GID}}"
+  REGION: "{{SPF_REGION}}"
+  S3_BUCKET_NAME: {{SPF_S3_BUCKET}}
+  S3_PATH_PAYMENT: payment/
+  S3_PATH_MODEL: model/

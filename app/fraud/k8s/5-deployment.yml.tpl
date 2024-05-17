@@ -5,21 +5,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: {{SPF_ECR_NAME}}
-  name: spf-fraud
+  name: fraud
 spec:
   selector:
     matchLabels:
-      app: spf-fraud-image
+      app: fraud-image
   replicas: 1
   template:
     metadata:
       labels:
-        app: spf-fraud-image
+        app: fraud-app
     spec:
       serviceAccountName: service-account
       containers:
       - image: {{SPF_ECR_URI}}:latest
-        name: spf-fraud-image
+        name: fraud-image
         stdin: true
         envFrom:
           - configMapRef:

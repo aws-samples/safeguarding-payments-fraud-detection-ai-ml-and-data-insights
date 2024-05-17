@@ -91,6 +91,14 @@ def download_s3_file(s3_client, s3_file, local_file_path):
     # download file from s3 to local
     s3_client.download_file(bucket_name, s3_file, local_file_path)
 
+def upoload_s3_file(s3_client, local_file_path, s3_file):
+    """
+    Upload the file from local to s3
+    """
+    bucket_name = os.environ.get("BUCKET_NAME")
+    s3_client.upload_file(local_file_path, bucket_name, s3_file)
+    print(f"File '{local_file_path}' uploaded to S3 bucket '{bucket_name}'")
+
 def create_embeddings(df):
     # Separate numerical, categorical, text and timestamps features
     numerical_features   = ["card_bin", "billing_zip", "billing_latitude", "billing_longitude", "order_price"]
@@ -234,6 +242,30 @@ def get_date_from_database():
     dbconn.close()
     return date
 
+def is_fraud_payment(embeddings):
+    dbconn = connect_to_postgres()
+    register_vector(dbconn)
+    cursor = dbconn.cursor()
+    distance = []
+    for embedding in embeddings:
+        cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM payment_data', (embedding,))
+        results = cursor.fetchall()
+        distance.append([result[0] for result in results])
+
+    cursor.close()
+    dbconn.close()
+
+def get_distance(embedding):
+    dbconn = connect_to_postgres()
+    register_vector(dbconn)
+    cursor = dbconn.cursor()
+    cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM payment_data', (embedding,))
+    results = cursor.fetchall()
+    distance = [result[0] for result in results]
+    cursor.close()
+    dbconn.close()
+    return distance
+
 def insert_to_postgres(embeddings):
     dbconn = connect_to_postgres()
 
@@ -242,7 +274,7 @@ def insert_to_postgres(embeddings):
     # Create a cursor object
     cursor = dbconn.cursor()
     # Insert values
-    print("Insert to payment table")
+    # print("Insert to payment table")
     embeddings = np.array(embeddings, dtype=float)
     file_name ="./data/" + "foo.csv"
     np.savetxt(file_name, embeddings, delimiter=",")
@@ -250,7 +282,7 @@ def insert_to_postgres(embeddings):
     for embedding in embeddings:
         cursor.execute("INSERT INTO payment_data (embedding) VALUES (%s)", (embedding, ))
         dbconn.commit()
-    
+   
     # Close the cursor and connection
     cursor.close()
     dbconn.close()
@@ -285,9 +317,13 @@ def main():
         # Convert file to pandas dataframe
         df = convert_file_to_pd(local_file_path)
         if df is not None:
-            print(df.head())
             embeddings = create_embeddings(df)
-            insert_to_postgres(embeddings)
+            embeddings = np.array(embeddings, dtype=float)
+            is_fraud_payment(embeddings)
+            csv_s3_key = csv_s3_key.replace("payment", "fraud")
+            upoload_s3_file(s3_client, local_file_path, csv_s3_key)
+            #insert_to_postgres(embeddings)
+
     
 if __name__ == '__main__':
     start = timer()

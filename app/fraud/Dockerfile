@@ -8,6 +8,6 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY create_embedings.py .
+COPY payments_worker.py .
 
-CMD [ "python", "./create_embedings.py" ]
+CMD [ "python", "-u", "./payments_worker.py" ]

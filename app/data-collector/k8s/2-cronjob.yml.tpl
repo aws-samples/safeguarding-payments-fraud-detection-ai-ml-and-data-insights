@@ -5,9 +5,9 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   namespace: {{SPF_ECR_NAME}}
-  name: spf-data-collector
+  name: data-collector
   labels:
-    app: spf-data-collector-image
+    app: data-collector-image
 spec:
   schedule: "*/5 * * * *"
   jobTemplate:
@@ -15,12 +15,12 @@ spec:
       template:
         metadata:
          labels:
-          job: spf-data-collector-job
+          job: data-collector-job
         spec:
           serviceAccountName: service-account
           containers:
           - image: {{SPF_ECR_URI}}:latest
-            name: spf-data-collector-image
+            name: data-collector-image
             command: ["java"]
             args: ["-jar", "/app/runner.jar"]
             ports:
