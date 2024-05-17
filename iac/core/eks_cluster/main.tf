@@ -44,7 +44,7 @@ resource "aws_eks_identity_provider_config" "this" {
   oidc {
     client_id                     = substr(aws_iam_openid_connect_provider.this.url, -32, -1)
     identity_provider_config_name = local.name
-    issuer_url                    = format("https://%s", aws_iam_openid_connect_provider.this.url)
+    issuer_url                    = aws_iam_openid_connect_provider.this.url
   }
 }
 
