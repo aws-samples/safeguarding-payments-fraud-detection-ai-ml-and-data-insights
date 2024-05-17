@@ -4,7 +4,8 @@
 q = {
   name            = "spf-eks"
   description     = "SPF EKS NODE"
-  namespaces      = "spf-app-data-collector,spf-app-postgres"
+  fargate_names   = "kube-node-lease,kube-public,kube-system"
+  app_namespaces  = "spf-app-data-collector,spf-app-fraud,spf-app-postgres"
   capacity_type   = "ON_DEMAND"
   instance_types  = "t3.medium,t3.xlarge"
   disk_type       = "gp2"

@@ -9,7 +9,7 @@ resource "aws_eks_fargate_profile" "this" {
   subnet_ids             = data.terraform_remote_state.subnet.outputs.nat_subnet_ids
 
   selector {
-    namespace = format("%s-%s-%s", element(local.namespaces, count.index), data.aws_region.this.name, local.spf_gid)
+    namespace = element(local.namespaces, count.index)
   }
 }
 
