@@ -56,20 +56,20 @@ def list_s3_files(s3_client):
     """
     Return S3 files for a specific bucket and prefix
     """
-    bucket_name = os.environ.get("BUCKET_NAME")
-    s3_file_path = os.environ.get("S3_FILE_PATH")
- 
+    s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
+    s3_path_payment = os.environ.get("S3_PATH_PAYMENT")
+
     try:
         #s3_client = boto3.client('s3')
         response = s3_client.list_objects_v2(
-            Bucket=bucket_name,
-            Prefix=s3_file_path,
+            Bucket=s3_bucket_name,
+            Prefix=s3_path_payment,
             MaxKeys=100
         )
     except ClientError as e:
         error_code = e.response['Error']['Code']
         if error_code == 'NoSuchBucket':
-            print(f"Error: Bucket '{bucket_name}' does not exist.")
+            print(f"Error: Bucket '{s3_bucket_name}' does not exist.")
         else:
             print(f"Error: {e}")
         raise
@@ -82,14 +82,14 @@ def download_s3_file(s3_client, s3_file, local_file_path):
     """
     Download the file from s3 to local
     """
-    bucket_name = os.environ.get("BUCKET_NAME")
+    s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
     # get local folder path
     local_folder_path = os.path.split(local_file_path)[0]
     print(local_folder_path)
     # create local folder if not exists
     os.makedirs(local_folder_path, exist_ok=True)
     # download file from s3 to local
-    s3_client.download_file(bucket_name, s3_file, local_file_path)
+    s3_client.download_file(s3_bucket_name, s3_file, local_file_path)
 
 def create_embeddings(df):
     # Separate numerical, categorical, text and timestamps features
