@@ -38,6 +38,13 @@ spec:
                   key: POSTGRES_PASSWORD
                   optional:
                     false
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PORT
+                  optional:
+                    false
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
