@@ -3,11 +3,11 @@
 
 FROM public.ecr.aws/docker/library/postgres:16
 
-ARG DBHOST=${DBHOST:-"localhost"}
-ARG DBPORT=${DBPORT:-"5432"}
-ARG DBNAME=${DBNAME:-"payments"}
-ARG DBUSER=${DBUSER:-"payments"}
-ARG DBPASS=${DBPASS:-""}
+ARG SPF_DOCKERFILE_DBHOST=${SPF_DOCKERFILE_DBHOST:-"localhost"}
+ARG SPF_DOCKERFILE_DBNAME=${SPF_DOCKERFILE_DBNAME:-"payments"}
+ARG SPF_DOCKERFILE_DBUSER=${SPF_DOCKERFILE_DBUSER:-"payments"}
+ARG SPF_DOCKERFILE_DBPASS=${SPF_DOCKERFILE_DBPASS:-""}
+ARG SPF_DOCKERFILE_DBPORT=${SPF_DOCKERFILE_DBPORT:-"5432"}
 
 RUN apt update -y
 RUN apt install -y postgresql-common ca-certificates curl
@@ -19,5 +19,5 @@ RUN apt update -y
 RUN apt install -y postgresql-16-pgvector
 
 COPY initdb.sql .
-ENV PGPASSWORD=${DBPASS}
-RUN psql -d "${DBNAME}" -h "${DBHOST}" -p "${DBPORT}" -U "${DBUSER}" -w -a -f initdb.sql
+ENV PGPASSWORD=${SPF_DOCKERFILE_DBPASS}
+RUN psql -d "${SPF_DOCKERFILE_DBNAME}" -h "${SPF_DOCKERFILE_DBHOST}" -p "${SPF_DOCKERFILE_DBPORT}" -U "${SPF_DOCKERFILE_DBUSER}" -w -a -f initdb.sql

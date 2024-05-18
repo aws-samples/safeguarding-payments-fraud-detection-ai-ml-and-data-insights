@@ -11,7 +11,7 @@ metadata:
 spec:
   ports:
     - protocol: TCP
-      port: {{SPF_SERVICE_PORT}}
-      targetPort: {{SPF_DBPORT}}
+      port: {{SPF_SERVICE_DBPORT}}
+      targetPort: {{SPF_DOCKERFILE_DBPORT}}
   selector:
     app: postgres

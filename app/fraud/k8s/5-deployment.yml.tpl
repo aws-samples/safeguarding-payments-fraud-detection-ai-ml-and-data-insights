@@ -9,17 +9,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: fraud-image
+      app: fraud-app
   replicas: 1
   template:
     metadata:
       labels:
-        app: fraud-image
+        app: fraud-app
     spec:
       serviceAccountName: service-account
       containers:
       - image: {{SPF_ECR_URI}}:latest
-        name: fraud-image
+        name: fraud-app
         stdin: true
         envFrom:
           - configMapRef:

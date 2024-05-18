@@ -7,7 +7,7 @@ metadata:
   namespace: {{SPF_ECR_NAME}}
   name: data-collector
   labels:
-    app: data-collector-image
+    app: data-collector-app
 spec:
   schedule: "*/5 * * * *"
   jobTemplate:
@@ -20,7 +20,7 @@ spec:
           serviceAccountName: service-account
           containers:
           - image: {{SPF_ECR_URI}}:latest
-            name: data-collector-image
+            name: data-collector-app
             command: ["java"]
             args: ["-jar", "/app/runner.jar"]
             ports:

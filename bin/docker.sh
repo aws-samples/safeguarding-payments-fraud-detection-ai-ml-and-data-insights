@@ -103,6 +103,15 @@ if [ -n "${SPF_ROLE_NAME}" ]; then
   OPTIONS="${OPTIONS} --build-arg AWS_SESSION_TOKEN=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.SessionToken')"
 fi
 
+SPF_DOCKERFILE_ARRAY=$(env | grep ".*SPF_DOCKERFILE_.*" | awk -F "=" '{print $1}')
+if [ -n "${SPF_DOCKERFILE_ARRAY}" ]; then
+IFS='
+'
+  for i in ${SPF_DOCKERFILE_ARRAY}; do
+    OPTIONS="${OPTIONS} --build-arg ${i}=${!i}"
+  done
+fi
+
 DOCKERDIR="$( cd "${WORKDIR}/${SPF_DIR}/" > /dev/null 2>&1 || exit 1; pwd -P )"
 while [ "${DOCKERDIR}" != "${WORKDIR}" ] && [ ! -f "${DOCKERDIR}/${DOCKERFILE}" ]; do
   DOCKERDIR="$( cd "${DOCKERDIR}/../" > /dev/null 2>&1 || exit 1; pwd -P )"
