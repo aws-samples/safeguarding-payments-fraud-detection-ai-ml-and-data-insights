@@ -20,7 +20,6 @@ help()
 }
 
 set -o pipefail
-set -o xtrace
 
 DOCKERFILE="Dockerfile"
 SPF_DIR="app/postgres"
@@ -119,7 +118,7 @@ while [ "${DOCKERDIR}" != "${WORKDIR}" ] && [ ! -f "${DOCKERDIR}/${DOCKERFILE}" 
   DOCKERDIR="$( cd "${DOCKERDIR}/../" > /dev/null 2>&1 || exit 1; pwd -P )"
 done
 
-echo "[EXEC] docker buildx build ${OPTIONS} --platform ${SPF_PLATFORM} -f ${DOCKERDIR}/${DOCKERFILE} -t ${SPF_REPOSITORY}:${SPF_VERSION} ${WORKDIR}/${SPF_DIR}/"
+echo "[EXEC] docker buildx build --platform ${SPF_PLATFORM} -f ${DOCKERDIR}/${DOCKERFILE} -t ${SPF_REPOSITORY}:${SPF_VERSION} ${WORKDIR}/${SPF_DIR}/"
 docker buildx build ${OPTIONS} --platform="${SPF_PLATFORM}" -f="${DOCKERDIR}/${DOCKERFILE}" -t="${SPF_REPOSITORY}:${SPF_VERSION}" "${WORKDIR}/${SPF_DIR}/" || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
 
 echo "[EXEC] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"

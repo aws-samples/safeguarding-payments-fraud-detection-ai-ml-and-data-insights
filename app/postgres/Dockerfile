@@ -24,6 +24,3 @@ RUN curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail http
 RUN echo -ne "\n" | /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 RUN apt update -y
 RUN apt install -y postgresql-16-pgvector
-
-# RUN touch ${HOME}/.pgpass && cat "${SPF_DOCKERFILE_DBHOST}:${SPF_DOCKERFILE_DBPORT}:${SPF_DOCKERFILE_DBNAME}:${SPF_DOCKERFILE_DBUSER}:${SPF_DOCKERFILE_DBPASS}" > ${HOME}/.pgpass
-# RUN psql -d "${SPF_DOCKERFILE_DBNAME}" -h "${SPF_DOCKERFILE_DBHOST}" -p "${SPF_DOCKERFILE_DBPORT}" -U "${SPF_DOCKERFILE_DBUSER}" -w -a -f initdb.sql
