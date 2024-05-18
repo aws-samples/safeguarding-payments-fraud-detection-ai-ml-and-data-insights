@@ -20,6 +20,7 @@ help()
 }
 
 set -o pipefail
+set -o xtrace
 
 DOCKERFILE="Dockerfile"
 SPF_DIR="app/postgres"
