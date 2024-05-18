@@ -108,7 +108,7 @@ if [ -n "${SPF_DOCKERFILE_ARRAY}" ]; then
 IFS='
 '
   for i in ${SPF_DOCKERFILE_ARRAY}; do
-    OPTIONS="${OPTIONS} --build-arg ${i}=${!i}"
+    OPTIONS="${OPTIONS} --build-arg ${i}=\"${!i}\""
   done
 fi
 
