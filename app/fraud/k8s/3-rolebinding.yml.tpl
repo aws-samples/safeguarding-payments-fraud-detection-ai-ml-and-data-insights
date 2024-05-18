@@ -9,7 +9,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: service-account
-  namespace: default
+  namespace: {{SPF_ECR_NAME}}
 roleRef:
   kind: ClusterRole 
   name: cluster-role
