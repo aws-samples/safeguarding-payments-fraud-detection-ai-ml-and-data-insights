@@ -108,7 +108,7 @@ if [ -n "${SPF_DOCKERFILE_ARRAY}" ]; then
 IFS='
 '
   for i in ${SPF_DOCKERFILE_ARRAY}; do
-    OPTIONS="${OPTIONS} --build-arg ${i}=\"${!i}\""
+    OPTIONS="${OPTIONS} --build-arg ${i}=${!i}"
   done
 fi
 
@@ -118,7 +118,7 @@ while [ "${DOCKERDIR}" != "${WORKDIR}" ] && [ ! -f "${DOCKERDIR}/${DOCKERFILE}" 
 done
 
 echo "[EXEC] docker buildx build ${OPTIONS} --platform ${SPF_PLATFORM} -f ${DOCKERDIR}/${DOCKERFILE} -t ${SPF_REPOSITORY}:${SPF_VERSION} ${WORKDIR}/${SPF_DIR}/"
-docker buildx build ${OPTIONS} --platform "${SPF_PLATFORM}" -f "${DOCKERDIR}/${DOCKERFILE}" -t "${SPF_REPOSITORY}:${SPF_VERSION}" "${WORKDIR}/${SPF_DIR}/" || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
+docker buildx build ${OPTIONS} --platform ${SPF_PLATFORM} -f ${DOCKERDIR}/${DOCKERFILE} -t ${SPF_REPOSITORY}:${SPF_VERSION} ${WORKDIR}/${SPF_DIR}/ || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
 
 echo "[EXEC] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 docker tag "${SPF_REPOSITORY}:${SPF_VERSION}" "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}" || { echo "[ERROR] docker tag failed. aborting..."; exit 1; }
