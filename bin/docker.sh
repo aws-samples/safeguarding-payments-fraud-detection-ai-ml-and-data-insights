@@ -97,10 +97,10 @@ aws ecr get-login-password --region "${SPF_REGION}" | docker login --username AW
 if [ -n "${SPF_ROLE_NAME}" ]; then
   echo "[EXEC] aws sts assume-role --role-arn arn:aws:iam::${ACCOUNT}:role/${SPF_ROLE_NAME} --role-session-name ${ACCOUNT}"
   ASSUME_ROLE=$(aws sts assume-role --role-arn "arn:aws:iam::${ACCOUNT}:role/${SPF_ROLE_NAME}" --role-session-name "${ACCOUNT}")
-  OPTIONS="${OPTIONS} --build-arg AWS_DEFAULT_REGION=${SPF_REGION}"
-  OPTIONS="${OPTIONS} --build-arg AWS_ACCESS_KEY_ID=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.AccessKeyId')"
-  OPTIONS="${OPTIONS} --build-arg AWS_SECRET_ACCESS_KEY=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.SecretAccessKey')"
-  OPTIONS="${OPTIONS} --build-arg AWS_SESSION_TOKEN=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.SessionToken')"
+  OPTIONS="${OPTIONS} --build-arg=\"AWS_DEFAULT_REGION=${SPF_REGION}\""
+  OPTIONS="${OPTIONS} --build-arg=\"AWS_ACCESS_KEY_ID=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.AccessKeyId')\""
+  OPTIONS="${OPTIONS} --build-arg=\"AWS_SECRET_ACCESS_KEY=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.SecretAccessKey')\""
+  OPTIONS="${OPTIONS} --build-arg=\"AWS_SESSION_TOKEN=$(echo "${ASSUME_ROLE}" | jq -r '.Credentials.SessionToken')\""
 fi
 
 SPF_DOCKERFILE_ARRAY=$(env | grep ".*SPF_DOCKERFILE_.*" | awk -F "=" '{print $1}')
@@ -108,7 +108,7 @@ if [ -n "${SPF_DOCKERFILE_ARRAY}" ]; then
 IFS='
 '
   for i in ${SPF_DOCKERFILE_ARRAY}; do
-    OPTIONS="${OPTIONS} --build-arg ${i}=${!i}"
+    OPTIONS="${OPTIONS} --build-arg=\"${i}=${!i}\""
   done
 fi
 
@@ -118,7 +118,7 @@ while [ "${DOCKERDIR}" != "${WORKDIR}" ] && [ ! -f "${DOCKERDIR}/${DOCKERFILE}" 
 done
 
 echo "[EXEC] docker buildx build ${OPTIONS} --platform ${SPF_PLATFORM} -f ${DOCKERDIR}/${DOCKERFILE} -t ${SPF_REPOSITORY}:${SPF_VERSION} ${WORKDIR}/${SPF_DIR}/"
-docker buildx build ${OPTIONS} --platform ${SPF_PLATFORM} -f ${DOCKERDIR}/${DOCKERFILE} -t ${SPF_REPOSITORY}:${SPF_VERSION} ${WORKDIR}/${SPF_DIR}/ || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
+docker buildx build ${OPTIONS} --platform="${SPF_PLATFORM}" -f="${DOCKERDIR}/${DOCKERFILE}" -t="${SPF_REPOSITORY}:${SPF_VERSION}" "${WORKDIR}/${SPF_DIR}/" || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
 
 echo "[EXEC] docker tag ${SPF_REPOSITORY}:${SPF_VERSION} ${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}"
 docker tag "${SPF_REPOSITORY}:${SPF_VERSION}" "${ENDPOINT}/${SPF_REPOSITORY}:${SPF_VERSION}" || { echo "[ERROR] docker tag failed. aborting..."; exit 1; }
