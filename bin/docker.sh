@@ -11,7 +11,7 @@ help()
   echo "Options:"
   echo "d     Specify directory (e.g. app/postgres)"
   echo "f     Specify Dockerfile (e.g. Dockerfile)"
-  echo "q     Specify repository name (e.g. spf-postgres)"
+  echo "q     Specify repository name (e.g. spf-app-postgres)"
   echo "r     Specify AWS region (e.g. us-east-1)"
   echo "p     Specify platform (e.g. linux/x86_64)"
   echo "t     Specify version (e.g. latest)"
@@ -55,6 +55,7 @@ done
 
 aws --version > /dev/null 2>&1 || { echo "[ERROR] aws is missing. aborting..."; exit 1; }
 docker --version > /dev/null 2>&1 || { echo "[ERROR] docker is missing. aborting..."; exit 1; }
+jq --version > /dev/null 2>&1 || { echo "[ERROR] jq is missing. aborting..."; exit 1; }
 
 if [ -z "${SPF_ROLE_NAME}" ] && [ -n "${TF_VAR_ROLE_NAME}" ]; then SPF_ROLE_NAME="${TF_VAR_ROLE_NAME}"; fi
 if [ -z "${SPF_REGION}" ] && [ -n "${TF_VAR_SPF_REGION}" ]; then SPF_REGION="${TF_VAR_SPF_REGION}"; fi

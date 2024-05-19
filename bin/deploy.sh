@@ -9,11 +9,11 @@ help()
   echo
   echo "Syntax: deploy.sh [-a|b|c|d|e|i|r|t]"
   echo "Options:"
-  echo "a     Specify AWS application ARN (e.g. arn:aws:resource-groups:us-east-1:123456789012:group/SPF/abcd1234)"
+  echo "a     Specify AWS application ARN (e.g. arn:aws:resource-groups:us-east-1:123456789012:group/spf/abcd1234)"
   echo "b     Specify Terraform backend config (e.g. {\"us-east-1\"=\"spf-backend-us-east-1\"})"
   echo "c     Specify cleanup / destroy resources (e.g. true)"
-  echo "d     Specify directory path (e.g. iac/core)"
-  echo "e     Specify ECR repository prefix (e.g. spf-iac-core)"
+  echo "d     Specify directory path (e.g. app/postgres)"
+  echo "e     Specify ECR repository prefix (e.g. spf-app-postgres)"
   echo "i     Specify global id (e.g. abcd1234)"
   echo "r     Specify AWS region (e.g. us-east-1)"
   echo "s     Specify S3 bucket (e.g. spf-backend-us-east-1)"
@@ -64,6 +64,11 @@ if [ -z "${SPF_DIR}" ]; then
   echo "[ERROR] SPF_DIR is missing..."; exit 1;
 fi
 
+# aws --version > /dev/null 2>&1 || { wget -q https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip; unzip awscli-exe-linux-aarch64.zip; sudo ./aws/install; ln -s /usr/local/bin/aws ${WORKDIR}/bin/aws; }
+# jq --version > /dev/null 2>&1 || { wget -q https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-arm64; chmod 0755 jq-*; mv jq-* ${WORKDIR}/bin/jq; }
+aws --version > /dev/null 2>&1 || { wget -q https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip; unzip awscli-exe-linux-x86_64.zip; sudo ./aws/install --bin-dir ${WORKDIR}/bin --install-dir ${WORKDIR}/awscli; }
+jq --version > /dev/null 2>&1 || { wget -q https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-i386; chmod 0755 jq-*; mv jq-* ${WORKDIR}/bin/jq; }
+
 WORKDIR="$( cd "$(dirname "$0")/../" > /dev/null 2>&1 || exit 1; pwd -P )"
 if [ ! -d "${WORKDIR}/${SPF_DIR}/" ]; then
   echo "[DEBUG] SPF_DIR: ${SPF_DIR}"
@@ -103,9 +108,7 @@ case ${SPF_DIR} in app*)
   ##############################################################
   "
 
-  # aws --version > /dev/null 2>&1 || { wget -q https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip; unzip awscli-exe-linux-aarch64.zip; sudo ./aws/install; ln -s /usr/local/bin/aws ${WORKDIR}/bin/aws; }
   # kubectl version --client > /dev/null 2>&1 || { wget -q https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl; chmod 0755 kubectl; mv kubectl ${WORKDIR}/bin/kubectl; }
-  aws --version > /dev/null 2>&1 || { wget -q https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip; unzip awscli-exe-linux-x86_64.zip; sudo ./aws/install --bin-dir ${WORKDIR}/bin --install-dir ${WORKDIR}/awscli; }
   kubectl version --client > /dev/null 2>&1 || { wget -q https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl; chmod 0755 kubectl; mv kubectl ${WORKDIR}/bin/kubectl; }
 
   if [ -n "${SPF_ECR}" ]; then
