@@ -18,8 +18,8 @@ spec:
     spec:
       serviceAccountName: service-account
       containers:
-      - image: {{SPF_ECR_URI}}:latest
-        name: fraud-app
+      - name: fraud-app
+        image: {{SPF_ECR_URI}}:latest
         stdin: true
         envFrom:
           - configMapRef:

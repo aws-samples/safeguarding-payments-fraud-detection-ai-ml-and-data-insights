@@ -28,7 +28,7 @@ urls = []
 
 for x in r:
     url = x[1].split('?')[0]
-    urldata = requests.get(url).content
+    urldata = requests.get(url, timeout=15).content
     print("Product Item Id: " + str(x[0]))
     a = io.imread(url)
     plt.imshow(a)

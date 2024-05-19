@@ -8,8 +8,8 @@ metadata:
   name: cluster-role-binding
 subjects:
 - kind: ServiceAccount
-  name: service-account
   namespace: {{SPF_ECR_NAME}}
+  name: service-account
 roleRef:
   kind: ClusterRole 
   name: cluster-role

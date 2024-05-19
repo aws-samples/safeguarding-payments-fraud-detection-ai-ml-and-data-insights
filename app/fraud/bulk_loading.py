@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 #client = boto3.client('secretsmanager')
 
 def get_secret():
-    secret_name = "rdspg-vector-secret"
+    secret_name = "rdspg-vector-secret" # nosec B105
     region_name = "us-east-1"
 
     # Create a Secrets Manager client
