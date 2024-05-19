@@ -24,7 +24,7 @@ resource "aws_eks_node_group" "this" {
   capacity_type   = var.q.capacity_type
   instance_types  = split(",", var.eks_node_ec2 != "" ? var.eks_node_ec2 : var.q.instance_types)
   disk_size       = var.q.disk_size
-  labels          = local.labels == {"" = ""} ? {} : local.labels
+  labels          = local.labels == { "" = "" } ? {} : local.labels
   release_version = var.q.release_version
   version         = var.q.version
 

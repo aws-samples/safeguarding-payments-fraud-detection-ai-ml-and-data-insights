@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: MIT-0
 
 locals {
-  spf_gid    = (var.spf_gid == null ? data.terraform_remote_state.s3.outputs.spf_gid : var.spf_gid)
-  labels     = {for i in split(",", var.q.labels): element(split(":", i), 0) => element(split(":", i), 1)}
+  spf_gid = (var.spf_gid == null ? data.terraform_remote_state.s3.outputs.spf_gid : var.spf_gid)
+  labels  = { for i in split(",", var.q.labels) : element(split(":", i), 0) => element(split(":", i), 1) }
   namespaces = concat(split(",", var.q.fargate_names), values({
-    for val in split(",", var.q.app_namespaces): val => format("%s-%s-%s", val, data.aws_region.this.name, local.spf_gid)
+    for val in split(",", var.q.app_namespaces) : val => format("%s-%s-%s", val, data.aws_region.this.name, local.spf_gid)
   }))
   subnet_ids = (
     length(data.terraform_remote_state.subnet.outputs.cagw_subnet_ids) > 0 ?

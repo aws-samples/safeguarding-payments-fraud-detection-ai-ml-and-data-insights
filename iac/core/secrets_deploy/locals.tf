@@ -3,7 +3,7 @@
 
 locals {
   spf_gid = (var.spf_gid == null ? data.terraform_remote_state.s3.outputs.spf_gid : var.spf_gid)
-  secret  = {
+  secret = {
     SPF_DOCKERFILE_DBHOST = var.q.dbhost
     SPF_DOCKERFILE_DBNAME = var.q.dbname
     SPF_DOCKERFILE_DBUSER = var.q.dbuser

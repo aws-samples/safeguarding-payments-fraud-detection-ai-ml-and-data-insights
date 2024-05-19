@@ -17,8 +17,8 @@ resource "aws_vpc_endpoint" "gw" {
   vpc_id            = data.terraform_remote_state.sg.outputs.vpc_id
   vpc_endpoint_type = "Gateway"
   service_name      = format("com.amazonaws.%s.%s", data.aws_region.this.name, element(local.gateways, count.index))
-  route_table_ids   = values({
-    for key, val in local.route_table_ids:
+  route_table_ids = values({
+    for key, val in local.route_table_ids :
     key => val if val != ""
   })
 }

@@ -19,8 +19,8 @@ spec:
         spec:
           serviceAccountName: service-account
           containers:
-          - image: {{SPF_ECR_URI}}:latest
-            name: data-collector-app
+          - name: data-collector-app
+            image: {{SPF_ECR_URI}}:latest
             command: ["java"]
             args: ["-jar", "/app/runner.jar"]
             ports:
