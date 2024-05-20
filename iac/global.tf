@@ -25,7 +25,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.45.0"
+      version = "5.49.0"
     }
   }
 }
@@ -56,4 +56,85 @@ variable "account" {
 variable "app_arn" {
   type    = string
   default = ""
+}
+
+variable "eks_cluster_name" {
+  type    = string
+  default = ""
+}
+
+variable "eks_node_type" {
+  type    = string
+  default = "fargate"
+  validation {
+    condition     = contains(["fargate", "eks-managed", "self-managed"], var.eks_node_type)
+    error_message = "Valid values: fargate, eks-managed, self-managed"
+  }
+}
+
+variable "eks_node_arch" {
+  type    = string
+  default = "x86"
+  validation {
+    condition     = contains(["x86", "arm", "amd"], var.eks_node_arch)
+    error_message = "Valid values: x86, arm, amd"
+  }
+}
+
+variable "eks_node_ec2" {
+  type    = string
+  default = ""
+}
+
+variable "eks_node_ebs" {
+  type    = string
+  default = "gp2"
+  validation {
+    condition     = contains(["gp2", "gp3"], var.eks_node_ebs)
+    error_message = "Valid values: gp2, gp3"
+  }
+}
+
+variable "vpc_id" {
+  type    = string
+  default = ""
+}
+
+variable "vpce_mapping" {
+  type    = string
+  default = ""
+  # default = "{{interface_name}},{{interface_name}}:{{gateway_name}},{{gateway_name}}"
+}
+
+variable "subnets_igw_create" {
+  type    = bool
+  default = false
+}
+
+variable "subnets_igw_mapping" {
+  type    = string
+  default = ""
+  # default = "{{availability_zone_id}}:{{availability_zone_cidr}},{{availability_zone_id}}:{{availability_zone_cidr}}"
+}
+
+variable "subnets_nat_create" {
+  type    = bool
+  default = false
+}
+
+variable "subnets_nat_mapping" {
+  type    = string
+  default = ""
+  # default = "{{availability_zone_id}}:{{availability_zone_cidr}},{{availability_zone_id}}:{{availability_zone_cidr}}"
+}
+
+variable "subnets_cagw_create" {
+  type    = bool
+  default = false
+}
+
+variable "subnets_cagw_mapping" {
+  type    = string
+  default = ""
+  # default = "{{wavelength_zone_id}}:{{wavelength_zone_cidr}},{{wavelength_zone_id}}:{{wavelength_zone_cidr}}"
 }

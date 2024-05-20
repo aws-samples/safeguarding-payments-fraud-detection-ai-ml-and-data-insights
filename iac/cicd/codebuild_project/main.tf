@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 resource "aws_codebuild_project" "this" {
   name          = format("%s-%s", var.q.name, local.spf_gid)
   description   = var.q.description

@@ -1,3 +1,6 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
 locals {
   region = (
     data.aws_region.this.name == element(keys(var.backend_bucket), 0)
@@ -8,7 +11,7 @@ locals {
     ? random_id.this.hex : data.terraform_remote_state.iam.0.outputs.spf_gid
   ) : var.spf_gid)
   ips = {
-    for val in jsondecode(data.http.this.response_body)["prefixes"]: lower(val["service"]) => val... if (
+    for val in jsondecode(data.http.this.response_body)["prefixes"] : lower(val["service"]) => val... if(
       lower(val["service"]) == "codebuild" && (
         val["region"] == element(keys(var.backend_bucket), 0)
         || val["region"] == element(keys(var.backend_bucket), 1)
