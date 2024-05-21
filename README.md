@@ -2,9 +2,9 @@
 
 Safeguarding Payments: Fraud Detection, AI/ML and Data Insights
 
-Leveraging AI and data analytics to build an intelligent fraud detection system
-that safeguards payments and provides financial institutions with actionable
-insights to stop fraudulent transactions.
+Leveraging AI/ML and data analytics to build an intelligent fraud detection
+system that safeguards payments and provides financial institutions with
+actionable insights to stop fraudulent transactions.
 
 ## Architecture Diagram
 
@@ -46,7 +46,7 @@ used by Terraform remote state (e.g. *spf-backend-us-east-1*)
 Starting at the ROOT level of this repository, run the following command:
 
 ```sh
-/bin/bash ./bin/deploy.sh -d iac/cicd -r us-east-1 -t spf-backend-us-east-1
+/bin/bash ./bin/deploy.sh -d iac/cicd -r us-east-1 -s spf-backend-us-east-1
 ```
 
 > REMINDER: Make sure to replace *us-east-1* with your target AWS region and
@@ -112,11 +112,11 @@ deployed by this solution, this can be easily achieved by running the following
 two commands:
 
 ```sh
-/bin/bash ./bin/deploy.sh -c true -d iac/core -r us-east-1 -t spf-backend-us-east-1
+/bin/bash ./bin/deploy.sh -c true -d iac/core -r us-east-1 -s spf-backend-us-east-1
 ```
 
 ```sh
-/bin/bash ./bin/deploy.sh -c true -d iac/cicd -r us-east-1 -t spf-backend-us-east-1
+/bin/bash ./bin/deploy.sh -c true -d iac/cicd -r us-east-1 -s spf-backend-us-east-1
 ```
 
 > REMINDER: Make sure to replace *us-east-1* with your target AWS region and

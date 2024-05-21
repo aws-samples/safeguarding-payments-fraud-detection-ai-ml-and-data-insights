@@ -5,7 +5,7 @@ phases:
     commands:
       - PATH="$PATH:$CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/bin" && export PATH
       - if [ -d "$CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights" ]; then mv $CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/ temp/; fi
-      - git clone https://$SPF_GITHUB_TOKEN@github.com/aws-samples/safeguarding-payments-fraud-detection-ai-ml-and-data-insights
+      - if [ -n "$SPF_GITHUB_TOKEN" ]; then git clone https://$SPF_GITHUB_TOKEN@github.com/aws-samples/safeguarding-payments-fraud-detection-ai-ml-and-data-insights; else git clone https://github.com/aws-samples/safeguarding-payments-fraud-detection-ai-ml-and-data-insights; fi
       - if [ -d "temp" ]; then cp -R temp/ $CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/; rm -rf temp; fi
       - cd $CODEBUILD_SRC_DIR/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/
       - if [ -n "$SPF_GITHUB_BRANCH" ]; then git checkout $SPF_GITHUB_BRANCH; fi
