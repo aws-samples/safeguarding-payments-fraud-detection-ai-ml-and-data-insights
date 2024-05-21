@@ -20,7 +20,7 @@ resource "aws_eks_node_group" "this" {
   node_role_arn   = data.terraform_remote_state.iam_node.outputs.arn
   subnet_ids      = local.subnet_ids
 
-  ami_type        = var.eks_node_arch == "arm" ? "AL2_ARM_64" : "AL2_X86_64"
+  ami_type        = var.eks_node_arch == "arm" ? "AL2_ARM_64" : "AL2_x86_64"
   capacity_type   = var.q.capacity_type
   instance_types  = split(",", var.eks_node_ec2 != "" ? var.eks_node_ec2 : var.q.instance_types)
   disk_size       = var.q.disk_size

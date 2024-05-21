@@ -4,7 +4,7 @@
 resource "aws_security_group" "this" {
   name        = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
   description = var.q.description
-  vpc_id      = element(data.aws_vpcs.this.ids, 0)
+  vpc_id      = data.aws_vpc.this.id
 
   dynamic "ingress" {
     for_each = local.ingress_rules

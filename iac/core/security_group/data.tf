@@ -8,6 +8,11 @@ data "aws_vpcs" "this" {
   }
 }
 
+data "aws_vpc" "this" {
+  id      = try(element(data.aws_vpcs.this.ids, 0), null)
+  default = try(element(data.aws_vpcs.this.ids, 0), null) == null ? true : false
+}
+
 data "aws_availability_zones" "az" {
   filter {
     name   = "opt-in-status"
