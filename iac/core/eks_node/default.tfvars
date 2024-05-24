@@ -18,8 +18,8 @@ q = {
   labels          = ""
   release_version = null
   version         = null
-  addons          = "vpc-cni,kube-proxy,eks-pod-identity-agent"               # coredns
-  addons_version  = "v1.18.1-eksbuild.3,v1.29.3-eksbuild.2,v1.2.0-eksbuild.1" # v1.11.1-eksbuild.9
+  addons          = "vpc-cni,kube-proxy,eks-pod-identity-agent,aws-ebs-csi-driver"
+  addons_version  = "v1.18.1-eksbuild.3,v1.30.0-eksbuild.3,v1.2.0-eksbuild.1,v1.31.0-eksbuild.1"
   addons_create   = "OVERWRITE"
   addons_update   = "PRESERVE"
 }
