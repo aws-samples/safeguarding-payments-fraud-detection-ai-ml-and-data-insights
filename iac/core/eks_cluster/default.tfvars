@@ -3,7 +3,7 @@
 
 q = {
   name           = "spf-eks-cluster"
-  version        = "1.30"
+  version        = "1.29"
   public         = true
   private        = true
   admin          = true
