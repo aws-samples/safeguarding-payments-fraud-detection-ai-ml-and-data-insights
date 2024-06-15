@@ -25,7 +25,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.52.0"
+      version = "5.54.1"
     }
   }
 }
@@ -65,10 +65,10 @@ variable "eks_cluster_name" {
 
 variable "eks_node_type" {
   type    = string
-  default = "fargate"
+  default = "eks-managed"
   validation {
-    condition     = contains(["fargate", "eks-managed", "self-managed"], var.eks_node_type)
-    error_message = "Valid values: fargate, eks-managed, self-managed"
+    condition     = contains(["eks-managed", "fargate", "self-managed"], var.eks_node_type)
+    error_message = "Valid values: eks-managed, fargate, self-managed"
   }
 }
 
@@ -83,7 +83,7 @@ variable "eks_node_arch" {
 
 variable "eks_node_ec2" {
   type    = string
-  default = ""
+  default = "t3.medium,t3.xlarge"
 }
 
 variable "eks_node_ebs" {
