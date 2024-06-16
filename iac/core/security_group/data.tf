@@ -15,14 +15,37 @@ data "aws_vpc" "this" {
 
 data "aws_availability_zones" "az" {
   filter {
-    name   = "opt-in-status"
-    values = ["opt-in-not-required"]
+    name   = "zone-type"
+    values = ["availability-zone"]
+  }
+  filter {
+    name   = "state"
+    values = ["available"]
   }
 }
 
 data "aws_availability_zones" "lz" {
   all_availability_zones = true
-  exclude_zone_ids       = data.aws_availability_zones.az.zone_ids
+  filter {
+    name   = "zone-type"
+    values = ["local-zone"]
+  }
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+}
+
+data "aws_availability_zones" "wlz" {
+  all_availability_zones = true
+  filter {
+    name   = "zone-type"
+    values = ["wavelength-zone"]
+  }
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
 }
 
 data "terraform_remote_state" "s3" {

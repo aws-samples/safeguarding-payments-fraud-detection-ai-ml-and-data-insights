@@ -107,12 +107,6 @@ resource "aws_route_table_association" "cagw" {
   route_table_id = element(aws_route_table.cagw.*.id, 0)
 }
 
-#####################################
-# LGW = Local Gateway / Local Zones #
-#####################################
-
-# @TODO: Implement Local Gateway / Local Zones
-
 #################################
 # LGW = Local Gateway / Outpost #
 #################################
