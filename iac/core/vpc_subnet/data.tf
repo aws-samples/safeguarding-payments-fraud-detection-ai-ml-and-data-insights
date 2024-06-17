@@ -31,8 +31,6 @@ data "aws_subnets" "cagw" {
   }
 }
 
-# @TODO: Implement Local Gateway / Local Zones
-
 # @TODO: Implement Local Gateway / Outpost
 
 data "terraform_remote_state" "sg" {

@@ -25,6 +25,4 @@ output "cagw_route_table_id" {
   value = length(aws_route_table.cagw.*.id) > 0 ? element(aws_route_table.cagw.*.id, 0) : ""
 }
 
-# @TODO: Implement Local Gateway / Local Zones
-
 # @TODO: Implement Local Gateway / Outpost
