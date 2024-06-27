@@ -5,20 +5,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: {{SPF_ECR_NAME}}
-  name: fraud
+  name: anomaly-detector
 spec:
   selector:
     matchLabels:
-      app: fraud-app
+      app: anomaly-detector-app
   replicas: 1
   template:
     metadata:
       labels:
-        app: fraud-app
+        app: anomaly-detector-app
     spec:
       serviceAccountName: service-account
       containers:
-      - name: fraud-app
+      - name: anomaly-detector-app
         image: {{SPF_ECR_URI}}:latest
         stdin: true
         envFrom:

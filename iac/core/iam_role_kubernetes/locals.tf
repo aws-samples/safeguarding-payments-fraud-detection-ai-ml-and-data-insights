@@ -10,8 +10,9 @@ locals {
     "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
   ]
   service_accounts = [
+    format("system:serviceaccount:spf-app-anomaly-detector-%s:service-account", local.suffix),
     format("system:serviceaccount:spf-app-data-collector-%s:service-account", local.suffix),
-    format("system:serviceaccount:spf-app-fraud-%s:service-account", local.suffix),
     format("system:serviceaccount:spf-app-postgres-%s:service-account", local.suffix),
+    format("system:serviceaccount:spf-app-minio-%s:service-account", local.suffix),
   ]
 }

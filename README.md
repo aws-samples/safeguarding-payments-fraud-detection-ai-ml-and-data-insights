@@ -20,8 +20,8 @@ across the following directories:
     * `iac/core/` - Core Infrastructure Module
     * `iac/quicksight/` - QuickSight Infrastructure Module
 2. `app/` - Application Code
+    * `app/anomaly-detector/` - Anomaly Detector Microservice (Python-based Module)
     * `app/data-collector/` - Data Collector Microservice (Java-based Module)
-    * `app/fraud/` - Fraud Detector Microservice (Python-based Module)
     * `app/postgres/` - PostgreSQL Database
 
 ### Pre-requisites
@@ -94,7 +94,8 @@ modules from `iac/` directory (e.g. `iac/quicksight`)
 3. After done with Infrastructure modules, deploy any dependencies required by
 Application modules from `app/` directory (e.g. `app/postgres`)
 4. After done with Application dependencies, deploy any other Application
-modules from `app/` directory (e.g. `app/data-collector` or `app/fraud`)
+modules from `app/` directory (e.g. `app/anomaly-detector` or
+`app/data-collector`)
 
 To pick which module to deploy (e.g. `app/postgres`), simply pass the
 directory relative path value to `SPF_DIR` environment variable as shown below:
