@@ -205,10 +205,10 @@ case ${SPF_DIR} in iac*)
   #################################################################
   "
 
-  # terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.8.4/terraform_1.8.4_linux_arm64.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
-  # terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.58.12/terragrunt_linux_arm64; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
-  terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.8.4/terraform_1.8.4_linux_386.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
-  terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.58.12/terragrunt_linux_386; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
+  # terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.9.0/terraform_1.9.0_linux_arm64.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
+  # terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.59.6/terragrunt_linux_arm64; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
+  terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.9.0/terraform_1.9.0_linux_386.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
+  terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.59.6/terragrunt_linux_386; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
 
   if [ -z "${SPF_BUCKET}" ]; then
     echo "[DEBUG] SPF_BUCKET: ${SPF_BUCKET}"
