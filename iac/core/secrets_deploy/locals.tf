@@ -13,5 +13,6 @@ locals {
     SPF_SERVICE_DBNAME    = var.q.srvname
     SPF_SERVICE_NAMESPACE = format("%s-%s-%s", var.q.srvprefix, data.aws_region.this.name, local.spf_gid)
     SPF_SERVICE_ROLE      = data.terraform_remote_state.iam.outputs.arn
+    SPF_S3_BUCKET         = data.terraform_remote_state.s3.outputs.id
   }
 }
