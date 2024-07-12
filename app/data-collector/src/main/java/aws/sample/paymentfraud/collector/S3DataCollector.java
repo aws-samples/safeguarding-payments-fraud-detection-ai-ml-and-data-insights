@@ -14,6 +14,11 @@ import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
 public class S3DataCollector implements DataCollector {
+
+    private S3DataCollector(){
+        // class not being used
+    }
+
     Region region = Region.US_EAST_1;
     SqsClient sqsClient = SqsClient.builder()
             .region(Region.US_EAST_1)
