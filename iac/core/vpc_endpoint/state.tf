@@ -8,7 +8,3 @@ output "arn" {
 output "id" {
   value = join(",", aws_vpc_endpoint.this.*.id)
 }
-
-output "owner_id" {
-  value = join(",", aws_vpc_endpoint.this.*.owner_id)
-}
