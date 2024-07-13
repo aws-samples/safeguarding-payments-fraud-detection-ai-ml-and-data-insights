@@ -22,7 +22,8 @@ across the following directories:
 2. `app/` - Application Code
     * `app/anomaly-detector/` - Anomaly Detector Microservice (Python-based Module)
     * `app/data-collector/` - Data Collector Microservice (Java-based Module)
-    * `app/postgres/` - PostgreSQL Database
+    * `app/postgres/` - PostgreSQL Database (local to the Kubernetes cluster)
+    * `app/minio/` - MinIO S3 API-Compatibile Storage (local to the Kubernetes cluster)
 
 ### Pre-requisites
 

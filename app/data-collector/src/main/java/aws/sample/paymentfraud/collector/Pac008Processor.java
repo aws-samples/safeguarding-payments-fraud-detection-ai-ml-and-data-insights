@@ -30,7 +30,7 @@ public class Pac008Processor {
     private List<String> xPaths = null;
     private String header;
 
-    public Pac008Processor() {
+    private Pac008Processor() { // class not being used
         try {
             InputStream in = Pac008Processor.class.getResourceAsStream(xPathFile);
             InputStreamReader streamReader = new InputStreamReader(in, StandardCharsets.UTF_8);
@@ -89,7 +89,7 @@ public class Pac008Processor {
 
     public static void main(String[] args) throws Exception {
         Pac008Processor pac008Processor = new Pac008Processor();
-        String sampleInputXMLFile = "/data/pacs.008.xml";
+        String sampleInputXMLFile = "/src/main/resources/pacs.008.xml";
         File inputXml = new File(sampleInputXMLFile);
         FileInputStream inputStream = new FileInputStream(inputXml);
         pac008Processor.process(inputStream);

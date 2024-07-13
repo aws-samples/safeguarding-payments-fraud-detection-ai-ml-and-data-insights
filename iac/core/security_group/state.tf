@@ -9,10 +9,6 @@ output "id" {
   value = aws_security_group.this.id
 }
 
-output "owner_id" {
-  value = aws_security_group.this.owner_id
-}
-
 output "vpc_id" {
   value = aws_security_group.this.vpc_id
 }

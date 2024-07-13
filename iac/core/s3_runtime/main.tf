@@ -39,6 +39,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 }
 
 resource "aws_s3_bucket_object_lock_configuration" "this" {
+  count  = var.q.object_lock_enabled ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
   rule {

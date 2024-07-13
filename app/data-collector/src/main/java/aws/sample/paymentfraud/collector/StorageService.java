@@ -1,36 +1,23 @@
 package aws.sample.paymentfraud.collector;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.json.JSONObject;
-import org.json.XML;
 
 import com.amazonaws.util.StringUtils;
 
-import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CopyObjectResponse;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public class StorageService {
 
     private final static Logger LOGGER = Logger.getLogger(StorageService.class.getName());
 
-    CollectorConfig collectorConfig = new CollectorConfig();
+    ConfigMapCollectorConfig collectorConfig = new ConfigMapCollectorConfig();
 
     S3Client s3 = S3Client.builder().region(Region.US_EAST_1).build();
 
@@ -38,9 +25,9 @@ public class StorageService {
 
     public String storeObjects(String data, Set<String> files) {
         String dateString = Utils.now();
-        store(data, getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_SCAN_DATA_LOCATION) + "/" + dateString+".csv");
+        //store(data, getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_SCAN_DATA_LOCATION) + "/" + dateString+".csv");
         // savePaymentInfoInXMLASJson(files);
-        processFilesAndStore(files, dateString);
+        //processFilesAndStore(files, dateString);
         LOGGER.info("Stored data to S3 for " + dateString);
         return dateString;
     }
@@ -76,14 +63,14 @@ public class StorageService {
 
         //collectorConfig.getConfig(CollectorConstants.SSM_KEY_SCAN_DATA_LOCATION) + "/" + objectName;
         PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_S3_BUCKET))
+                .bucket(getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.S3_BUCKET))
                 .key(objectName)
                 .build();
         s3.putObject(request, RequestBody.fromBytes(data.getBytes()));
-        return getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_S3_BUCKET)+"/"+objectName;
+        return getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.S3_BUCKET)+"/"+objectName;
     }
 
-    public void processFilesAndStore(Set<String> files, String folderName) {
+    /* public void processFilesAndStore(Set<String> files, String folderName) {
         if (files == null || files.isEmpty()) {
             LOGGER.info("No files to copy for folder " + folderName);
             return;
@@ -106,11 +93,11 @@ public class StorageService {
                     getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_SOURCE_S3_BUCKET_FOR_RP2), s3Object));
                     buffer.append("\n");
 
-                /* savePaymentInfoInXMLASJson(
-                        getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_SOURCE_S3_BUCKET_FOR_RP2), s3Object,
-                        getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_S3_BUCKET),
-                        getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_FILE_DATA_EXTRACT_FOLDER_IN_S3) + "/" + folderName + "/" + fileName + ".json"); */
-                        System.out.println(buffer);
+                //savePaymentInfoInXMLASJson(
+                  //      getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_SOURCE_S3_BUCKET_FOR_RP2), s3Object,
+                    //    getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_S3_BUCKET),
+                      //  getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_FILE_DATA_EXTRACT_FOLDER_IN_S3) + "/" + folderName + "/" + fileName + ".json");
+                       // System.out.println(buffer);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -118,18 +105,11 @@ public class StorageService {
         store(buffer.toString(), 
         getCollectorConfig().getConfig(CollectorConstants.SSM_KEY_FILE_DATA_EXTRACT_FOLDER_IN_S3) + "/" + folderName + ".csv"); // Save all pac008 files in one CSV
         LOGGER.log(Level.INFO,buffer.toString());
-    }
+    } */
 
-    public CopyObjectResponse copyFile(String sourceBucket, String sourceKey, String destinationBucket,
+/*     public CopyObjectResponse copyFile(String sourceBucket, String sourceKey, String destinationBucket,
             String destinationKey) throws Exception {
         try {
-            /* CopyObjectRequest copyObjRequest = CopyObjectRequest.builder()
-                    .sourceBucket(sourceBucket)
-                    .sourceKey(sourceKey)
-                    .destinationBucket(destinationBucket)
-                    .destinationKey(destinationKey)
-                    .build(); */
-
             //s3.copyObject(copyObjRequest);
             LOGGER.info("Attempting to copy " + sourceBucket + "/" + sourceKey + " --> " + destinationBucket + "/"
                     + destinationKey);
@@ -139,9 +119,9 @@ public class StorageService {
             throw new Exception("Unable to copy " + sourceBucket + "/" + sourceKey + " --> " + destinationBucket + "/"
                     + destinationKey, e);
         }
-    };
+    }; */
 
-    private boolean objectExists(String bucketName, String objectKey) {
+    /* private boolean objectExists(String bucketName, String objectKey) {
         try {
             return s3.headObject(HeadObjectRequest.builder()
                     .bucket(bucketName)
@@ -151,9 +131,9 @@ public class StorageService {
         } catch (S3Exception e) {
             return false;
         }
-    }
+    } */
 
-    private String getPaymentInfoInXMLASCSV(String sourceBucket, String sourceKey) throws Exception {
+    /* private String getPaymentInfoInXMLASCSV(String sourceBucket, String sourceKey) throws Exception {
         ResponseInputStream<GetObjectResponse> objectStream = s3.getObject(GetObjectRequest.builder()
                 .bucket(sourceBucket)
                 .key(sourceKey)
@@ -185,24 +165,23 @@ public class StorageService {
         s3.putObject(request, body);
         Object params[] = {destinationBucket,destinationKey};
         LOGGER.log(Level.INFO, "Successfully saved data in JSON format to S3 for {0}/{1} ", params);
-    }
+    } */
 
-    private CollectorConfig getCollectorConfig() {
+    private ConfigMapCollectorConfig getCollectorConfig() {
         return collectorConfig;
     }
 
-    public static void main(String[] args) {
+    /* public static void main(String[] args) {
         try {
             StorageService storageService = new StorageService();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
+    } */
 
-    private Pac008Processor getPac008Processor() {
+    /* private Pac008Processor getPac008Processor() {
         throw new UnsupportedOperationException();
         //return pac008Processor;
     }
-
+ */
 }

@@ -16,6 +16,10 @@ import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
 public class DynamoDBDataCollector implements DataCollector {
 
+  private DynamoDBDataCollector() {
+    // class not being used
+  }
+
   private final static Logger LOGGER = Logger.getLogger(DynamoDBDataCollector.class.getName());
 
   private static final String KEYS[] = { "transaction_status", "request_resource", "request_account", "created_at",

@@ -29,6 +29,10 @@ public class S3Helper {
 
     private final static Logger LOGGER = Logger.getLogger(S3Helper.class.getName());
 
+    private S3Helper() {
+        // class not being used
+    }
+
     CollectorConfig collectorConfig = new CollectorConfig();
     public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH-mm-ss";
 

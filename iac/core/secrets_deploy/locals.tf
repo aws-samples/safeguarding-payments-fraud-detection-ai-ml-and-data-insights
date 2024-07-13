@@ -9,6 +9,7 @@ locals {
     SPF_DOCKERFILE_DBUSER = var.q.dbuser
     SPF_DOCKERFILE_DBPASS = base64encode(random_password.this.result)
     SPF_DOCKERFILE_DBPORT = var.q.dbport
+    SPF_S3_BUCKET         = data.terraform_remote_state.s3.outputs.id
     SPF_SERVICE_DBPORT    = var.q.srvport
     SPF_SERVICE_DBNAME    = var.q.srvname
     SPF_SERVICE_NAMESPACE = format("%s-%s-%s", var.q.srvprefix, data.aws_region.this.name, local.spf_gid)
