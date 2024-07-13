@@ -22,8 +22,8 @@ across the following directories:
 2. `app/` - Application Code
     * `app/anomaly-detector/` - Anomaly Detector Microservice (Python-based Module)
     * `app/data-collector/` - Data Collector Microservice (Java-based Module)
-    * `app/postgres/` - PostgreSQL Database (local to the Kubernetes cluster)
-    * `app/minio/` - MinIO S3 API-Compatibile Storage (local to the Kubernetes cluster)
+    * `app/minio/` - MinIO S3 API-Compatibile Storage (Local to the Kubernetes Cluster)
+    * `app/postgres/` - PostgreSQL Database (Local to the Kubernetes Cluster)
 
 ### Pre-requisites
 
@@ -124,23 +124,29 @@ two commands:
 > REMINDER: Make sure to replace *us-east-1* with your target AWS region and
 *spf-backend-us-east-1* with your S3 bucket.
 
-## Support
+## Authors
 
-*Tell people where they can go to for help. It can be any combination of an
-issue tracker, a chat room, an email address, etc.*
+The following people have contributed to the project:
 
-## Roadmap
-
-*If you have ideas for releases in the future, it is a good idea to list them
-in the README.*
-
-## Authors and acknowledgment
-
-*Show your appreciation to those who have contributed to the project.*
+* Amit Khanal - [@amitkhanal](https://github.com/amitkhanal)
+* Eduardo Campos - [@ecamposv](https://github.com/ecamposv)
+* Eugene Istrati - [@eistrati](https://github.com/eistrati)
+* Roy Yung - [@yungroy1](https://github.com/yungroy1)
 
 ## Contributing
 
 See the [CONTRIBUTING](./CONTRIBUTING.md) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License.
+See the [LICENSE](./LICENSE) for more information.
+
+## Roadmap
+
+See the
+[open issues](https://github.com/aws-samples/safeguarding-payments-fraud-detection-ai-ml-and-data-insights/issues)
+for a list of proposed features (and known issues).
 
 ## Security
 
@@ -148,7 +154,7 @@ See the
 [Security Issue Notifications](./CONTRIBUTING.md#security-issue-notifications)
 for more information.
 
-## License
+## Support
 
-This library is licensed under the MIT-0 License. See the [LICENSE](./LICENSE)
-for more information.
+Contributions, issues, and feature requests are welcome.
+Leave us a ⭐️ if you like this project.
