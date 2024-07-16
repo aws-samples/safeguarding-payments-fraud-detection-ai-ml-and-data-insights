@@ -97,7 +97,7 @@ locals {
     {
       name  = "SPF_EKS_NODE_TYPE"
       type  = "PLAINTEXT"
-      value = "fargate"
+      value = "eks-managed"
     },
     {
       name  = "SPF_EKS_NODE_ARCH"

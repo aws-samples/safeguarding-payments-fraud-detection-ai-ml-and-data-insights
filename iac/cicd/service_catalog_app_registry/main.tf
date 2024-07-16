@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: MIT-0
 
 resource "aws_servicecatalogappregistry_application" "this" {
-  name        = var.q.name
-  description = var.q.description
+  count = trimspace(var.app_name) != "" ? 1 : 0
+  name  = var.app_name
 }

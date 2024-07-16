@@ -55,7 +55,13 @@ variable "account" {
 
 variable "app_arn" {
   type        = string
-  description = "ARN of the AWS application (e.g. arn:aws:resource-groups:{{region_name}}:{{account_id}}:group/{{app_id}})"
+  description = "AWS myApplication ARN (e.g. arn:aws:resource-groups:{{region_name}}:{{account_id}}:group/{{app_id}})"
+  default     = ""
+}
+
+variable "app_name" {
+  type        = string
+  description = "AWS myApplication Name (e.g. spf)"
   default     = ""
 }
 
