@@ -22,7 +22,7 @@ resource "aws_eks_node_group" "this" {
 
   ami_type        = var.eks_node_arch == "arm" ? "AL2_ARM_64" : "AL2_x86_64"
   capacity_type   = var.q.capacity_type
-  instance_types  = split(",", var.eks_node_ec2 != "" ? var.eks_node_ec2 : var.q.instance_types)
+  instance_types  = split(",", trimspace(var.eks_node_ec2) != "" ? var.eks_node_ec2 : var.q.instance_types)
   disk_size       = var.q.disk_size
   labels          = local.labels
   release_version = var.q.release_version
@@ -47,7 +47,8 @@ resource "aws_eks_node_group" "this" {
 module "self_managed_node_group" {
   count                = var.eks_node_type == "self-managed" ? 1 : 0
   source               = "terraform-aws-modules/eks/aws//modules/self-managed-node-group"
-  version              = "20.10.0"
+  version              = "20.19.0"
+
   name                 = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
   cluster_name         = data.terraform_remote_state.eks.outputs.id
   cluster_version      = data.terraform_remote_state.eks.outputs.version
@@ -64,7 +65,7 @@ module "self_managed_node_group" {
   desired_size             = var.q.desired_size
   min_size                 = var.q.min_size
   max_size                 = var.q.max_size
-  instance_type            = element(split(",", var.eks_node_ec2 != "" ? var.eks_node_ec2 : var.q.instance_types), 0)
+  instance_type            = element(split(",", trimspace(var.eks_node_ec2) != "" ? var.eks_node_ec2 : var.q.instance_types), 0)
   create_launch_template   = true
   create_autoscaling_group = true
   create_access_entry      = true
@@ -76,7 +77,7 @@ module "self_managed_node_group" {
       device_name = "/dev/xvda"
       ebs = {
         volume_size           = var.q.disk_size
-        volume_type           = var.eks_node_ebs != "" ? var.eks_node_ebs : var.q.disk_type
+        volume_type           = trimspace(var.eks_node_ebs) != "" ? var.eks_node_ebs : var.q.disk_type
         delete_on_termination = true
         encrypted             = true
         kms_key_id            = element(module.ebs_kms_key.*.key_arn, 0)
@@ -95,7 +96,7 @@ module "self_managed_node_group" {
 module "ebs_kms_key" {
   count       = var.eks_node_type == "self-managed" ? 1 : 0
   source      = "terraform-aws-modules/kms/aws"
-  version     = "2.2.1"
+  version     = "3.1.0"
   description = var.q.description
   aliases     = [format("eks/%s-%s-%s/ebs", var.q.name, data.aws_region.this.name, local.spf_gid)]
 

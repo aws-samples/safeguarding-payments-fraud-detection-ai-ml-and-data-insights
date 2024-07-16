@@ -3,8 +3,8 @@
 
 data "aws_vpcs" "this" {
   filter {
-    name   = var.vpc_id != "" ? "vpc-id" : "tag:Name"
-    values = [var.vpc_id != "" ? var.vpc_id : var.q.vpc_name]
+    name   = trimspace(var.vpc_id) != "" ? "vpc-id" : "tag:Name"
+    values = [trimspace(var.vpc_id) != "" ? var.vpc_id : var.q.vpc_name]
   }
 }
 
