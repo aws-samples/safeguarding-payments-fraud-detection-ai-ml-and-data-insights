@@ -37,7 +37,7 @@ locals {
     {
       name  = "SPF_APP_ARN"
       type  = "PLAINTEXT"
-      value = trimspace(var.app_arn) == "" ? data.terraform_remote_state.app.outputs.arn : var.app_arn
+      value = trimspace(var.app_arn) != "" ? var.app_arn : data.terraform_remote_state.app.outputs.arn
     },
     {
       name  = "SPF_GID"
