@@ -23,6 +23,10 @@ locals {
       name   = "default-for-az"
       values = [data.terraform_remote_state.sg.outputs.vpc_default]
     },
+    {
+      name   = "vpc-id"
+      values = [data.terraform_remote_state.sg.outputs.vpc_id]
+    }
   ]
   nat_ids = var.subnets_nat_create ? aws_subnet.nat.*.id : data.aws_subnets.nat.ids
   nat_map = {
@@ -36,6 +40,10 @@ locals {
     {
       name   = "availability-zone-id"
       values = local.nat_map == {} ? [] : keys(local.nat_map)
+    },
+    {
+      name   = "vpc-id"
+      values = [data.terraform_remote_state.sg.outputs.vpc_id]
     }
   ]
   cagw_ids = var.subnets_cagw_create ? aws_subnet.cagw.*.id : data.aws_subnets.cagw.ids
@@ -50,5 +58,9 @@ locals {
       name   = "availability-zone-id"
       values = local.cagw_map == {} ? [] : keys(local.cagw_map)
     },
+    {
+      name   = "vpc-id"
+      values = [data.terraform_remote_state.sg.outputs.vpc_id]
+    }
   ]
 }
