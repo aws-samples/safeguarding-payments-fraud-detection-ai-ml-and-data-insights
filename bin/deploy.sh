@@ -237,6 +237,10 @@ case ${SPF_DIR} in iac*)
     OPTIONS="${OPTIONS} -var eks_cluster_name=${SPF_EKS_CLUSTER_NAME}"
   fi
 
+  if [ -n "${SPF_EKS_ADMIN_ROLE}" ]; then
+    OPTIONS="${OPTIONS} -var eks_admin_role=${SPF_EKS_ADMIN_ROLE}"
+  fi
+
   if [ -n "${SPF_EKS_NODE_TYPE}" ]; then
     OPTIONS="${OPTIONS} -var eks_node_type=${SPF_EKS_NODE_TYPE}"
   fi
