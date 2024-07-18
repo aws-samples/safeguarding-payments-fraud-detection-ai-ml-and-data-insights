@@ -75,6 +75,12 @@ variable "eks_cluster_name" {
   default     = ""
 }
 
+variable "eks_admin_role" {
+  type        = string
+  description = "EKS admin role (e.g. spf-cicd-assume-role-us-east-1-abcd1234)"
+  default     = ""
+}
+
 variable "eks_node_type" {
   type        = string
   description = "EKS node type (e.g. eks-managed, or fargate, or self-managed)"
