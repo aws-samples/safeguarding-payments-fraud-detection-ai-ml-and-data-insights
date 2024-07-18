@@ -71,7 +71,7 @@ variable "eks_cluster_name" {
   default     = ""
 }
 
-variable "eks_admin_role" {
+variable "eks_access_role" {
   type        = string
   description = "EKS admin role (e.g. spf-cicd-assume-role-us-east-1-abcd1234)"
   default     = ""
