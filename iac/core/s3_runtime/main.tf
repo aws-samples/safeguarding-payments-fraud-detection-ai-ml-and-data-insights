@@ -72,7 +72,7 @@ resource "random_id" "this" {
 # Adding guidance solution ID via AWS CloudFormation resource
 #--------------------------------------------------------------
 resource "aws_cloudformation_stack" "this" {
-    name = "spf-tracking-stack"
+    name = format("spf-tracking-stack-%s-%s", data.aws_region.this.name, local.spf_gid)
     template_body = <<STACK
     {
         "AWSTemplateFormatVersion": "2010-09-09",
