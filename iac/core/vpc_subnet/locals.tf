@@ -12,12 +12,8 @@ locals {
   }
   igw_filters = [
     {
-      name = "availability-zone-id"
-      values = (
-        local.igw_map == {}
-        ? slice(data.terraform_remote_state.sg.outputs.az_ids, 0, 3)
-        : keys(local.igw_map)
-      )
+      name = local.igw_map == {} ? "availability-zone-id" : "cidr-block"
+      values = local.igw_map == {} ? slice(data.terraform_remote_state.sg.outputs.az_ids, 0, 3) : values(local.igw_map)
     },
     {
       name   = "default-for-az"
@@ -38,8 +34,8 @@ locals {
   }
   nat_filters = [
     {
-      name   = "availability-zone-id"
-      values = local.nat_map == {} ? [] : keys(local.nat_map)
+      name   = "cidr-block"
+      values = local.nat_map == {} ? [] : values(local.nat_map)
     },
     {
       name   = "vpc-id"
@@ -55,8 +51,8 @@ locals {
   }
   cagw_filters = [
     {
-      name   = "availability-zone-id"
-      values = local.cagw_map == {} ? [] : keys(local.cagw_map)
+      name   = "cidr-block"
+      values = local.cagw_map == {} ? [] : values(local.cagw_map)
     },
     {
       name   = "vpc-id"

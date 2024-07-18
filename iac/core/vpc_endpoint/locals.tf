@@ -10,8 +10,8 @@ locals {
     data.terraform_remote_state.subnet.outputs.igw_subnet_ids
   )
   route_table_ids = {
-    "igw"  = data.terraform_remote_state.subnet.outputs.igw_route_table_id,
-    "nat"  = data.terraform_remote_state.subnet.outputs.nat_route_table_id,
-    "cagw" = data.terraform_remote_state.subnet.outputs.cagw_route_table_id,
+    igw  = data.terraform_remote_state.subnet.outputs.igw_route_table_id,
+    nat  = data.terraform_remote_state.subnet.outputs.nat_route_table_id,
+    cagw = data.terraform_remote_state.subnet.outputs.cagw_route_table_id,
   }
 }
