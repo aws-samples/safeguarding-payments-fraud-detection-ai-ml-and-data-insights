@@ -95,6 +95,11 @@ locals {
       value = format("spf-eks-cluster-%s-%s", data.aws_region.this.name, local.spf_gid)
     },
     {
+      name  = "SPF_EKS_ACCESS_ROLE"
+      type  = "PLAINTEXT"
+      value = data.terraform_remote_state.iam.outputs.name
+    },
+    {
       name  = "SPF_EKS_NODE_TYPE"
       type  = "PLAINTEXT"
       value = "eks-managed"
