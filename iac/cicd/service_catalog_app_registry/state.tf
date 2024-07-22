@@ -10,5 +10,5 @@ output "id" {
 }
 
 output "tags" {
-  value = length(aws_servicecatalogappregistry_application.this.*.application_tag) > 0 ? element(aws_servicecatalogappregistry_application.this.*.application_tag, 0) : ""
+  value = length(aws_servicecatalogappregistry_application.this.*.application_tag) > 0 ? element(aws_servicecatalogappregistry_application.this.*.application_tag, 0) : {}
 }
