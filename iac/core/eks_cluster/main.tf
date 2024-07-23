@@ -49,17 +49,17 @@ resource "aws_eks_identity_provider_config" "this" {
 }
 
 resource "aws_eks_access_entry" "this" {
-  count             = trimspace(var.eks_access_roles) != "" ? length(split(",", var.eks_access_roles)) : 0
+  count             = local.roles == [] ? 0 : length(local.roles)
   cluster_name      = aws_eks_cluster.this.name
-  principal_arn     = format("arn:aws:iam::%s:role/%s", data.aws_caller_identity.this.account_id, element(split(",", var.eks_access_roles), count.index))
+  principal_arn     = format("arn:aws:iam::%s:role/%s", data.aws_caller_identity.this.account_id, element(local.roles, count.index))
   kubernetes_groups = trimspace(var.q.groups) != "" ? split(",", var.q.groups) : null
   type              = var.q.entry_type
 }
 
 resource "aws_eks_access_policy_association" "this" {
-  count         = trimspace(var.eks_access_roles) != "" ? length(split(",", var.eks_access_roles)) : 0
+  count         = local.roles == [] ? 0 : length(local.roles)
   cluster_name  = aws_eks_cluster.this.name
-  principal_arn = format("arn:aws:iam::%s:role/%s", data.aws_caller_identity.this.account_id, element(split(",", var.eks_access_roles), count.index))
+  principal_arn = format("arn:aws:iam::%s:role/%s", data.aws_caller_identity.this.account_id, element(local.roles, count.index))
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
   access_scope {
