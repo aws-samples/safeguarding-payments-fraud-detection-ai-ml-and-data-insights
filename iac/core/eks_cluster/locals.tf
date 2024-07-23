@@ -7,4 +7,5 @@ locals {
     trimspace(var.eks_cluster_name) != "" ? var.eks_cluster_name :
     format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
   )
+  roles = trimspace(var.eks_access_roles) != "" ? split(",", var.eks_access_roles) : []
 }
