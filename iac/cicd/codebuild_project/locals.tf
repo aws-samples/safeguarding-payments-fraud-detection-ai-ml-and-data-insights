@@ -95,7 +95,7 @@ locals {
       value = format("spf-eks-cluster-%s-%s", data.aws_region.this.name, local.spf_gid)
     },
     {
-      name  = "SPF_EKS_ACCESS_ROLE"
+      name  = "SPF_EKS_ACCESS_ROLES"
       type  = "PLAINTEXT"
       value = data.terraform_remote_state.iam.outputs.name
     },
