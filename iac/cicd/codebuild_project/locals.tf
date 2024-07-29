@@ -102,7 +102,7 @@ locals {
     {
       name  = "SPF_EKS_NODE_TYPE"
       type  = "PLAINTEXT"
-      value = "eks-managed"
+      value = "self-managed"
     },
     {
       name  = "SPF_EKS_NODE_ARCH"
@@ -112,12 +112,12 @@ locals {
     {
       name  = "SPF_EKS_NODE_EC2"
       type  = "PLAINTEXT"
-      value = ""
+      value = "t3.medium"
     },
     {
       name  = "SPF_EKS_NODE_EBS"
       type  = "PLAINTEXT"
-      value = ""
+      value = "gp2"
     },
   ]
 }
