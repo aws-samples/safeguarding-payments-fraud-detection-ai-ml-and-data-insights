@@ -24,13 +24,6 @@ spec:
           ports:
             - containerPort: {{SPF_DOCKERFILE_DBPORT}}
           env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
-                  optional:
-                    false
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
