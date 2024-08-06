@@ -180,12 +180,11 @@ case ${SPF_DIR} in app*)
         i=${i/.tpl/.yml}
       fi
 
-      if [ -n "${SPF_MANIFEST}" ] && [ "${SPF_MANIFEST}" == "true" ]; then
-        echo "[DEBUG] cat ${i}"
-        cat ${i}
-      fi
-
       if [ "${i: -4}" == ".yml" ] || [ "${i: -5}" == ".yaml" ]; then
+        if [ -n "${SPF_MANIFEST}" ] && [ "${SPF_MANIFEST}" == "true" ]; then
+          echo "[DEBUG] cat ${i}"
+          cat ${i}
+        fi
         if [ -n "${SPF_CLEANUP}" ] && [ "${SPF_CLEANUP}" == "true" ]; then
           echo "[EXEC] kubectl delete -f ${i}"
           kubectl delete -f ${i} || { echo "[ERROR] kubectl delete failed. aborting..."; exit 1; }
