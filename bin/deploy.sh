@@ -178,8 +178,11 @@ case ${SPF_DIR} in app*)
         echo "[EXEC] ${WORKDIR}/bin/templater.sh ${i} -f ${K8SDIR}/config.txt -s > ${i/.tpl/.yml}"
         ${WORKDIR}/bin/templater.sh ${i} -f ${K8SDIR}/config.txt -s > ${i/.tpl/.yml}
         i=${i/.tpl/.yml}
-        # echo "[DEBUG] cat ${i}"
-        # cat ${i}
+      fi
+
+      if [ -n "${SPF_MANIFEST}" ] && [ "${SPF_MANIFEST}" == "true" ]; then
+        echo "[DEBUG] cat ${i}"
+        cat ${i}
       fi
 
       if [ "${i: -4}" == ".yml" ] || [ "${i: -5}" == ".yaml" ]; then
