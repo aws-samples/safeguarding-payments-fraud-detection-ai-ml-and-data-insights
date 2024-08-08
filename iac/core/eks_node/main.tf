@@ -107,7 +107,7 @@ module "ebs_kms_key" {
 
   key_service_roles_for_autoscaling = [
     data.terraform_remote_state.iam_node.outputs.arn,
-    format("arn:aws:iam::%s:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling", data.aws_caller_identity.this.account_id),
+    format("arn:aws:iam::%s:role/aws-service-role/%s/AWSServiceRoleForAutoScaling", data.aws_caller_identity.this.account_id, data.aws_service_principal.this.name),
   ]
 }
 

@@ -18,7 +18,7 @@ output "bucket_regional_domain_name" {
 }
 
 output "domain" {
-  value = format("%s.s3.%s.amazonaws.com", aws_s3_bucket.this.id, aws_s3_bucket.this.region)
+  value = format("%s.%s", aws_s3_bucket.this.id, data.aws_service_principal.this.id)
 }
 
 output "hosted_zone_id" {
