@@ -1,6 +1,11 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+data "aws_service_principal" "this" {
+  service_name = "eks-fargate-pods"
+  region       = data.aws_region.this.name
+}
+
 data "aws_iam_policy_document" "role" {
   statement {
     effect  = "Allow"
@@ -8,7 +13,7 @@ data "aws_iam_policy_document" "role" {
 
     principals {
       type        = "Service"
-      identifiers = ["eks-fargate-pods.amazonaws.com"]
+      identifiers = [data.aws_service_principal.this.name]
     }
   }
 }

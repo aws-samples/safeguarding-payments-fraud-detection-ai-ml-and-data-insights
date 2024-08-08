@@ -1,6 +1,11 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+data "aws_service_principal" "this" {
+  service_name = "ec2"
+  region       = data.aws_region.this.name
+}
+
 data "aws_iam_policy_document" "role" {
   statement {
     effect  = "Allow"
@@ -8,7 +13,7 @@ data "aws_iam_policy_document" "role" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = [data.aws_service_principal.this.name]
     }
   }
 }

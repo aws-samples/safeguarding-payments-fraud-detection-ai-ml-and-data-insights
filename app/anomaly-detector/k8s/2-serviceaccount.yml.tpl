@@ -7,4 +7,4 @@ metadata:
   namespace: {{SPF_ECR_NAME}}
   name: service-account
   annotations:
-    eks.amazonaws.com/role-arn: {{SPF_SERVICE_ROLE}}
+    {{SPF_SERVICE_PRINCIPAL}}/role-arn: {{SPF_SERVICE_ROLE}}

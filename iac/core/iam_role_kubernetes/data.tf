@@ -1,6 +1,11 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+data "aws_service_principal" "this" {
+  service_name = "sts"
+  region       = data.aws_region.this.name
+}
+
 data "aws_iam_policy_document" "role" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -14,7 +19,7 @@ data "aws_iam_policy_document" "role" {
     condition {
       test     = "StringEquals"
       variable = format("%s:aud", replace(data.terraform_remote_state.eks.outputs.oidc_provider_url, "https://", ""))
-      values   = ["sts.amazonaws.com"]
+      values   = [data.aws_service_principal.this.name]
     }
 
     condition {

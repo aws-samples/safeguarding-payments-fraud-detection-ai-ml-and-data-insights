@@ -1,6 +1,11 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
+data "aws_service_principal" "this" {
+  service_name = "autoscaling"
+  region       = data.aws_region.this.name
+}
+
 data "terraform_remote_state" "eks" {
   backend = "s3"
   config = {
