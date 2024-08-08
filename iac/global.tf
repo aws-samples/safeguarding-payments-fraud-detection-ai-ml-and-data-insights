@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 data "aws_region" "this" {}
+data "aws_partition" "this" {}
 data "aws_caller_identity" "this" {}
 
 provider "aws" {
@@ -59,7 +60,7 @@ variable "account" {
 
 variable "app_arn" {
   type        = string
-  description = "AWS myApplication ARN (e.g. arn:aws:resource-groups:{{region_name}}:{{account_id}}:group/{{app_id}})"
+  description = "AWS myApplication ARN (e.g. arn:{{partition}}:resource-groups:{{region_name}}:{{account_id}}:group/{{app_id}})"
   default     = ""
 }
 

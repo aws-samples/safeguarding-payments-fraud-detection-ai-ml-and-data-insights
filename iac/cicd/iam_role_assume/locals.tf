@@ -19,5 +19,5 @@ locals {
     )
   }
   policy_ips  = local.ips["codebuild"].*.ip_prefix
-  policy_arns = ["arn:aws:iam::aws:policy/AdministratorAccess"]
+  policy_arns = [format("arn:%s:iam::aws:policy/AdministratorAccess", data.aws_partition.this.partition)]
 }

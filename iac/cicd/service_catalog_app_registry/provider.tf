@@ -55,7 +55,7 @@ variable "account" {
 
 variable "app_arn" {
   type        = string
-  description = "AWS myApplication ARN (e.g. arn:aws:resource-groups:{{region_name}}:{{account_id}}:group/{{app_id}})"
+  description = "AWS myApplication ARN (e.g. arn:{{partition}}:resource-groups:{{region_name}}:{{account_id}}:group/{{app_id}})"
   default     = ""
 }
 
