@@ -4,6 +4,6 @@
 locals {
   spf_gid = (var.spf_gid == null ? data.terraform_remote_state.s3.outputs.spf_gid : var.spf_gid)
   policies = [
-    "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy",
+    format("arn:%s:iam::aws:policy/AmazonEKSClusterPolicy", data.aws_partition.this.partition),
   ]
 }

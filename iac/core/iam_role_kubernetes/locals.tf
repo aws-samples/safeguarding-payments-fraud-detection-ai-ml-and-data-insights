@@ -5,9 +5,9 @@ locals {
   spf_gid = (var.spf_gid == null ? data.terraform_remote_state.s3.outputs.spf_gid : var.spf_gid)
   suffix  = format("%s-%s", data.aws_region.this.name, local.spf_gid)
   policies = [
-    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
-    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
-    "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
+    format("arn:%s:iam::aws:policy/AmazonDynamoDBFullAccess", data.aws_partition.this.partition),
+    format("arn:%s:iam::aws:policy/AmazonS3FullAccess", data.aws_partition.this.partition),
+    format("arn:%s:iam::aws:policy/AmazonSSMFullAccess", data.aws_partition.this.partition),
   ]
   service_accounts = [
     format("system:serviceaccount:spf-app-anomaly-detector-%s:service-account", local.suffix),

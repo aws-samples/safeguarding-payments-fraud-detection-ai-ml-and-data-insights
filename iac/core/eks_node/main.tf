@@ -101,13 +101,21 @@ module "ebs_kms_key" {
   aliases     = [format("eks/%s-%s-%s/ebs", var.q.name, data.aws_region.this.name, local.spf_gid)]
 
   key_administrators = [
-    data.terraform_remote_state.iam_node.outputs.arn,
-    format("arn:aws:iam::%s:root", data.aws_caller_identity.this.account_id)
+    data.terraform_remote_state.iam_node.outputs.arn, format(
+      "arn:%s:iam::%s:root",
+      data.aws_partition.this.partition,
+      data.aws_caller_identity.this.account_id
+    )
   ]
 
   key_service_roles_for_autoscaling = [
     data.terraform_remote_state.iam_node.outputs.arn,
-    format("arn:aws:iam::%s:role/aws-service-role/%s/AWSServiceRoleForAutoScaling", data.aws_caller_identity.this.account_id, data.aws_service_principal.this.name),
+    format(
+      "arn:%s:iam::%s:role/aws-service-role/%s/AWSServiceRoleForAutoScaling",
+      data.aws_partition.this.partition,
+      data.aws_caller_identity.this.account_id,
+      data.aws_service_principal.this.name
+    ),
   ]
 }
 
