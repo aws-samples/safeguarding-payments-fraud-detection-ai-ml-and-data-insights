@@ -43,7 +43,7 @@ public class StorageService {
         String second = mFormat.format(calendar.get(Calendar.SECOND));
 
         String objectKey = new StringBuilder()
-                    .append("payment/")
+                    .append("data-collector/")
                     .append(year).append("/")
                     .append(month).append("/")
                     .append(date).append("/")
