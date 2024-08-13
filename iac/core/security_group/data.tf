@@ -3,8 +3,8 @@
 
 data "aws_vpcs" "this" {
   filter {
-    name   = trimspace(var.vpc_id) != "" ? "vpc-id" : "tag:Name"
-    values = [trimspace(var.vpc_id) != "" ? var.vpc_id : var.q.vpc_name]
+    name   = trimspace(var.spf_vpc_id) != "" ? "vpc-id" : "tag:Name"
+    values = [trimspace(var.spf_vpc_id) != "" ? var.spf_vpc_id : var.q.vpc_name]
   }
 }
 
@@ -48,13 +48,18 @@ data "aws_availability_zones" "wlz" {
   }
 }
 
+data "aws_outposts_outpost" "opz" {
+  count = length(local.outposts)
+  arn   = element(local.outposts, count.index)
+}
+
 data "terraform_remote_state" "s3" {
   backend = "s3"
   config = {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "s3_runtime")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "s3_runtime")
   }
 }

@@ -7,10 +7,8 @@ help()
 {
   echo "Deploy cloud resource using AWS CLI, Kubectl, Terraform and Terragrunt"
   echo
-  echo "Syntax: deploy.sh [-a|b|c|d|e|i|r|t]"
+  echo "Syntax: deploy.sh [-c|d|e|i|r|t]"
   echo "Options:"
-  echo "a     Specify AWS application ARN (e.g. arn:aws:resource-groups:us-east-1:123456789012:group/spf/abcd1234)"
-  echo "b     Specify Terraform backend config (e.g. {\"us-east-1\"=\"spf-backend-us-east-1\"})"
   echo "c     Specify cleanup / destroy resources (e.g. true)"
   echo "d     Specify directory path (e.g. app/postgres)"
   echo "e     Specify ECR repository prefix (e.g. spf-app-postgres)"
@@ -22,15 +20,11 @@ help()
 
 set -o pipefail
 
-while getopts "h:a:b:c:d:e:i:r:s:" option; do
+while getopts "h:c:d:e:i:r:s:" option; do
   case $option in
     h)
       help
       exit;;
-    a)
-      SPF_APP_ARN="$OPTARG";;
-    b)
-      SPF_BACKEND="$OPTARG";;
     c)
       SPF_CLEANUP="$OPTARG";;
     d)
@@ -217,79 +211,21 @@ case ${SPF_DIR} in iac*)
     echo "[ERROR] SPF_BUCKET is missing..."; exit 1;
   fi
 
-  if [ -z "${SPF_BACKEND}" ]; then
-    SPF_BACKEND={\"${SPF_REGION}\"=\"${SPF_BUCKET}\"}
+  if [ -z "${SPF_TFVAR_BACKEND_BUCKET}" ]; then
+    SPF_TFVAR_BACKEND_BUCKET={\"${SPF_REGION}\"=\"${SPF_BUCKET}\"}
   fi
-
-  OPTIONS="-var backend_bucket=${SPF_BACKEND}"
 
   if [ -n "${SPF_GID}" ]; then
-    OPTIONS="${OPTIONS} -var spf_gid=${SPF_GID}"
+    SPF_TFVAR_GID=$SPF_GID
   fi
 
-  if [ -n "${SPF_ACCOUNT}" ]; then
-    OPTIONS="${OPTIONS} -var account=${SPF_ACCOUNT}"
-  fi
-
-  if [ -n "${SPF_APP_ARN}" ]; then
-    OPTIONS="${OPTIONS} -var app_arn=${SPF_APP_ARN}"
-  fi
-
-  if [ -n "${SPF_EKS_CLUSTER_NAME}" ]; then
-    OPTIONS="${OPTIONS} -var eks_cluster_name=${SPF_EKS_CLUSTER_NAME}"
-  fi
-
-  if [ -n "${SPF_EKS_ACCESS_ROLES}" ]; then
-    OPTIONS="${OPTIONS} -var eks_access_roles=${SPF_EKS_ACCESS_ROLES}"
-  fi
-
-  if [ -n "${SPF_EKS_NODE_TYPE}" ]; then
-    OPTIONS="${OPTIONS} -var eks_node_type=${SPF_EKS_NODE_TYPE}"
-  fi
-
-  if [ -n "${SPF_EKS_NODE_ARCH}" ]; then
-    OPTIONS="${OPTIONS} -var eks_node_arch=${SPF_EKS_NODE_ARCH}"
-  fi
-
-  if [ -n "${SPF_EKS_NODE_EC2}" ]; then
-    OPTIONS="${OPTIONS} -var eks_node_ec2=${SPF_EKS_NODE_EC2}"
-  fi
-
-  if [ -n "${SPF_EKS_NODE_EBS}" ]; then
-    OPTIONS="${OPTIONS} -var eks_node_ebs=${SPF_EKS_NODE_EBS}"
-  fi
-
-  if [ -n "${SPF_VPC_ID}" ]; then
-    OPTIONS="${OPTIONS} -var vpc_id=${SPF_VPC_ID}"
-  fi
-
-  if [ -n "${SPF_VPCE_MAPPING}" ]; then
-    OPTIONS="${OPTIONS} -var vpce_mapping=${SPF_VPCE_MAPPING}"
-  fi
-
-  if [ -n "${SPF_SUBNETS_IGW_CREATE}" ]; then
-    OPTIONS="${OPTIONS} -var subnets_igw_create=${SPF_SUBNETS_IGW_CREATE}"
-  fi
-
-  if [ -n "${SPF_SUBNETS_IGW_MAPPING}" ]; then
-    OPTIONS="${OPTIONS} -var subnets_igw_mapping=${SPF_SUBNETS_IGW_MAPPING}"
-  fi
-
-  if [ -n "${SPF_SUBNETS_NAT_CREATE}" ]; then
-    OPTIONS="${OPTIONS} -var subnets_nat_create=${SPF_SUBNETS_NAT_CREATE}"
-  fi
-
-  if [ -n "${SPF_SUBNETS_NAT_MAPPING}" ]; then
-    OPTIONS="${OPTIONS} -var subnets_nat_mapping=${SPF_SUBNETS_NAT_MAPPING}"
-  fi
-
-  if [ -n "${SPF_SUBNETS_CAGW_CREATE}" ]; then
-    OPTIONS="${OPTIONS} -var subnets_cagw_create=${SPF_SUBNETS_CAGW_CREATE}"
-  fi
-
-  if [ -n "${SPF_SUBNETS_CAGW_MAPPING}" ]; then
-    OPTIONS="${OPTIONS} -var subnets_cagw_mapping=${SPF_SUBNETS_CAGW_MAPPING}"
-  fi
+  SPF_TFVARS=$(env | grep SPF_TFVAR_)
+  while IFS= read -r LINE; do
+    KEY=$(echo $LINE | cut -d"=" -f1)
+    BACK=${LINE/$KEY=/}
+    FRONT=$(echo ${KEY/SPF_TFVAR_/} | tr "[:upper:]" "[:lower:]")
+    export TFVAR_spf_$FRONT=$BACK
+  done <<< "$SPF_TFVARS"
 
   echo "[EXEC] cd ${WORKDIR}/${SPF_DIR}/"
   cd "${WORKDIR}/${SPF_DIR}/"
@@ -298,11 +234,11 @@ case ${SPF_DIR} in iac*)
   terragrunt run-all init -backend-config region="${SPF_REGION}" -backend-config="bucket=${SPF_BUCKET}" || { echo "[ERROR] terragrunt run-all init failed. aborting..."; cd -; exit 1; }
 
   if [ -n "${SPF_CLEANUP}" ] && [ "${SPF_CLEANUP}" == "true" ]; then
-    echo "[EXEC] terragrunt run-all destroy -auto-approve -var-file default.tfvars ${OPTIONS}"
-    echo "Y" | terragrunt run-all destroy -auto-approve -var-file default.tfvars ${OPTIONS} || { echo "[ERROR] terragrunt run-all destroy failed. aborting..."; cd -; exit 1; }
+    echo "[EXEC] terragrunt run-all destroy -auto-approve -var-file default.tfvars"
+    echo "Y" | terragrunt run-all destroy -auto-approve -var-file default.tfvars || { echo "[ERROR] terragrunt run-all destroy failed. aborting..."; cd -; exit 1; }
   else
-    echo "[EXEC] terragrunt run-all apply -auto-approve -var-file default.tfvars ${OPTIONS}"
-    echo "Y" | terragrunt run-all apply -auto-approve -var-file default.tfvars ${OPTIONS} || { echo "[ERROR] terragrunt run-all apply failed. aborting..."; cd -; exit 1; }
+    echo "[EXEC] terragrunt run-all apply -auto-approve -var-file default.tfvars"
+    echo "Y" | terragrunt run-all apply -auto-approve -var-file default.tfvars || { echo "[ERROR] terragrunt run-all apply failed. aborting..."; cd -; exit 1; }
   fi
 
   echo "[EXEC] cd -"

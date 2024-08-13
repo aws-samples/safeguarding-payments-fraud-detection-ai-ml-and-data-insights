@@ -25,20 +25,12 @@ output "az_names" {
   value = data.aws_availability_zones.az.names
 }
 
-output "az_group_names" {
-  value = data.aws_availability_zones.az.group_names
-}
-
 output "lz_ids" {
   value = data.aws_availability_zones.lz.zone_ids
 }
 
 output "lz_names" {
   value = data.aws_availability_zones.lz.names
-}
-
-output "lz_group_names" {
-  value = data.aws_availability_zones.lz.group_names
 }
 
 output "wlz_ids" {
@@ -49,6 +41,14 @@ output "wlz_names" {
   value = data.aws_availability_zones.wlz.names
 }
 
-output "wlz_group_names" {
-  value = data.aws_availability_zones.wlz.group_names
+output "opz_ids" {
+  value = data.aws_outposts_outpost.opz.*.availability_zone_id
+}
+
+output "opz_names" {
+  value = data.aws_outposts_outpost.opz.*.availability_zone
+}
+
+output "outpost_arns" {
+  value = keys(local.outposts)
 }

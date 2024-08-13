@@ -31,7 +31,28 @@ data "aws_subnets" "cagw" {
   }
 }
 
-# @TODO: Implement Local Gateway / Outpost
+data "aws_subnets" "lgw" {
+  dynamic "filter" {
+    for_each = local.lgw_filters
+    content {
+      name   = filter.value.name
+      values = filter.value.values
+    }
+  }
+}
+
+data "aws_ec2_local_gateway" "lgw" {
+  count = length(data.terraform_remote_state.sg.outputs.outpost_arns)
+  filter {
+    name   = "outpost-arn"
+    values = [element(data.terraform_remote_state.sg.outputs.outpost_arns, count.index)]
+  }
+}
+
+data "aws_ec2_local_gateway_route_table" "lgw" {
+  count       = length(data.terraform_remote_state.sg.outputs.outpost_arns)
+  outpost_arn = element(data.terraform_remote_state.sg.outputs.outpost_arns, count.index)
+}
 
 data "terraform_remote_state" "sg" {
   backend = "s3"
@@ -39,7 +60,7 @@ data "terraform_remote_state" "sg" {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "security_group")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "security_group")
   }
 }

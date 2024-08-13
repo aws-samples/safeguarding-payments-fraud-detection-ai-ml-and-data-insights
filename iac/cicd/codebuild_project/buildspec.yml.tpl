@@ -20,7 +20,7 @@ phases:
       - echo "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> $HOME/.aws/credentials
       - echo "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> $HOME/.aws/credentials
       - echo "aws_session_token=$AWS_SESSION_TOKEN" >> $HOME/.aws/credentials
-      - /bin/bash ./bin/deploy.sh -d $SPF_DIR -r $SPF_REGION -s $SPF_BUCKET -b $SPF_BACKEND -i $SPF_GID
+      - /bin/bash ./bin/deploy.sh -d $SPF_DIR -r $SPF_REGION -s $SPF_BUCKET -i $SPF_TFVAR_GID
 
 cache:
   paths:

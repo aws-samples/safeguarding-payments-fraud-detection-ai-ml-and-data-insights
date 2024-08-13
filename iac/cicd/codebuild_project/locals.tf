@@ -20,104 +20,104 @@ locals {
       value = data.aws_region.this.name
     },
     {
-      name  = "SPF_BACKEND"
-      type  = "PLAINTEXT"
-      value = format("{%s}", join(",", [for key, value in var.backend_bucket : "\"${key}\"=\"${value}\""]))
-    },
-    {
-      name  = "SPF_BUCKET"
-      type  = "PLAINTEXT"
-      value = var.backend_bucket[data.aws_region.this.name]
-    },
-    {
-      name  = "SPF_ACCOUNT"
-      type  = "PLAINTEXT"
-      value = data.aws_caller_identity.this.account_id
-    },
-    {
-      name  = "SPF_APP_ARN"
-      type  = "PLAINTEXT"
-      value = trimspace(var.app_arn) != "" ? var.app_arn : data.terraform_remote_state.app.outputs.arn
-    },
-    {
-      name  = "SPF_GID"
-      type  = "PLAINTEXT"
-      value = local.spf_gid
-    },
-    {
       name  = "SPF_DIR"
       type  = "PLAINTEXT"
       value = "iac/core"
     },
     {
-      name  = "SPF_VPC_ID"
+      name  = "SPF_BUCKET"
       type  = "PLAINTEXT"
-      value = ""
+      value = var.spf_backend_bucket[data.aws_region.this.name]
     },
     {
-      name  = "SPF_VPCE_MAPPING"
+      name  = "SPF_TFVAR_BACKEND_BUCKET"
       type  = "PLAINTEXT"
-      value = ""
+      value = format("{%s}", join(",", [for key, value in var.spf_backend_bucket : "\"${key}\"=\"${value}\""]))
     },
     {
-      name  = "SPF_SUBNETS_IGW_CREATE"
+      name  = "SPF_TFVAR_GID"
       type  = "PLAINTEXT"
-      value = "false"
+      value = local.spf_gid
     },
     {
-      name  = "SPF_SUBNETS_IGW_MAPPING"
+      name  = "SPF_TFVAR_ACCOUNT"
       type  = "PLAINTEXT"
-      value = ""
+      value = data.aws_caller_identity.this.account_id
     },
     {
-      name  = "SPF_SUBNETS_NAT_CREATE"
+      name  = "SPF_TFVAR_APP_ARN"
       type  = "PLAINTEXT"
-      value = "false"
+      value = trimspace(var.spf_app_arn) != "" ? var.spf_app_arn : data.terraform_remote_state.app.outputs.arn
     },
     {
-      name  = "SPF_SUBNETS_NAT_MAPPING"
-      type  = "PLAINTEXT"
-      value = ""
-    },
-    {
-      name  = "SPF_SUBNETS_CAGW_CREATE"
-      type  = "PLAINTEXT"
-      value = "false"
-    },
-    {
-      name  = "SPF_SUBNETS_CAGW_MAPPING"
-      type  = "PLAINTEXT"
-      value = ""
-    },
-    {
-      name  = "SPF_EKS_CLUSTER_NAME"
+      name  = "SPF_TFVAR_EKS_CLUSTER_NAME"
       type  = "PLAINTEXT"
       value = format("spf-eks-cluster-%s-%s", data.aws_region.this.name, local.spf_gid)
     },
     {
-      name  = "SPF_EKS_ACCESS_ROLES"
+      name  = "SPF_TFVAR_EKS_ACCESS_ROLES"
       type  = "PLAINTEXT"
       value = data.terraform_remote_state.iam.outputs.name
     },
     {
-      name  = "SPF_EKS_NODE_TYPE"
+      name  = "SPF_TFVAR_EKS_NODE_TYPE"
       type  = "PLAINTEXT"
       value = "self-managed"
     },
     {
-      name  = "SPF_EKS_NODE_ARCH"
+      name  = "SPF_TFVAR_EKS_NODE_ARCH"
       type  = "PLAINTEXT"
       value = "x86"
     },
     {
-      name  = "SPF_EKS_NODE_EC2"
+      name  = "SPF_TFVAR_EKS_NODE_EC2"
       type  = "PLAINTEXT"
       value = "t3.medium"
     },
     {
-      name  = "SPF_EKS_NODE_EBS"
+      name  = "SPF_TFVAR_EKS_NODE_EBS"
       type  = "PLAINTEXT"
       value = "gp2"
+    },
+    {
+      name  = "SPF_TFVAR_VPC_ID"
+      type  = "PLAINTEXT"
+      value = ""
+    },
+    {
+      name  = "SPF_TFVAR_VPCE_MAPPING"
+      type  = "PLAINTEXT"
+      value = ""
+    },
+    {
+      name  = "SPF_TFVAR_SUBNETS_IGW_CREATE"
+      type  = "PLAINTEXT"
+      value = "false"
+    },
+    {
+      name  = "SPF_TFVAR_SUBNETS_NAT_CREATE"
+      type  = "PLAINTEXT"
+      value = "false"
+    },
+    {
+      name  = "SPF_TFVAR_SUBNETS_CAGW_CREATE"
+      type  = "PLAINTEXT"
+      value = "false"
+    },
+    {
+      name  = "SPF_TFVAR_SUBNETS_IGW_MAPPING"
+      type  = "PLAINTEXT"
+      value = ""
+    },
+    {
+      name  = "SPF_TFVAR_SUBNETS_NAT_MAPPING"
+      type  = "PLAINTEXT"
+      value = ""
+    },
+    {
+      name  = "SPF_TFVAR_SUBNETS_CAGW_MAPPING"
+      type  = "PLAINTEXT"
+      value = ""
     },
   ]
 }
