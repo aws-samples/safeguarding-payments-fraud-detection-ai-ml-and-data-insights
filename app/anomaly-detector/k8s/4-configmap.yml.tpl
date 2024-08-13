@@ -19,3 +19,4 @@ data:
   S3_BUCKET_NAME: {{SPF_S3_BUCKET}}
   S3_PATH_PAYMENT: data-collector/
   S3_PATH_MODEL: anomaly-detector/
+  DATA_FOLDER_PATH: ./data/
