@@ -10,3 +10,11 @@ dependency "iam" {
   config_path  = "../iam_role_assume"
   skip_outputs = true
 }
+
+terraform {
+  after_hook "after_hook" {
+    commands     = ["apply"]
+    execute      = ["aws", "iam", "create-service-linked-role", "--aws-service-name", "autoscaling.amazonaws.com"]
+    run_on_error = false
+  }
+}
