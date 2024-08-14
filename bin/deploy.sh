@@ -224,7 +224,7 @@ case ${SPF_DIR} in iac*)
     KEY=$(echo $LINE | cut -d"=" -f1)
     BACK=${LINE/$KEY=/}
     FRONT=$(echo ${KEY/SPF_TFVAR_/} | tr "[:upper:]" "[:lower:]")
-    export TFVAR_spf_$FRONT=$BACK
+    export TF_VAR_spf_$FRONT=$BACK
   done <<< "$SPF_TFVARS"
 
   if [ -n "${SPF_MANIFEST}" ] && [ "${SPF_MANIFEST}" == "true" ]; then
