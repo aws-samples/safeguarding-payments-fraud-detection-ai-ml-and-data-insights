@@ -25,7 +25,7 @@ locals {
       resources = format(
         "arn:%s:s3:::%s",
         data.aws_partition.this.partition,
-        var.backend_bucket[data.aws_region.this.name]
+        var.spf_backend_bucket[data.aws_region.this.name]
       )
     },
     {
@@ -33,7 +33,7 @@ locals {
       resources = format(
         "arn:%s:s3:::%s/*",
         data.aws_partition.this.partition,
-        var.backend_bucket[data.aws_region.this.name]
+        var.spf_backend_bucket[data.aws_region.this.name]
       )
     },
   ]

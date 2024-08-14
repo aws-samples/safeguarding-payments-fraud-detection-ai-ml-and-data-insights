@@ -22,7 +22,7 @@ resource "aws_codebuild_project" "this" {
 
   cache {
     type     = "S3"
-    location = format("%s/%s", var.backend_bucket[data.aws_region.this.name], var.q.s3_cache_location)
+    location = format("%s/%s", var.spf_backend_bucket[data.aws_region.this.name], var.q.s3_cache_location)
   }
 
   environment {
@@ -49,7 +49,7 @@ resource "aws_codebuild_project" "this" {
 
     s3_logs {
       status   = var.q.s3_logs_status
-      location = format("%s/%s", var.backend_bucket[data.aws_region.this.name], var.q.s3_logs_location)
+      location = format("%s/%s", var.spf_backend_bucket[data.aws_region.this.name], var.q.s3_logs_location)
     }
   }
 }

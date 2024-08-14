@@ -25,10 +25,6 @@ output "az_names" {
   value = data.aws_availability_zones.az.names
 }
 
-output "az_group_names" {
-  value = data.aws_availability_zones.az.group_names
-}
-
 output "lz_ids" {
   value = data.aws_availability_zones.lz.zone_ids
 }
@@ -37,18 +33,10 @@ output "lz_names" {
   value = data.aws_availability_zones.lz.names
 }
 
-output "lz_group_names" {
-  value = data.aws_availability_zones.lz.group_names
-}
-
 output "wlz_ids" {
   value = data.aws_availability_zones.wlz.zone_ids
 }
 
 output "wlz_names" {
   value = data.aws_availability_zones.wlz.names
-}
-
-output "wlz_group_names" {
-  value = data.aws_availability_zones.wlz.group_names
 }

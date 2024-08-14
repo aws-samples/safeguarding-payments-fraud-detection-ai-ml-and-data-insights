@@ -31,15 +31,13 @@ data "aws_subnets" "cagw" {
   }
 }
 
-# @TODO: Implement Local Gateway / Outpost
-
 data "terraform_remote_state" "sg" {
   backend = "s3"
   config = {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "security_group")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "security_group")
   }
 }

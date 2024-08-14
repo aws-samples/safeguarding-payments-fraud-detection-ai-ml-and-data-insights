@@ -12,8 +12,8 @@ data "terraform_remote_state" "eks" {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "eks_cluster")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "eks_cluster")
   }
 }
 
@@ -23,8 +23,8 @@ data "terraform_remote_state" "iam_fargate" {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "iam_role_fargate")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "iam_role_fargate")
   }
 }
 
@@ -34,8 +34,8 @@ data "terraform_remote_state" "iam_node" {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "iam_role_node")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "iam_role_node")
   }
 }
 
@@ -45,8 +45,8 @@ data "terraform_remote_state" "subnet" {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "vpc_subnet")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "vpc_subnet")
   }
 }
 
@@ -56,7 +56,7 @@ data "terraform_remote_state" "s3" {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "s3_runtime")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "s3_runtime")
   }
 }

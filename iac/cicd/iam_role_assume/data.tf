@@ -32,7 +32,7 @@ data "http" "this" {
 
 data "terraform_remote_state" "iam" {
   count = (
-    data.aws_region.this.name == element(keys(var.backend_bucket), 1)
+    data.aws_region.this.name == element(keys(var.spf_backend_bucket), 1)
     && data.aws_region.this.name != local.region ? 1 : 0
   )
   backend = "s3"
@@ -40,7 +40,7 @@ data "terraform_remote_state" "iam" {
     skip_region_validation = true
 
     region = data.aws_region.this.name
-    bucket = var.backend_bucket[data.aws_region.this.name]
-    key    = format(var.backend_pattern, "iam_role_assume")
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "iam_role_assume")
   }
 }

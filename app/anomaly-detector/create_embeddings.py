@@ -259,35 +259,17 @@ def insert_to_postgres(embeddings):
 def main():
     load_dotenv()
 
-    data_folder_path = "./data/"
-    
-    # Initialize the s3 client
-    s3_client = initialize_s3_client()
-    # get S3 file details
-    s3_files = list_s3_files(s3_client=s3_client)
-    
-    # get date from database
-    #processing_date = get_date_from_database()
-   
-    # get csv file names only and last modified must be greater than the date from database
-    csv_s3_keys = []
-    for s3_file in s3_files:
-        #if s3_file["Key"].endswith(".csv") and s3_file["LastModified"].date() > processing_date:
-        if s3_file["Key"].endswith(".csv"):    
-            csv_s3_keys.append(s3_file["Key"])
+    # Get dataset from the data folder
+    dataset = os.environ.get('DATASET')
+    df = pd.read_csv(dataset)
 
-    # for every S3 file
-    for csv_s3_key in csv_s3_keys:
-        # set local file path
-        local_file_path = os.path.join(data_folder_path, csv_s3_key)
-        # download s3 file to local file path
-        download_s3_file(s3_client, csv_s3_key, local_file_path)
-        # Convert file to pandas dataframe
-        df = convert_file_to_pd(local_file_path)
-        if df is not None:
-            print(df.head())
-            embeddings = create_embeddings(df)
-            insert_to_postgres(embeddings)
+    # Create embeddings
+    embeddings = create_embeddings(df)
+
+    # Insert records to postgres
+    insert_to_postgres(embeddings)
+   
+
     
 if __name__ == '__main__':
     start = timer()
