@@ -14,7 +14,7 @@ dependency "iam" {
 terraform {
   after_hook "after_hook" {
     commands     = ["apply"]
-    execute      = ["aws", "iam", "create-service-linked-role", "--aws-service-name", "autoscaling.amazonaws.com"]
+    execute      = ["sh", "-c", "aws iam create-service-linked-role --aws-service-name autoscaling.amazonaws.com || echo '[DEBUG] ^^ ignoring error, all good'"]
     run_on_error = false
   }
 }
