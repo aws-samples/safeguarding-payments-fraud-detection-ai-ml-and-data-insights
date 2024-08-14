@@ -25,6 +25,11 @@ locals {
       value = "iac/core"
     },
     {
+      name  = "SPF_GID"
+      type  = "PLAINTEXT"
+      value = local.spf_gid
+    },
+    {
       name  = "SPF_BUCKET"
       type  = "PLAINTEXT"
       value = var.spf_backend_bucket[data.aws_region.this.name]
@@ -33,11 +38,6 @@ locals {
       name  = "SPF_TFVAR_BACKEND_BUCKET"
       type  = "PLAINTEXT"
       value = format("{%s}", join(",", [for key, value in var.spf_backend_bucket : "\"${key}\"=\"${value}\""]))
-    },
-    {
-      name  = "SPF_TFVAR_GID"
-      type  = "PLAINTEXT"
-      value = local.spf_gid
     },
     {
       name  = "SPF_TFVAR_ACCOUNT"
