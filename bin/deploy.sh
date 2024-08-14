@@ -212,11 +212,11 @@ case ${SPF_DIR} in iac*)
   fi
 
   if [ -z "${SPF_TFVAR_BACKEND_BUCKET}" ]; then
-    SPF_TFVAR_BACKEND_BUCKET={\"${SPF_REGION}\"=\"${SPF_BUCKET}\"}
+    export SPF_TFVAR_BACKEND_BUCKET={\"${SPF_REGION}\"=\"${SPF_BUCKET}\"}
   fi
 
   if [ -n "${SPF_GID}" ]; then
-    SPF_TFVAR_GID=$SPF_GID
+    export SPF_TFVAR_GID=$SPF_GID
   fi
 
   OPTIONS=""
