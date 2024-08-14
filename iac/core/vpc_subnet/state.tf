@@ -24,11 +24,3 @@ output "cagw_subnet_ids" {
 output "cagw_route_table_id" {
   value = length(aws_route_table.cagw.*.id) > 0 ? element(aws_route_table.cagw.*.id, 0) : ""
 }
-
-output "lgw_subnet_ids" {
-  value = local.lgw_ids
-}
-
-output "lgw_route_table_ids" {
-  value = data.aws_ec2_local_gateway_route_table.lgw.*.id
-}

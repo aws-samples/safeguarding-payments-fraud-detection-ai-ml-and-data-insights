@@ -59,21 +59,4 @@ locals {
       values = [data.terraform_remote_state.sg.outputs.vpc_id]
     }
   ]
-  lgw_ids = data.aws_subnets.lgw.ids
-  lgw_map = {
-    for i in split(",", var.spf_subnets_lgw_mapping) :
-    element(split(":", i), 0) => element(split(":", i), 1) if(
-      contains(data.terraform_remote_state.sg.outputs.opz_ids, element(split(":", i), 0))
-    )
-  }
-  lgw_filters = [
-    {
-      name = "cidr-block"
-      values = local.lgw_map == {} ? [] : values(local.lgw_map)
-    },
-    {
-      name   = "vpc-id"
-      values = [data.terraform_remote_state.sg.outputs.vpc_id]
-    }
-  ]
 }

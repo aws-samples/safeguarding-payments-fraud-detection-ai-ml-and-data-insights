@@ -31,16 +31,6 @@ data "aws_subnets" "cagw" {
   }
 }
 
-data "aws_subnets" "lgw" {
-  dynamic "filter" {
-    for_each = local.lgw_filters
-    content {
-      name   = filter.value.name
-      values = filter.value.values
-    }
-  }
-}
-
 data "terraform_remote_state" "sg" {
   backend = "s3"
   config = {
