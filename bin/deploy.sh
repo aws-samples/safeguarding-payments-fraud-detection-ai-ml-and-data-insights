@@ -224,6 +224,9 @@ case ${SPF_DIR} in iac*)
   while IFS= read -r LINE; do
     KEY=$(echo $LINE | cut -d"=" -f1)
     BACK=${LINE/$KEY=/}
+    if [ -z "${BACK}" ]; then
+      BACK="''"
+    fi
     FRONT=$(echo ${KEY/SPF_TFVAR_/} | tr "[:upper:]" "[:lower:]")
     OPTIONS=" ${OPTIONS} -var spf_${FRONT}=${BACK}"
   done <<< "$SPF_TFVARS"
