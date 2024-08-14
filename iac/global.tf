@@ -165,15 +165,3 @@ variable "spf_subnets_cagw_mapping" {
   description = "Wavelength subnets mapping (e.g. {{wavelength_zone_id}}:{{wavelength_zone_cidr}},{{wavelength_zone_id}}:{{wavelength_zone_cidr}})"
   default     = ""
 }
-
-variable "spf_subnets_lgw_mapping" {
-  type        = string
-  description = "Outpost subnets mapping (e.g. {{outpost_zone_id}}:{{outpost_zone_cidr}},{{outpost_zone_id}}:{{outpost_zone_cidr}})"
-  default     = ""
-}
-
-variable "spf_outpost_names" {
-  type        = string
-  description = "Outpost names (one or many, separated by comma)"
-  default     = ""
-}

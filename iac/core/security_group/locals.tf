@@ -31,13 +31,4 @@ locals {
       self      = true
     },
   ]
-  outposts = {
-    for i in split(",", var.spf_outpost_names) :
-    i => format(
-      "arn:%s:outposts:%s:%s:outpost/%s",
-      data.aws_partition.this.partition,
-      data.aws_region.this.name,
-      data.aws_caller_identity.this.account_id,
-      i) if i != ""
-  }
 }

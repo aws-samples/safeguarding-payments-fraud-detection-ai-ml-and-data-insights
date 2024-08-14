@@ -41,19 +41,6 @@ data "aws_subnets" "lgw" {
   }
 }
 
-data "aws_ec2_local_gateway" "lgw" {
-  count = length(data.terraform_remote_state.sg.outputs.outpost_arns)
-  filter {
-    name   = "outpost-arn"
-    values = [element(data.terraform_remote_state.sg.outputs.outpost_arns, count.index)]
-  }
-}
-
-data "aws_ec2_local_gateway_route_table" "lgw" {
-  count       = length(data.terraform_remote_state.sg.outputs.outpost_arns)
-  outpost_arn = element(data.terraform_remote_state.sg.outputs.outpost_arns, count.index)
-}
-
 data "terraform_remote_state" "sg" {
   backend = "s3"
   config = {

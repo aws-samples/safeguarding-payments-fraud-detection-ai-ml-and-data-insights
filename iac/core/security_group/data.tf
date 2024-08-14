@@ -48,11 +48,6 @@ data "aws_availability_zones" "wlz" {
   }
 }
 
-data "aws_outposts_outpost" "opz" {
-  count = length(local.outposts)
-  arn   = element(local.outposts, count.index)
-}
-
 data "terraform_remote_state" "s3" {
   backend = "s3"
   config = {

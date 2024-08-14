@@ -40,15 +40,3 @@ output "wlz_ids" {
 output "wlz_names" {
   value = data.aws_availability_zones.wlz.names
 }
-
-output "opz_ids" {
-  value = data.aws_outposts_outpost.opz.*.availability_zone_id
-}
-
-output "opz_names" {
-  value = data.aws_outposts_outpost.opz.*.availability_zone
-}
-
-output "outpost_arns" {
-  value = keys(local.outposts)
-}

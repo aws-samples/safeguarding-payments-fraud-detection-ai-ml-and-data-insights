@@ -106,26 +106,3 @@ resource "aws_route_table_association" "cagw" {
   subnet_id      = element(local.cagw_ids, count.index)
   route_table_id = element(aws_route_table.cagw.*.id, 0)
 }
-
-#################################
-# LGW = Local Gateway / Outpost #
-#################################
-
-resource "aws_route" "lgw" {
-  count                  = length(data.aws_ec2_local_gateway.lgw.*.id)
-  route_table_id         = element(data.aws_ec2_local_gateway_route_table.lgw.*.id, count.index)
-  local_gateway_id       = element(data.aws_ec2_local_gateway.lgw.*.id, count.index)
-  destination_cidr_block = "0.0.0.0/0"
-}
-
-resource "aws_route_table_association" "lgw" {
-  count          = length(local.lgw_ids)
-  subnet_id      = element(local.lgw_ids, count.index)
-  route_table_id = element(data.aws_ec2_local_gateway_route_table.lgw.*.id, count.index)
-}
-
-resource "aws_ec2_local_gateway_route_table_vpc_association" "lgw" {
-  count                        = length(data.aws_ec2_local_gateway_route_table.lgw.*.id)
-  vpc_id                       = data.terraform_remote_state.sg.outputs.vpc_id
-  local_gateway_route_table_id = element(data.aws_ec2_local_gateway_route_table.lgw.*.id, count.index)
-}
