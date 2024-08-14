@@ -219,17 +219,18 @@ case ${SPF_DIR} in iac*)
     SPF_TFVAR_GID=$SPF_GID
   fi
 
+  OPTIONS=""
   SPF_TFVARS=$(env | grep SPF_TFVAR_)
   while IFS= read -r LINE; do
     KEY=$(echo $LINE | cut -d"=" -f1)
     BACK=${LINE/$KEY=/}
     FRONT=$(echo ${KEY/SPF_TFVAR_/} | tr "[:upper:]" "[:lower:]")
-    export TF_VAR_spf_$FRONT=$BACK
+    OPTIONS=" ${OPTIONS} -var spf_${FRONT}=${BACK}"
   done <<< "$SPF_TFVARS"
 
   if [ -n "${SPF_MANIFEST}" ] && [ "${SPF_MANIFEST}" == "true" ]; then
-    echo "[DEBUG] env | grep TFVAR_"
-    env | grep TF_VAR_
+    echo "[DEBUG] env | grep SPF_"
+    env | grep SPF_
   fi
 
   echo "[EXEC] cd ${WORKDIR}/${SPF_DIR}/"
@@ -239,11 +240,11 @@ case ${SPF_DIR} in iac*)
   terragrunt run-all init -backend-config region="${SPF_REGION}" -backend-config="bucket=${SPF_BUCKET}" || { echo "[ERROR] terragrunt run-all init failed. aborting..."; cd -; exit 1; }
 
   if [ -n "${SPF_CLEANUP}" ] && [ "${SPF_CLEANUP}" == "true" ]; then
-    echo "[EXEC] terragrunt run-all destroy -auto-approve -var-file default.tfvars"
-    echo "Y" | terragrunt run-all destroy -auto-approve -var-file default.tfvars || { echo "[ERROR] terragrunt run-all destroy failed. aborting..."; cd -; exit 1; }
+    echo "[EXEC] terragrunt run-all destroy -auto-approve -var-file default.tfvars $OPTIONS"
+    echo "Y" | terragrunt run-all destroy -auto-approve -var-file default.tfvars $OPTIONS || { echo "[ERROR] terragrunt run-all destroy failed. aborting..."; cd -; exit 1; }
   else
-    echo "[EXEC] terragrunt run-all apply -auto-approve -var-file default.tfvars"
-    echo "Y" | terragrunt run-all apply -auto-approve -var-file default.tfvars || { echo "[ERROR] terragrunt run-all apply failed. aborting..."; cd -; exit 1; }
+    echo "[EXEC] terragrunt run-all apply -auto-approve -var-file default.tfvars $OPTIONS"
+    echo "Y" | terragrunt run-all apply -auto-approve -var-file default.tfvars $OPTIONS || { echo "[ERROR] terragrunt run-all apply failed. aborting..."; cd -; exit 1; }
   fi
 
   echo "[EXEC] cd -"
