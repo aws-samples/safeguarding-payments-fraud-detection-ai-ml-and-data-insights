@@ -136,7 +136,7 @@ case ${SPF_DIR} in app*)
     SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".[0].repositoryUri")
   fi
 
-  if [ -n "${SPF_EKS_ARCH}" ] && [ "${SPF_EKS_ARCH}" == "arm" ]; then
+  if [ -n "${SPF_TFVAR_EKS_ARCH}" ] && [ "${SPF_TFVAR_EKS_ARCH}" == "arm" ]; then
     SPF_PLATFORM="linux/arm64"
   else
     SPF_PLATFORM="linux/x86_64"
@@ -149,9 +149,9 @@ case ${SPF_DIR} in app*)
 
   K8SDIR=${WORKDIR}/${SPF_DIR}/k8s
   if [ -d "${K8SDIR}" ]; then
-    if [ -n "${SPF_EKS_CLUSTER_NAME}" ]; then
-      echo "[EXEC] aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_CLUSTER_NAME}"
-      aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_EKS_CLUSTER_NAME} || { echo "[ERROR] aws eks update-kubeconfig failed. aborting..."; exit 1; }
+    if [ -n "${SPF_TFVAR_EKS_CLUSTER_NAME}" ]; then
+      echo "[EXEC] aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_TFVAR_EKS_CLUSTER_NAME}"
+      aws eks update-kubeconfig --region ${SPF_REGION} --name ${SPF_TFVAR_EKS_CLUSTER_NAME} || { echo "[ERROR] aws eks update-kubeconfig failed. aborting..."; exit 1; }
     fi
 
     if [ -n "${SPF_ECR_NAME}" ]; then
@@ -215,7 +215,7 @@ case ${SPF_DIR} in iac*)
     export SPF_TFVAR_BACKEND_BUCKET={\"${SPF_REGION}\"=\"${SPF_BUCKET}\"}
   fi
 
-  if [ -n "${SPF_GID}" ]; then
+  if [ -z "${SPF_TFVAR_GID}" ] && [ -n "${SPF_GID}" ]; then
     export SPF_TFVAR_GID=$SPF_GID
   fi
 
