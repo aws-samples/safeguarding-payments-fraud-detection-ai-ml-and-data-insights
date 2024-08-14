@@ -224,17 +224,10 @@ case ${SPF_DIR} in iac*)
   while IFS= read -r LINE; do
     KEY=$(echo $LINE | cut -d"=" -f1)
     BACK=${LINE/$KEY=/}
-    if [ -z "${BACK}" ]; then
-      BACK="''"
-    fi
+    if [ -z "${BACK}" ]; then BACK="''"; fi
     FRONT=$(echo ${KEY/SPF_TFVAR_/} | tr "[:upper:]" "[:lower:]")
     OPTIONS=" ${OPTIONS} -var spf_${FRONT}=${BACK}"
   done <<< "$SPF_TFVARS"
-
-  if [ -n "${SPF_MANIFEST}" ] && [ "${SPF_MANIFEST}" == "true" ]; then
-    echo "[DEBUG] env | grep SPF_"
-    env | grep SPF_
-  fi
 
   echo "[EXEC] cd ${WORKDIR}/${SPF_DIR}/"
   cd "${WORKDIR}/${SPF_DIR}/"
