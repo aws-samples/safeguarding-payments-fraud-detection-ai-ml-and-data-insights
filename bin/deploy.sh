@@ -229,7 +229,7 @@ case ${SPF_DIR} in iac*)
 
   if [ -n "${SPF_MANIFEST}" ] && [ "${SPF_MANIFEST}" == "true" ]; then
     echo "[DEBUG] env | grep TFVAR_"
-    env | grep TFVAR_
+    env | grep TF_VAR_
   fi
 
   echo "[EXEC] cd ${WORKDIR}/${SPF_DIR}/"
