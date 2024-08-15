@@ -4,26 +4,17 @@
 locals {
   spf_gid = (var.spf_gid == null ? data.terraform_remote_state.s3.outputs.spf_gid : var.spf_gid)
   secret = {
-    SPF_DOCKERFILE_DBHOST    = var.q.dbhost
-    SPF_DOCKERFILE_DBNAME    = var.q.dbname
-    SPF_DOCKERFILE_DBUSER    = var.q.dbuser
-    SPF_DOCKERFILE_DBPASS    = base64encode(random_password.db.result)
-    SPF_DOCKERFILE_DBPORT    = var.q.dbport
-    SPF_S3_BUCKET            = data.terraform_remote_state.s3.outputs.id
-    SPF_S3_ENDPOINT_URL      = trimspace(var.spf_s3_endpoint_url)
-    SPF_S3_ACCESS_KEY_ID     = base64encode(
-      trimspace(var.spf_s3_access_key_id) != ""
-        ? var.spf_s3_access_key_id : var.q.dbuser
-    )
-    SPF_S3_SECRET_ACCESS_KEY = base64encode(
-      trimspace(var.spf_s3_secret_access_key) != ""
-        ? var.spf_s3_secret_access_key
-        : random_password.s3.result
-    )
-    SPF_SERVICE_DBPORT       = var.q.srvport
-    SPF_SERVICE_DBNAME       = var.q.srvname
-    SPF_SERVICE_NAMESPACE    = format("%s-%s-%s", var.q.srvprefix, data.aws_region.this.name, local.spf_gid)
-    SPF_SERVICE_PRINCIPAL    = data.aws_service_principal.this.name
-    SPF_SERVICE_ROLE         = data.terraform_remote_state.iam.outputs.arn
+    SPF_DOCKERFILE_DBHOST = var.q.dbhost
+    SPF_DOCKERFILE_DBNAME = var.q.dbname
+    SPF_DOCKERFILE_DBUSER = var.q.dbuser
+    SPF_DOCKERFILE_DBPASS = base64encode(random_password.db.result)
+    SPF_DOCKERFILE_DBPORT = var.q.dbport
+    SPF_S3_BUCKET         = data.terraform_remote_state.s3.outputs.id
+    SPF_S3_ENDPOINT_URL   = trimspace(var.spf_s3_endpoint_url)
+    SPF_SERVICE_DBPORT    = var.q.srvport
+    SPF_SERVICE_DBNAME    = var.q.srvname
+    SPF_SERVICE_NAMESPACE = format("%s-%s-%s", var.q.srvprefix, data.aws_region.this.name, local.spf_gid)
+    SPF_SERVICE_PRINCIPAL = data.aws_service_principal.this.name
+    SPF_SERVICE_ROLE      = data.terraform_remote_state.iam.outputs.arn
   }
 }

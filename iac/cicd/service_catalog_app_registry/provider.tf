@@ -119,18 +119,6 @@ variable "spf_s3_endpoint_url" {
   default     = ""
 }
 
-variable "spf_s3_access_key_id" {
-  type        = string
-  description = "S3 Access Key ID (used in case of MinIO based deployment)"
-  default     = ""
-}
-
-variable "spf_s3_secret_access_key" {
-  type        = string
-  description = "S3 Secret Access Key (used in case of MinIO based deployment)"
-  default     = ""
-}
-
 variable "spf_vpc_id" {
   type        = string
   description = "VPC ID (must already exist, otherwise reuse the default vpc)"

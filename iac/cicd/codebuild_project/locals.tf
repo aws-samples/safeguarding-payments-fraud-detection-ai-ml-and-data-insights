@@ -85,16 +85,6 @@ locals {
       value = ""
     },
     {
-      name  = "SPF_TFVAR_S3_ACCESS_KEY_ID"
-      type  = "PLAINTEXT"
-      value = ""
-    },
-    {
-      name  = "SPF_TFVAR_S3_SECRET_ACCESS_KEY"
-      type  = "PLAINTEXT"
-      value = ""
-    },
-    {
       name  = "SPF_TFVAR_VPC_ID"
       type  = "PLAINTEXT"
       value = ""
