@@ -20,13 +20,7 @@ resource "aws_secretsmanager_secret_version" "this" {
   }
 }
 
-resource "random_password" "db" {
-  length           = var.q.length
-  special          = var.q.special
-  override_special = var.q.override
-}
-
-resource "random_password" "s3" {
+resource "random_password" "this" {
   length           = var.q.length
   special          = var.q.special
   override_special = var.q.override
