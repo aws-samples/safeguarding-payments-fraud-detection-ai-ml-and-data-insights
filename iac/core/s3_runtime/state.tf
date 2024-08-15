@@ -13,12 +13,8 @@ output "bucket_domain_name" {
   value = aws_s3_bucket.this.bucket_domain_name
 }
 
-output "bucket_regional_domain_name" {
-  value = aws_s3_bucket.this.bucket_regional_domain_name
-}
-
 output "domain" {
-  value = format("%s.%s", aws_s3_bucket.this.id, data.aws_service_principal.this.id)
+  value = aws_s3_bucket.this.bucket_regional_domain_name
 }
 
 output "hosted_zone_id" {

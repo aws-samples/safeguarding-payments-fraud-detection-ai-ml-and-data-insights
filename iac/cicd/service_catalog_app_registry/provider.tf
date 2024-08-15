@@ -113,6 +113,12 @@ variable "spf_eks_node_ebs" {
   }
 }
 
+variable "spf_s3_endpoint_url" {
+  type        = string
+  description = "S3 Endpoint URL (used in case of MinIO based deployment)"
+  default     = ""
+}
+
 variable "spf_vpc_id" {
   type        = string
   description = "VPC ID (must already exist, otherwise reuse the default vpc)"
