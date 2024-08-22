@@ -1,6 +1,6 @@
 -- Create payments database if does not exist
-CREATE DATABASE payments;
-\c payments;
+CREATE DATABASE transactions;
+\c transactions;
 
 -- Enable pgvector extension
 CREATE EXTENSION vector;
@@ -18,8 +18,14 @@ CREATE TABLE IF NOT EXISTS file_names (
     file_name VARCHAR(255) NOT NULL
 );
 
--- Create table to store payment data and vectors
-CREATE TABLE IF NOT EXISTS payment_data (
+-- Create table to store transaction data as vectors
+CREATE TABLE IF NOT EXISTS transaction (
+    id BIGSERIAL PRIMARY KEY,
+    embedding vector(848)
+);
+
+--
+CREATE TABLE IF NOT EXISTS transaction_anomalies (
     id BIGSERIAL PRIMARY KEY,
     embedding vector(848)
 );

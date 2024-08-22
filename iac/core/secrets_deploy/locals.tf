@@ -7,10 +7,12 @@ locals {
     SPF_DOCKERFILE_DBHOST = var.q.dbhost
     SPF_DOCKERFILE_DBNAME = var.q.dbname
     SPF_DOCKERFILE_DBUSER = var.q.dbuser
-    SPF_DOCKERFILE_DBPASS = base64encode(random_password.this.result)
+    SPF_DOCKERFILE_DBPASS = base64encode(random_password.db.result)
     SPF_DOCKERFILE_DBPORT = var.q.dbport
     SPF_S3_BUCKET         = data.terraform_remote_state.s3.outputs.id
-    SPF_S3_ENDPOINT_URL   = trimspace(var.spf_s3_endpoint_url)
+    SPF_S3_ENDPOINT_URL   = trimspace(var.spf_s3_endpoint_url) != "" ? base64encode(var.spf_s3_endpoint_url) : ""
+    SPF_S3_MINIO_USER     = base64encode(var.q.s3user)
+    SPF_S3_MINIO_PASS     = base64encode(random_password.s3.result)
     SPF_SERVICE_DBPORT    = var.q.srvport
     SPF_SERVICE_DBNAME    = var.q.srvname
     SPF_SERVICE_NAMESPACE = format("%s-%s-%s", var.q.srvprefix, data.aws_region.this.name, local.spf_gid)
