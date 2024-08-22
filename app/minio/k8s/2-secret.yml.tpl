@@ -8,6 +8,6 @@ metadata:
   name: minio-secret
   creationTimestamp: null
 data:
-  host: {{ SPF_S3_ENDPOINT_URL }}
-  username: {{ SPF_S3_MINIO_USER }}
-  password: {{ SPF_S3_MINIO_PASS }}
+  host: {{SPF_S3_ENDPOINT_URL}}
+  username: {{SPF_S3_MINIO_USER}}
+  password: {{SPF_S3_MINIO_PASS}}
