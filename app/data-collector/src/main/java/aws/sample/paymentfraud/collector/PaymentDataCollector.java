@@ -14,12 +14,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PaymentDataCollector implements DataCollector {
-
-    private ConfigMapCollectorConfig collectorConfig = new ConfigMapCollectorConfig();
-
-    private StorageService storageService = new StorageService();
-
+    
     private final static Logger LOGGER = Logger.getLogger(PaymentDataCollector.class.getName());
+    private ConfigMapCollectorConfig collectorConfig = new ConfigMapCollectorConfig();
+    private StorageService storageService;
+
+    public PaymentDataCollector() throws Exception {
+        storageService = new StorageService();
+    }
 
     @Override
     public String collect() throws Exception {
@@ -106,8 +108,8 @@ public class PaymentDataCollector implements DataCollector {
     }
 
     public static void main(String[] args) {
-        PaymentDataCollector collector = new PaymentDataCollector();
         try {
+            PaymentDataCollector collector = new PaymentDataCollector();
             String objectKey = collector.collect();
             LOGGER.log(Level.INFO, objectKey);
         } catch (Exception e) {

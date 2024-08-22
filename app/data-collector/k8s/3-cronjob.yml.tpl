@@ -59,6 +59,21 @@ spec:
                 configMapKeyRef:
                   name: data-collector-config
                   key: s3_bucket
+            - name: MINIO_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: host
+            - name: MINIO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: username
+            - name: MINIO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: password
             resources:
           restartPolicy: OnFailure
           volumes:

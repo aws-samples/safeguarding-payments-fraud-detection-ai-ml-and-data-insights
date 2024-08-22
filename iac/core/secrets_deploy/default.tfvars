@@ -12,6 +12,7 @@ q = {
   dbname      = "payments"
   dbuser      = "payments"
   dbport      = "5432"
+  s3user      = "minioadmin"
   srvport     = "35432"
   srvname     = "postgres"
   srvprefix   = "spf-app-postgres"
