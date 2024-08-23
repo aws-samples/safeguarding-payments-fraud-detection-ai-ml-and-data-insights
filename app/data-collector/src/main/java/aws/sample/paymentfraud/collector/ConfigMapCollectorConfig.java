@@ -10,7 +10,9 @@ public class ConfigMapCollectorConfig {
         FILES_LOCATION_IN_S3,
         MAX_LINES_TO_READ,
         PAYMENT_DATA_FILE,
+        REGION,
         S3_BUCKET,
+        S3_FOLDER_COLLECTOR,
         MINIO_HOST,
         MINIO_USERNAME,
         MINIO_PASSWORD
@@ -28,7 +30,9 @@ public class ConfigMapCollectorConfig {
         LOGGER.info("FILES_LOCATION_IN_S3 - " + System.getenv("FILES_LOCATION_IN_S3"));
         LOGGER.info("MAX_LINES_TO_READ - " + System.getenv("MAX_LINES_TO_READ"));
         LOGGER.info("PAYMENT_DATA_FILE - " + System.getenv("PAYMENT_DATA_FILE"));
+        LOGGER.info("REGION - " + System.getenv("REGION"));
         LOGGER.info("S3_BUCKET - " + System.getenv("S3_BUCKET"));
+        LOGGER.info("S3_FOLDER_COLLECTOR - " + System.getenv("S3_FOLDER_COLLECTOR"));
         LOGGER.info("MINIO_HOST - " + System.getenv("MINIO_HOST"));
         LOGGER.info("MINIO_USERNAME - " + System.getenv("MINIO_USERNAME"));
         LOGGER.info("MINIO_PASSWORD - " + System.getenv("MINIO_PASSWORD"));

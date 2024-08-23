@@ -175,7 +175,7 @@ case ${SPF_DIR} in app*)
       fi
 
       if [ "${i: -4}" == ".yml" ] || [ "${i: -5}" == ".yaml" ]; then
-        if [ -n "${SPF_MANIFEST}" ] && [ "${SPF_MANIFEST}" == "true" ]; then
+        if [ -n "${SPF_DEBUG_MANIFEST}" ] && [ "${SPF_DEBUG_MANIFEST}" == "true" ]; then
           echo "[DEBUG] cat ${i}"
           cat ${i}
         fi

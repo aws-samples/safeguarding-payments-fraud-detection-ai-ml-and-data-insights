@@ -3,7 +3,6 @@ package aws.sample.paymentfraud.collector;
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.Calendar;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -22,16 +21,15 @@ public class StorageService {
 
     ConfigMapCollectorConfig collectorConfig = new ConfigMapCollectorConfig();
 
-    private S3Client s3 = null; // S3Client.builder().region(Region.US_EAST_1).build();
+    private S3Client s3 = null;
 
     public StorageService() throws Exception {
         String minioHost = getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.MINIO_HOST);//System.getenv("MINIO_HOST");
         LOGGER.info("MINIO HOST is - " + minioHost);
         if (StringUtils.isNullOrEmpty(minioHost)) {
-            s3 = S3Client.builder().region(Region.US_EAST_1).build();
+            s3 = S3Client.builder().region(Region.of(getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.REGION))).build();
+            LOGGER.info("Initialized S3 for storage");
         } else {
-            LOGGER.info("MINIO USERNAME is - " + getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.MINIO_USERNAME));
-            LOGGER.info("MINIO PASSWORD is - " + getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.MINIO_PASSWORD));
             s3 = S3Client.builder()
                     .forcePathStyle(true)
                     .endpointOverride(URI.create(minioHost))
@@ -39,16 +37,11 @@ public class StorageService {
                             StaticCredentialsProvider.create(AwsBasicCredentials.create(
                                 getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.MINIO_USERNAME),
                                 getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.MINIO_PASSWORD))))
-                    .region(Region.US_EAST_1) // You can use any region here
+                    .region(Region.of(ConfigMapCollectorConfig.Configs.REGION.name())) // You can use any region here
                     .build();
+            LOGGER.info("Initialized MinIO for storage");
         }
 
-    }
-
-    public String storeObjects(String data, Set<String> files) {
-        String dateString = Utils.now();
-        LOGGER.info("Stored data to S3 for " + dateString);
-        return dateString;
     }
 
     public String storeFile(String data) {
@@ -62,7 +55,8 @@ public class StorageService {
         String second = mFormat.format(calendar.get(Calendar.SECOND));
 
         String objectKey = new StringBuilder()
-                .append("data-collector/")
+                .append(getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.S3_FOLDER_COLLECTOR))
+                .append("/")
                 .append(year).append("/")
                 .append(month).append("/")
                 .append(date).append("/")

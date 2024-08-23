@@ -13,4 +13,6 @@ data:
   files_location_in_s3: "raw_payment_request_files"
   max_lines_to_read: "10000"
   payment_data: "transaction_data_100K_full.csv"
+  region: "{{SPF_REGION}}"
   s3_bucket: "{{SPF_S3_BUCKET}}"
+  s3_folder_collector: "data-collector"
