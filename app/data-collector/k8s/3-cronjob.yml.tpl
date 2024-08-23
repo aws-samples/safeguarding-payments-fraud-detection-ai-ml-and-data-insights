@@ -54,11 +54,21 @@ spec:
                 configMapKeyRef:
                   name: data-collector-config
                   key: payment_data
+            - name: REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: collector-config
+                  key: region
             - name: S3_BUCKET
               valueFrom:
                 configMapKeyRef:
                   name: data-collector-config
                   key: s3_bucket
+            - name: S3_FOLDER_COLLECTOR
+              valueFrom:
+                configMapKeyRef:
+                  name: collector-config
+                  key: s3_folder_collector
             - name: MINIO_HOST
               valueFrom:
                 secretKeyRef:
