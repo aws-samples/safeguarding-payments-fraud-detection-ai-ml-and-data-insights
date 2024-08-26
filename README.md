@@ -22,7 +22,7 @@ across the following directories:
 2. `app/` - Application Code
     * `app/anomaly-detector/` - Anomaly Detector Microservice (Python-based Module)
     * `app/data-collector/` - Data Collector Microservice (Java-based Module)
-    * `app/minio/` - MinIO S3 API-Compatibile Storage (Local to the Kubernetes Cluster)
+    * `app/minio/` - MinIO S3 API-Compatible Storage (Local to the Kubernetes Cluster)
     * `app/postgres/` - PostgreSQL Database (Local to the Kubernetes Cluster)
 
 ### Pre-requisites
@@ -53,9 +53,11 @@ Starting at the ROOT level of this repository, run the following command:
 > REMINDER: Make sure to replace *us-east-1* with your target AWS region and
 *spf-backend-us-east-1* with your S3 bucket.
 
-Once the build execution is successful, you should be able to login to AWS
-Management Console, navigate to AWS CodeBuild service and see the newly created
-project named something like *spf-cicd-pipeline-abcd1234*.
+Once the build execution is successful, you should be able to login to
+[AWS Management Console](https://console.aws.amazon.com/console/home), navigate to
+[AWS CodeBuild](https://us-west-2.console.aws.amazon.com/codesuite/codebuild/projects)
+service and see the newly created project named something like
+*spf-cicd-pipeline-abcd1234*.
 
 The suffix *abcd1234* in your AWS CodeBuild project name is the solution
 deployment ID. This value can be used to test this solution, once deployed
@@ -106,6 +108,9 @@ aws codebuild start-build --region us-east-1 \
     --project-name spf-cicd-pipeline-abcd1234 \
     --environment-variables-override "name=SPF_DIR,value=app/postgres"
 ```
+
+> NOTE: Explore the list of CI/CD pipeline supported environment variables
+[here](./docs/cicd.md#environment-variables)
 
 ## Cleaning Up
 
