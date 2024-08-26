@@ -121,7 +121,7 @@ variable "spf_s3_endpoint_url" {
 
 variable "spf_vpc_id" {
   type        = string
-  description = "VPC ID (must already exist, otherwise reuse the default vpc)"
+  description = "VPC ID (must already exist, otherwise falls back to the default vpc)"
   default     = ""
 }
 
