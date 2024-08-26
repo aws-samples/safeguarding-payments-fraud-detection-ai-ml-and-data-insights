@@ -48,19 +48,6 @@ successfully.
 
 ## Deploy Any Module
 
-The CI/CD pipeline can be used to deploy any module (including itself, although
-not recommended). The order of operations for entire solution deployment is:
-
-1. In previous steps we deployed `iac/cicd` (CI/CD module)
-2. After done with `iac/cicd`, deploy `iac/core` (Core module)
-3. After done with `iac/cicd` and `iac/core`, deploy any other Infrastructure
-modules from `iac/` directory (e.g. `iac/quicksight`)
-4. After done with Infrastructure modules, deploy any dependencies required by
-Application modules from `app/` directory (e.g. `app/postgres`)
-5. After done with Application dependencies, deploy any other Application
-modules from `app/` directory (e.g. `app/anomaly-detector` or
-`app/data-collector`)
-
 To pick which module to deploy (e.g. `app/postgres`), simply pass the
 directory relative path value to `SPF_DIR` environment variable as shown below:
 
@@ -69,6 +56,17 @@ aws codebuild start-build --region us-east-1 \
     --project-name spf-cicd-pipeline-abcd1234 \
     --environment-variables-override "name=SPF_DIR,value=app/postgres"
 ```
+
+The CI/CD pipeline can be used to deploy any module (including itself, although
+not recommended). The order of operations for entire solution deployment is:
+
+1. CI/CD module (already done): `"name=SPF_DIR,value=iac/cicd"`
+2. Core module: `"name=SPF_DIR,value=iac/core"`
+3. PostgreSQL module: `"name=SPF_DIR,value=app/postgres"`
+4. MinIO module (optional): `"name=SPF_DIR,value=app/minio"`
+5. Anomaly Detector module: `"name=SPF_DIR,value=app/anomaly-detector"`
+6. Data Collector module: `"name=SPF_DIR,value=app/data-collector"`
+7. QuickSight module: `"name=SPF_DIR,value=iac/quicksight"`
 
 ## Environment Variables
 
@@ -102,3 +100,20 @@ SPF_TFVAR_SUBNETS_CAGW_CREATE | false | (Optional) Create wavelength subnets (if
 SPF_TFVAR_SUBNETS_IGW_MAPPING | | (Optional) Public subnets mapping (e.g. {{availability_zone_id}}:{{availability_zone_cidr}},{{local_zone_id}}:{{local_zone_cidr}})
 SPF_TFVAR_SUBNETS_NAT_MAPPING | | (Optional) Private subnets mapping (e.g. {{availability_zone_id}}:{{availability_zone_cidr}},{{local_zone_id}}:{{local_zone_cidr}})
 SPF_TFVAR_SUBNETS_CAGW_MAPPING | | (Optional) Wavelength subnets mapping (e.g. {{wavelength_zone_id}}:{{wavelength_zone_cidr}},{{wavelength_zone_id}}:{{wavelength_zone_cidr}})
+
+Below is a more complex example to deploy this solution into an existing VPC
+with existing public subnets, but new private subnets leveraging AWS Local
+Zones in NYC, Boston, Philadelphia, as well as enable VPC endpoints to make
+the traffic private within the VPC:
+
+```sh
+aws codebuild start-build --region us-east-1 \
+    --project-name spf-cicd-pipeline-abcd1234 \
+    --environment-variables-override "name=SPF_DIR,value=iac/core" \
+    --environment-variables-override "name=SPF_TFVAR_VPC_ID,value=vpc-1234567890abcdefg" \
+    --environment-variables-override "name=SPF_TFVAR_VPCE_MAPPING,value=autoscaling,ec2,ec2messages,ecr.dkr,ecr.api,eks,elasticloadbalancing,kms,logs,s3,sts,ssm,ssmmessages:dynamodb,s3" \
+    --environment-variables-override "name=SPF_TFVAR_SUBNETS_IGW_CREATE,value=false" \
+    --environment-variables-override "name=SPF_TFVAR_SUBNETS_IGW_MAPPING,value=use1-az1:10.0.0.0/20,use1-az2:10.0.16.0/20,use1-az4:10.0.32.0/20" \
+    --environment-variables-override "name=SPF_TFVAR_SUBNETS_NAT_CREATE,value=true" \
+    --environment-variables-override "name=SPF_TFVAR_SUBNETS_NAT_MAPPING,value=use1-nyc1-az1:10.0.48.0/20,use1-bos1-az1:10.0.64.0/20,use1-phl1-az1:10.0.80.0/20"
+```

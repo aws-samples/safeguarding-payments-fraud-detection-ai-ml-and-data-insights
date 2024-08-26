@@ -87,19 +87,6 @@ aws codebuild start-build --region us-east-1 \
 
 ### Deploy Any Module
 
-The CI/CD pipeline can be used to deploy any module (including itself, although
-not recommended). The order of operations for entire solution deployment is:
-
-1. In previous steps we deployed `iac/cicd` (CI/CD module) and `iac/core`
-(Core module)
-2. After done with `iac/cicd` and `iac/core`, deploy any other Infrastructure
-modules from `iac/` directory (e.g. `iac/quicksight`)
-3. After done with Infrastructure modules, deploy any dependencies required by
-Application modules from `app/` directory (e.g. `app/postgres`)
-4. After done with Application dependencies, deploy any other Application
-modules from `app/` directory (e.g. `app/anomaly-detector` or
-`app/data-collector`)
-
 To pick which module to deploy (e.g. `app/postgres`), simply pass the
 directory relative path value to `SPF_DIR` environment variable as shown below:
 
@@ -108,6 +95,17 @@ aws codebuild start-build --region us-east-1 \
     --project-name spf-cicd-pipeline-abcd1234 \
     --environment-variables-override "name=SPF_DIR,value=app/postgres"
 ```
+
+The CI/CD pipeline can be used to deploy any module (including itself, although
+not recommended). The order of operations for entire solution deployment is:
+
+1. CI/CD module (already done): `"name=SPF_DIR,value=iac/cicd"`
+2. Core module: `"name=SPF_DIR,value=iac/core"`
+3. PostgreSQL module: `"name=SPF_DIR,value=app/postgres"`
+4. MinIO module (optional): `"name=SPF_DIR,value=app/minio"`
+5. Anomaly Detector module: `"name=SPF_DIR,value=app/anomaly-detector"`
+6. Data Collector module: `"name=SPF_DIR,value=app/data-collector"`
+7. QuickSight module: `"name=SPF_DIR,value=iac/quicksight"`
 
 > NOTE: Explore the list of CI/CD pipeline supported environment variables
 [here](./docs/cicd.md#environment-variables)
