@@ -22,7 +22,7 @@ resource "aws_eks_node_group" "this" {
 
   ami_type        = var.spf_eks_node_arch == "arm" ? "AL2_ARM_64" : "AL2_x86_64"
   capacity_type   = var.q.capacity_type
-  instance_types  = split(",", trimspace(var.spf_eks_node_ec2) != "" ? var.spf_eks_node_ec2 : var.q.instance_types)
+  instance_types  = split(",", try(trimspace(var.spf_eks_node_ec2), "") != "" ? var.spf_eks_node_ec2 : var.q.instance_types)
   disk_size       = var.q.disk_size
   labels          = local.labels
   release_version = var.q.release_version
@@ -65,7 +65,7 @@ module "self_managed_node_group" {
   desired_size             = var.q.desired_size
   min_size                 = var.q.min_size
   max_size                 = var.q.max_size
-  instance_type            = element(split(",", trimspace(var.spf_eks_node_ec2) != "" ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
+  instance_type            = element(split(",", try(trimspace(var.spf_eks_node_ec2), "") != "" ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
   create_launch_template   = true
   create_autoscaling_group = true
   create_access_entry      = true
@@ -77,7 +77,7 @@ module "self_managed_node_group" {
       device_name = "/dev/xvda"
       ebs = {
         volume_size           = var.q.disk_size
-        volume_type           = trimspace(var.spf_eks_node_ebs) != "" ? var.spf_eks_node_ebs : var.q.disk_type
+        volume_type           = try(trimspace(var.spf_eks_node_ebs), "") != "" ? var.spf_eks_node_ebs : var.q.disk_type
         delete_on_termination = true
         encrypted             = true
         kms_key_id            = element(module.ebs_kms_key.*.key_arn, 0)

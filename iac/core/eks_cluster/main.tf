@@ -57,7 +57,7 @@ resource "aws_eks_access_entry" "this" {
     data.aws_caller_identity.this.account_id,
     element(local.roles, count.index)
   )
-  kubernetes_groups = trimspace(var.q.groups) != "" ? split(",", var.q.groups) : null
+  kubernetes_groups = try(trimspace(var.q.groups), "") != "" ? split(",", var.q.groups) : null
   type              = var.q.entry_type
 }
 
@@ -77,6 +77,6 @@ resource "aws_eks_access_policy_association" "this" {
 
   access_scope {
     type       = var.q.access_type
-    namespaces = trimspace(var.q.namespaces) != "" ? split(",", var.q.namespaces) : null
+    namespaces = try(trimspace(var.q.namespaces), "") != "" ? split(",", var.q.namespaces) : null
   }
 }

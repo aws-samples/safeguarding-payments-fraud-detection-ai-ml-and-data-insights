@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 resource "aws_vpc_endpoint" "this" {
-  count               = trimspace(element(local.interfaces, 0)) != "" ? length(local.interfaces) : 0
+  count               = try(trimspace(element(local.interfaces, 0)), "") != "" ? length(local.interfaces) : 0
   vpc_id              = data.terraform_remote_state.sg.outputs.vpc_id
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = var.q.private
@@ -13,7 +13,7 @@ resource "aws_vpc_endpoint" "this" {
 }
 
 resource "aws_vpc_endpoint" "gw" {
-  count             = trimspace(element(local.gateways, 0)) != "" ? length(local.gateways) : 0
+  count             = try(trimspace(element(local.gateways, 0)), "") != "" ? length(local.gateways) : 0
   vpc_id            = data.terraform_remote_state.sg.outputs.vpc_id
   vpc_endpoint_type = "Gateway"
   service_name      = format("com.amazonaws.%s.%s", data.aws_region.this.name, element(local.gateways, count.index))
