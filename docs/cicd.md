@@ -48,13 +48,13 @@ successfully.
 
 ## Deploy Any Module
 
-To pick which module to deploy (e.g. `app/postgres`), simply pass the
-directory relative path value to `SPF_DIR` environment variable as shown below:
+To pick which module to deploy (e.g. `iac/core`), simply pass the directory
+relative path value to `SPF_DIR` environment variable as shown below:
 
 ```sh
 aws codebuild start-build --region us-east-1 \
     --project-name spf-cicd-pipeline-abcd1234 \
-    --environment-variables-override "name=SPF_DIR,value=app/postgres"
+    --environment-variables-override "name=SPF_DIR,value=iac/core"
 ```
 
 The CI/CD pipeline can be used to deploy any module (including itself, although
@@ -78,7 +78,7 @@ Name | Default Value | Description
 AWS_DEFAULT_REGION | us-east-1 | (Required) AWS Region used by Java or Python SDK
 AWS_REGION | us-east-1 | (Required) AWS Region used by AWS CLI
 SPF_REGION | us-east-1 | (Required) AWS Region used by Terraform
-SPF_DIR | iac/core | (Required) Path to module where App or IaC code is
+SPF_DIR | iac/core | (Required) Relative path to module where App or IaC code is
 SPF_GID | | (Optional) Global ID appended to AWS resource names (e.g. abcd1234)
 SPF_BUCKET | spf-backend-us-east-1 | (Required) S3 bucket used by Terraform to store .tfstate files
 SPF_TFVAR_BACKEND_BUCKET | {"us-east-1"="spf-backend-us-east-1"} | (Optional) Terraform construct used to initialize S3 as backend
@@ -100,6 +100,11 @@ SPF_TFVAR_SUBNETS_CAGW_CREATE | false | (Optional) Create wavelength subnets (if
 SPF_TFVAR_SUBNETS_IGW_MAPPING | | (Optional) Public subnets mapping (e.g. {{availability_zone_id}}:{{availability_zone_cidr}},{{local_zone_id}}:{{local_zone_cidr}})
 SPF_TFVAR_SUBNETS_NAT_MAPPING | | (Optional) Private subnets mapping (e.g. {{availability_zone_id}}:{{availability_zone_cidr}},{{local_zone_id}}:{{local_zone_cidr}})
 SPF_TFVAR_SUBNETS_CAGW_MAPPING | | (Optional) Wavelength subnets mapping (e.g. {{wavelength_zone_id}}:{{wavelength_zone_cidr}},{{wavelength_zone_id}}:{{wavelength_zone_cidr}})
+SPF_GITHUB_BRANCH | | (Optional) If not empty, git will checkout the GitHub specific branch instead of using main branch
+SPF_DEBUG_CONFIG | false | (Optional) If true, displays config's environment variables in CodeBuild logs
+SPF_DEBUG_MANIFEST | false | (Optional) If true, displays Kubernetes manifest templates and compiled files in CodeBuild logs
+SPF_DEBUG_SECRETS | false | (Optional) If true, displays secrets from Secrets Manager in CodeBuild logs
+SPF_CLEANUP | false | (Optional) If true, cleans up resources related to `SPF_DIR` relative path
 
 Below is a more complex example to deploy this solution into an existing VPC
 with existing public subnets, but new private subnets leveraging AWS Local
