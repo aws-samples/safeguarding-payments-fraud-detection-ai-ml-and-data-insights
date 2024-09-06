@@ -83,18 +83,16 @@ if [ "${SPF_RESULT}" != "[]" ]; then
   SPF_RESULT=$(aws secretsmanager get-secret-value --region ${SPF_REGION} --secret-id ${SPF_SECRET} --query SecretString)
 
   if [ -n "${SPF_DEBUG_SECRETS}" ] && [ "${SPF_DEBUG_SECRETS}" == "true" ]; then
-    echo "[DEBUG] echo ${SPF_DEBUG_SECRETS}"
-    echo ${SPF_DEBUG_SECRETS}
+    echo "[DEBUG] echo ${SPF_RESULT}"
+    echo ${SPF_RESULT}
   fi
 
   case ${SPF_RESULT} in \"{*)
     SPF_RESULT=$(echo "${SPF_RESULT}" | jq -r '.')
-    SPF_KEYS=( $(echo "${SPF_RESULT}" | jq -r 'keys[]') )
-    SPF_VALUES=( $(echo "${SPF_RESULT}" | jq -r 'values[]') )
-    for i in "${!SPF_KEYS[@]}"; do
-      export ${SPF_KEYS[i]}="${SPF_VALUES[i]}"
+    for s in $(echo ${SPF_RESULT} | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
+      export $s
       if [ -n "${SPF_DEBUG_SECRETS}" ] && [ "${SPF_DEBUG_SECRETS}" == "true" ]; then
-        echo "export ${SPF_KEYS[i]}=\"${SPF_VALUES[i]}\""
+        echo "[DEBUG] export $s"
       fi
     done
   esac
