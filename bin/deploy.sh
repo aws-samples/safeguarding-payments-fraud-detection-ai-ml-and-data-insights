@@ -93,6 +93,9 @@ if [ "${SPF_RESULT}" != "[]" ]; then
     SPF_VALUES=( $(echo "${SPF_RESULT}" | jq -r 'values[]') )
     for i in "${!SPF_KEYS[@]}"; do
       export ${SPF_KEYS[i]}="${SPF_VALUES[i]}"
+      if [ -n "${SPF_DEBUG_SECRETS}" ] && [ "${SPF_DEBUG_SECRETS}" == "true" ]; then
+        echo "export ${SPF_KEYS[i]}=\"${SPF_VALUES[i]}\""
+      fi
     done
   esac
 fi
