@@ -57,36 +57,44 @@ spec:
             - name: REGION
               valueFrom:
                 configMapKeyRef:
-                  name: collector-config
+                  name: data-collector-config
                   key: region
             - name: S3_BUCKET
               valueFrom:
                 configMapKeyRef:
                   name: data-collector-config
                   key: s3_bucket
-            - name: S3_FOLDER_COLLECTOR
+            - name: COLLECTOR_FOLDER
               valueFrom:
                 configMapKeyRef:
-                  name: collector-config
-                  key: s3_folder_collector
+                  name: data-collector-config
+                  key: collector_folder
+            - name: COLLECTOR_STATE
+              valueFrom:
+                configMapKeyRef:
+                  name: data-collector-config
+                  key: state_filename
             - name: MINIO_HOST
               valueFrom:
                 secretKeyRef:
                   name: minio-secret
                   key: host
+                  optional: true
             - name: MINIO_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: minio-secret
                   key: username
+                  optional: true
             - name: MINIO_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: minio-secret
                   key: password
+                  optional: true
             resources:
           restartPolicy: OnFailure
           volumes:
           - name: data
             emptyDir:
-              sizeLimit: 500Mi   
+              sizeLimit: 500Mi

@@ -15,4 +15,5 @@ data:
   payment_data: "transaction_data_100K_full.csv"
   region: "{{SPF_REGION}}"
   s3_bucket: "{{SPF_S3_BUCKET}}"
-  s3_folder_collector: "data-collector"
+  collector_folder: "data-collector"
+  state_filename: "collector-state.txt"

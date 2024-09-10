@@ -13,10 +13,12 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONObject;
+
 public class PaymentDataCollector implements DataCollector {
     
     private final static Logger LOGGER = Logger.getLogger(PaymentDataCollector.class.getName());
-    private ConfigMapCollectorConfig collectorConfig = new ConfigMapCollectorConfig();
+    private CollectorConfig collectorConfig = new CollectorConfig();
     private StorageService storageService;
 
     public PaymentDataCollector() throws Exception {
@@ -25,22 +27,20 @@ public class PaymentDataCollector implements DataCollector {
 
     @Override
     public String collect() throws Exception {
-        int startLineNumber = Integer
-                .parseInt(collectorConfig.getConfig(ConfigMapCollectorConfig.Configs.FILE_LINE_NUMBER_TO_READ_FROM));
+        int startLineNumber = getStartLineNumber();
 
         int endLineNumber = startLineNumber +
-                Integer.parseInt(getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.MAX_LINES_TO_READ));
+                Integer.parseInt(getCollectorConfig().getConfig(CollectorConfig.Configs.MAX_LINES_TO_READ));
 
-        String lines = readDataFile(getCollectorConfig().getConfig(ConfigMapCollectorConfig.Configs.PAYMENT_DATA_FILE),
+        String lines = readDataFile(getCollectorConfig().getConfig(CollectorConfig.Configs.PAYMENT_DATA_FILE),
                 startLineNumber, endLineNumber);
         if (!lines.isBlank()) {
             String dataToReturn = getStorageService().storeFile(lines);
-            getCollectorConfig().updateParameter(ConfigMapCollectorConfig.Configs.FILE_LINE_NUMBER_TO_READ_FROM.toString(),
-                    (endLineNumber + 1) + "");
             Object[] params = { endLineNumber - startLineNumber, startLineNumber, endLineNumber, dataToReturn };
             LOGGER.log(Level.INFO,
                     "Read total of {0} lines starting at line number {1} and ending at line number {2}. Stored at S3 folder {3}",
                     params);
+            saveState(endLineNumber + 1 + "");
             return dataToReturn;
         } else {
             Object[] params = { startLineNumber, endLineNumber };
@@ -65,12 +65,12 @@ public class PaymentDataCollector implements DataCollector {
             String line;
             int currentLineNumber = 1;
             int secondCounter = 1;
-            String firstLine = null;
+            String headerLine = null;
             Object[] params = { fileUrl, startLineNumber, endLineNumber };
             LOGGER.log(Level.INFO, "Reading {0} from line {1} to {2}", params);
             while ((line = reader.readLine()) != null && currentLineNumber <= endLineNumber) {
                 if (currentLineNumber == 1) {
-                    firstLine = line;
+                    headerLine = line;
                 } else if (currentLineNumber >= startLineNumber) {
                     Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                     calendar.add(Calendar.SECOND, secondCounter);
@@ -102,9 +102,30 @@ public class PaymentDataCollector implements DataCollector {
             }
             if (content.length() > 0) {
                 content.insert(0, System.lineSeparator())
-                        .insert(0, firstLine);
+                        .insert(0, headerLine);
             }
         return content.toString();
+    }
+
+    private void saveState(String parameterValue) {
+        JSONObject state = new JSONObject();
+        state.put(CollectorConfig.COLLECTOR_STATE_START_LINE_NUMBER, parameterValue);
+        getStorageService().store(state.toString(), getCollectorConfig().getConfig(CollectorConfig.Configs.COLLECTOR_STATE));
+        Object[] params = { getCollectorConfig().getConfig(CollectorConfig.Configs.COLLECTOR_STATE), parameterValue};
+        LOGGER.log(Level.INFO, "State saved parameter - {0},. For next run reading line from - {1}", params);
+    }
+
+    private int getStartLineNumber() throws IOException {
+        JSONObject state = getStorageService().getCollectorState();
+        if (state == null) {
+            return 0; // first line
+        }
+
+        if (state.has(CollectorConfig.COLLECTOR_STATE_START_LINE_NUMBER)) {
+            return state.getInt(CollectorConfig.COLLECTOR_STATE_START_LINE_NUMBER);
+        }
+
+        return 0; // first line
     }
 
     public static void main(String[] args) {
@@ -117,7 +138,7 @@ public class PaymentDataCollector implements DataCollector {
         }
     }
 
-    public ConfigMapCollectorConfig getCollectorConfig() {
+    public CollectorConfig getCollectorConfig() {
         return collectorConfig;
     }
 
