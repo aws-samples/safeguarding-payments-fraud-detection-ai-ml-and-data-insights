@@ -7,7 +7,7 @@ metadata:
   namespace: {{SPF_ECR_NAME}}
   name: postgres-secret
 type: Opaque
-data:
+stringData:
   POSTGRES_PORT: "{{SPF_DOCKERFILE_DBPORT}}"
   POSTGRES_PASSWORD: "{{SPF_DOCKERFILE_DBPASS}}"
   POSTGRES_REPLICATION_PASSWORD: "{{SPF_DOCKERFILE_DBPASS}}"
