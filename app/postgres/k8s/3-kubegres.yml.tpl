@@ -9,7 +9,6 @@ metadata:
 spec:
    replicas: 3
    image: {{SPF_ECR_URI}}:latest
-   port: {{SPF_DOCKERFILE_DBPORT}}
    database:
       size: 10Gi
    env:
