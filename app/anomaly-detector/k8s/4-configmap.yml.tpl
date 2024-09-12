@@ -16,7 +16,7 @@ data:
   SERVICE_NAME: "{{SPF_SERVICE_DBNAME}}"
   NAMESPACE: "{{SPF_SERVICE_NAMESPACE}}"
   REGION: "{{SPF_REGION}}"
-  S3_BUCKET_NAME: {{SPF_S3_BUCKET}}
-  S3_PATH_PAYMENT: data-collector/
-  S3_PATH_MODEL: anomaly-detector/
-  DATASET: ./data/transaction_data_100K_full.csv
+  S3_BUCKET_NAME: "{{SPF_S3_BUCKET}}"
+  S3_PATH_PAYMENT: "data-collector/"
+  S3_PATH_MODEL: "anomaly-detector/"
+  DATASET: "./data/transaction_data_100K_full.csv"
