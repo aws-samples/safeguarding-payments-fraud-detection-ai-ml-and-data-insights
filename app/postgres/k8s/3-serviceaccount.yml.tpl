@@ -4,8 +4,8 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: {{SPF_ECR_NAME}}
-  name: service-account
+  namespace: kube-system
+  name: ebs-csi-controller-sa
   labels:
     app.kubernetes.io/name: aws-ebs-csi-driver
   annotations:
