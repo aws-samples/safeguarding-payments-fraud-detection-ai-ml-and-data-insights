@@ -1,0 +1,44 @@
+# Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+  labels:
+    app: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ebs-sc
+  volumeMode: Block
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres-pv-pod
+  labels:
+    app: postgres
+spec:
+  containers:
+  - name: postgres-pv-pod 
+    image: busybox 
+    command: ["/bin/sh", "-c"]
+    args: ["tail -f /dev/null"]
+    volumeDevices:
+    - name: data
+      devicePath: /dev/xvda
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: postgres-pv-claim

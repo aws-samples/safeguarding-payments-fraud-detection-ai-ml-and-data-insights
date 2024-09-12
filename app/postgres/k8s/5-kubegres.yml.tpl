@@ -9,8 +9,11 @@ metadata:
 spec:
    replicas: 3
    image: {{SPF_ECR_URI}}:latest
+   port: {{SPF_DOCKERFILE_DBPORT}}
    database:
       size: 10Gi
+      storageClassName: ebs-sc
+      volumeMount: /var/lib/postgresql/data
    env:
       - name: POSTGRES_PASSWORD
         valueFrom:
