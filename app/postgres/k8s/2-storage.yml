@@ -6,7 +6,7 @@ kind: StorageClass
 metadata:
   name: ebs-sc
 provisioner: ebs.csi.aws.com
-#volumeBindingMode: WaitForFirstConsumer
+volumeBindingMode: WaitForFirstConsumer
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -21,7 +21,6 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: ebs-sc
-  volumeMode: Block
 ---
 apiVersion: v1
 kind: Pod
@@ -31,13 +30,13 @@ metadata:
     app: postgres
 spec:
   containers:
-  - name: postgres-pv-pod 
-    image: busybox 
-    command: ["/bin/sh", "-c"]
-    args: ["tail -f /dev/null"]
-    volumeDevices:
+  - name: postgres-pv-pod
+    image: centos
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]
+    volumeMounts:
     - name: data
-      devicePath: /dev/xvda
+      mountPath: /mnt/data
   volumes:
   - name: data
     persistentVolumeClaim:
