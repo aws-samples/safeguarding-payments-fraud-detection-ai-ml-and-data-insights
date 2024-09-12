@@ -12,8 +12,6 @@ spec:
    port: {{SPF_DOCKERFILE_DBPORT}}
    database:
       size: 10Gi
-      storageClassName: standard
-      volumeMount: /var/lib/postgresql/data
    env:
       - name: POSTGRES_PASSWORD
         valueFrom:
