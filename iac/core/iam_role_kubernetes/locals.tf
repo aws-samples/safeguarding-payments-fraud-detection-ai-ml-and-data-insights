@@ -6,6 +6,7 @@ locals {
   suffix  = format("%s-%s", data.aws_region.this.name, local.spf_gid)
   policies = [
     aws_iam_policy.this.arn,
+    format("arn:%s:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy", data.aws_partition.this.partition),
     format("arn:%s:iam::aws:policy/AmazonDynamoDBFullAccess", data.aws_partition.this.partition),
     format("arn:%s:iam::aws:policy/AmazonS3FullAccess", data.aws_partition.this.partition),
     format("arn:%s:iam::aws:policy/AmazonSSMFullAccess", data.aws_partition.this.partition),

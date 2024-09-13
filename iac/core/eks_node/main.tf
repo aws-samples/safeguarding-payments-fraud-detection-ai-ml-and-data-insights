@@ -70,7 +70,7 @@ module "self_managed_node_group" {
   create_launch_template      = true
   create_autoscaling_group    = true
   create_access_entry         = true
-  create_iam_instance_profile = false
+  #create_iam_instance_profile = false
   ebs_optimized               = true
   enable_monitoring           = true
 
