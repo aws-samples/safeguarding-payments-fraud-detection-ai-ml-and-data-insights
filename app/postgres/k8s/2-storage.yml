@@ -36,7 +36,7 @@ spec:
     args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]
     volumeMounts:
     - name: data
-      mountPath: /mnt/data
+      mountPath: /var/lib/postgresql/data
   volumes:
   - name: data
     persistentVolumeClaim:

@@ -12,7 +12,7 @@ locals {
     format("arn:%s:iam::aws:policy/AmazonSSMFullAccess", data.aws_partition.this.partition),
   ]
   service_accounts = [
-    format("system:serviceaccount:kube-system:ebs-csi-controller-sa"),
+    "system:serviceaccount:kube-system:ebs-csi-controller-sa",
     format("system:serviceaccount:spf-app-anomaly-detector-%s:service-account", local.suffix),
     format("system:serviceaccount:spf-app-data-collector-%s:service-account", local.suffix),
     format("system:serviceaccount:spf-app-postgres-%s:service-account", local.suffix),
