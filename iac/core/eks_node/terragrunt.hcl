@@ -6,8 +6,13 @@ dependency "eks" {
   skip_outputs = true
 }
 
-dependency "iam" {
+dependency "iam_node" {
   config_path  = "../iam_role_node"
+  skip_outputs = true
+}
+
+dependency "iam_k8s" {
+  config_path  = "../iam_role_kubernetes"
   skip_outputs = true
 }
 

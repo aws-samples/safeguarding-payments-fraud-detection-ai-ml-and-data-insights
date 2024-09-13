@@ -128,6 +128,7 @@ resource "aws_eks_addon" "this" {
   cluster_name                = data.terraform_remote_state.eks.outputs.id
   addon_name                  = element(split(",", var.q.addons), count.index)
   addon_version               = element(split(",", var.q.addons_version), count.index)
+  service_account_role_arn    = data.terraform_remote_state.iam_k8s.arn
   resolve_conflicts_on_create = var.q.addons_create
   resolve_conflicts_on_update = var.q.addons_update
   depends_on                  = [aws_eks_fargate_profile.this, aws_eks_node_group.this, module.self_managed_node_group]

@@ -21,23 +21,3 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: ebs-sc
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: postgres-pv-pod
-  labels:
-    app: postgres
-spec:
-  containers:
-  - name: postgres-pv-pod
-    image: centos
-    command: ["/bin/sh"]
-    args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]
-    volumeMounts:
-    - name: data
-      mountPath: /var/lib/postgresql/data
-  volumes:
-  - name: data
-    persistentVolumeClaim:
-      claimName: postgres-pv-claim
