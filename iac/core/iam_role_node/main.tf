@@ -12,6 +12,22 @@ resource "aws_iam_role" "this" {
   }
 }
 
+resource "aws_iam_policy" "this" {
+  name        = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
+  description = var.q.description
+  path        = var.q.path
+
+  policy = templatefile("policy.json.tpl", {
+    partition = data.aws_partition.this.partition,
+    region    = data.aws_region.this.name,
+    account   = data.aws_caller_identity.this.account_id,
+  })
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_iam_role_policy_attachment" "this" {
   count      = length(local.policies)
   role       = aws_iam_role.this.name

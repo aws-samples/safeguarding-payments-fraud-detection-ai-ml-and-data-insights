@@ -63,15 +63,16 @@ module "self_managed_node_group" {
     split(",", data.terraform_remote_state.eks.outputs.node_security_group_ids)
   )
 
-  desired_size             = var.q.desired_size
-  min_size                 = var.q.min_size
-  max_size                 = var.q.max_size
-  instance_type            = element(split(",", try(trimspace(var.spf_eks_node_ec2), "") != "" ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
-  create_launch_template   = true
-  create_autoscaling_group = true
-  create_access_entry      = true
-  ebs_optimized            = true
-  enable_monitoring        = true
+  desired_size                = var.q.desired_size
+  min_size                    = var.q.min_size
+  max_size                    = var.q.max_size
+  instance_type               = element(split(",", try(trimspace(var.spf_eks_node_ec2), "") != "" ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
+  create_launch_template      = true
+  create_autoscaling_group    = true
+  create_access_entry         = true
+  create_iam_instance_profile = false
+  ebs_optimized               = true
+  enable_monitoring           = true
 
   block_device_mappings = {
     xvda = {
