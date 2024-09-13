@@ -55,7 +55,7 @@ module "self_managed_node_group" {
   cluster_endpoint     = data.terraform_remote_state.eks.outputs.endpoint
   cluster_auth_base64  = data.terraform_remote_state.eks.outputs.certificate_authority
   cluster_service_cidr = data.terraform_remote_state.eks.outputs.service_ipv4_cidr
-  iam_role_arn         = data.terraform_remote_state.iam_node.outputs.arn
+  iam_role_arn         = data.terraform_remote_state.iam_node.outputs.profile_arn
   subnet_ids           = local.subnet_ids
 
   vpc_security_group_ids = concat(
@@ -70,7 +70,7 @@ module "self_managed_node_group" {
   create_launch_template      = true
   create_autoscaling_group    = true
   create_access_entry         = true
-  #create_iam_instance_profile = false
+  create_iam_instance_profile = false
   ebs_optimized               = true
   enable_monitoring           = true
 

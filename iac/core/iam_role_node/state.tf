@@ -20,3 +20,15 @@ output "create_date" {
 output "name" {
   value = aws_iam_role.this.name
 }
+
+output "profile_arn" {
+  value = aws_iam_instance_profile.this.arn
+}
+
+output "profile_id" {
+  value = aws_iam_instance_profile.this.id
+}
+
+output "profile_id" {
+  value = aws_iam_instance_profile.this.id
+}
