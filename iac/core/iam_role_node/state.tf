@@ -29,6 +29,6 @@ output "profile_id" {
   value = aws_iam_instance_profile.this.id
 }
 
-output "profile_id" {
-  value = aws_iam_instance_profile.this.id
+output "profile_unique_id" {
+  value = aws_iam_instance_profile.this.unique_id
 }
