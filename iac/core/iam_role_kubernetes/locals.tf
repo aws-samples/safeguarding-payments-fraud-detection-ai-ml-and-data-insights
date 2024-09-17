@@ -6,11 +6,13 @@ locals {
   suffix  = format("%s-%s", data.aws_region.this.name, local.spf_gid)
   policies = [
     aws_iam_policy.this.arn,
+    format("arn:%s:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy", data.aws_partition.this.partition),
     format("arn:%s:iam::aws:policy/AmazonDynamoDBFullAccess", data.aws_partition.this.partition),
     format("arn:%s:iam::aws:policy/AmazonS3FullAccess", data.aws_partition.this.partition),
     format("arn:%s:iam::aws:policy/AmazonSSMFullAccess", data.aws_partition.this.partition),
   ]
   service_accounts = [
+    "system:serviceaccount:kube-system:ebs-csi-controller-sa",
     format("system:serviceaccount:spf-app-anomaly-detector-%s:service-account", local.suffix),
     format("system:serviceaccount:spf-app-data-collector-%s:service-account", local.suffix),
     format("system:serviceaccount:spf-app-postgres-%s:service-account", local.suffix),

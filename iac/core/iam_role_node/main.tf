@@ -17,3 +17,8 @@ resource "aws_iam_role_policy_attachment" "this" {
   role       = aws_iam_role.this.name
   policy_arn = element(local.policies, count.index)
 }
+
+resource "aws_iam_instance_profile" "this" {
+  name = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
+  role = aws_iam_role.this.name
+}

@@ -39,6 +39,17 @@ data "terraform_remote_state" "iam_node" {
   }
 }
 
+data "terraform_remote_state" "iam_k8s" {
+  backend = "s3"
+  config = {
+    skip_region_validation = true
+
+    region = data.aws_region.this.name
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "iam_role_kubernetes")
+  }
+}
+
 data "terraform_remote_state" "subnet" {
   backend = "s3"
   config = {

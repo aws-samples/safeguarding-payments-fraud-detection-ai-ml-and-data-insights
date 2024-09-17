@@ -89,10 +89,10 @@ if [ "${SPF_RESULT}" != "[]" ]; then
 
   case ${SPF_RESULT} in \"{*)
     SPF_RESULT=$(echo "${SPF_RESULT}" | jq -r '.')
-    for s in $(echo ${SPF_RESULT} | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
-      export $s
+    for i in $(echo ${SPF_RESULT} | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
+      export ${i}
       if [ -n "${SPF_DEBUG_SECRETS}" ] && [ "${SPF_DEBUG_SECRETS}" == "true" ]; then
-        echo "[DEBUG] export $s"
+        echo "[DEBUG] export ${i}"
       fi
     done
   esac
@@ -178,7 +178,13 @@ case ${SPF_DIR} in app*)
       cat ${K8SDIR}/config.txt
     fi
 
-    for i in "${K8SDIR}"/*; do
+    if [ -n "${SPF_CLEANUP}" ] && [ "${SPF_CLEANUP}" == "true" ]; then
+      list=$(ls -1 ${K8SDIR}/* | sort -r)
+    else
+      list=$(ls -1 ${K8SDIR}/*)
+    fi
+
+    for i in ${list}; do
       if [ "${i: -4}" == ".tpl" ]; then
         if [ -n "${SPF_DEBUG_MANIFEST}" ] && [ "${SPF_DEBUG_MANIFEST}" == "true" ]; then
           echo "[DEBUG] cat ${i}"
@@ -196,7 +202,7 @@ case ${SPF_DIR} in app*)
         fi
         if [ -n "${SPF_CLEANUP}" ] && [ "${SPF_CLEANUP}" == "true" ]; then
           echo "[EXEC] kubectl delete -f ${i}"
-          kubectl delete -f ${i} || { echo "[ERROR] kubectl delete failed. aborting..."; exit 1; }
+          kubectl delete -f ${i} || { echo "[ERROR] kubectl delete failed. aborting..."; }
         else
           echo "[EXEC] kubectl apply -f ${i}"
           kubectl apply -f ${i} || { echo "[ERROR] kubectl apply failed. aborting..."; exit 1; }
@@ -217,9 +223,9 @@ case ${SPF_DIR} in iac*)
   "
 
   # terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.9.5/terraform_1.9.5_linux_arm64.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
-  # terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.3/terragrunt_linux_arm64; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
+  # terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.4/terragrunt_linux_arm64; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
   terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.9.5/terraform_1.9.5_linux_386.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
-  terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.3/terragrunt_linux_386; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
+  terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.4/terragrunt_linux_386; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
 
   if [ -z "${SPF_BUCKET}" ]; then
     echo "[DEBUG] SPF_BUCKET: ${SPF_BUCKET}"

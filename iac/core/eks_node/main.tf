@@ -55,22 +55,26 @@ module "self_managed_node_group" {
   cluster_endpoint     = data.terraform_remote_state.eks.outputs.endpoint
   cluster_auth_base64  = data.terraform_remote_state.eks.outputs.certificate_authority
   cluster_service_cidr = data.terraform_remote_state.eks.outputs.service_ipv4_cidr
-  subnet_ids           = local.subnet_ids
 
+  iam_role_arn             = data.terraform_remote_state.iam_node.outputs.arn
+  iam_instance_profile_arn = data.terraform_remote_state.iam_node.outputs.profile_arn
+
+  subnet_ids             = local.subnet_ids
   vpc_security_group_ids = concat(
     [data.terraform_remote_state.eks.outputs.cluster_security_group_id],
     split(",", data.terraform_remote_state.eks.outputs.node_security_group_ids)
   )
 
-  desired_size             = var.q.desired_size
-  min_size                 = var.q.min_size
-  max_size                 = var.q.max_size
-  instance_type            = element(split(",", try(trimspace(var.spf_eks_node_ec2), "") != "" ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
-  create_launch_template   = true
-  create_autoscaling_group = true
-  create_access_entry      = true
-  ebs_optimized            = true
-  enable_monitoring        = true
+  desired_size                = var.q.desired_size
+  min_size                    = var.q.min_size
+  max_size                    = var.q.max_size
+  instance_type               = element(split(",", try(trimspace(var.spf_eks_node_ec2), "") != "" ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
+  create_launch_template      = true
+  create_autoscaling_group    = true
+  create_access_entry         = true
+  create_iam_instance_profile = false
+  ebs_optimized               = true
+  enable_monitoring           = true
 
   block_device_mappings = {
     xvda = {
@@ -124,6 +128,10 @@ resource "aws_eks_addon" "this" {
   cluster_name                = data.terraform_remote_state.eks.outputs.id
   addon_name                  = element(split(",", var.q.addons), count.index)
   addon_version               = element(split(",", var.q.addons_version), count.index)
+  service_account_role_arn    = (
+    contains(split(",", var.q.addons_sa_role), element(split(",", var.q.addons), count.index))
+    ? data.terraform_remote_state.iam_k8s.outputs.arn : null
+  )
   resolve_conflicts_on_create = var.q.addons_create
   resolve_conflicts_on_update = var.q.addons_update
   depends_on                  = [aws_eks_fargate_profile.this, aws_eks_node_group.this, module.self_managed_node_group]

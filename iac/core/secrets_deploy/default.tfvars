@@ -7,7 +7,7 @@ q = {
   days        = 0
   length      = 16
   special     = true
-  override    = "_%@"
+  override    = "!@#^+=-_"
   dbhost      = "localhost"
   dbname      = "payments"
   dbuser      = "payments"
