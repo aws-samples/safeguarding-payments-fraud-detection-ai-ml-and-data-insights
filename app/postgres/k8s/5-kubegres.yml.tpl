@@ -35,3 +35,16 @@ spec:
               operator: In
               values:
                 - {{SPF_SERVICE_AZ1}}
+  volume:
+    volumeMounts:
+      - name: data
+        mountPath: /var/lib/postgresql/data
+    volumeClaimTemplates:
+      - name: data
+        spec:
+          accessModes:
+           - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+          storageClassName: ebs-{{SPF_SERVICE_AZ1}}
