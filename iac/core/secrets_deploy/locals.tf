@@ -3,6 +3,7 @@
 
 locals {
   spf_gid = (var.spf_gid == null ? data.terraform_remote_state.s3.outputs.spf_gid : var.spf_gid)
+  azs = [for i in data.aws_subnet.this : i.availability_zone]
   secret = {
     SPF_DOCKERFILE_DBHOST = var.q.dbhost
     SPF_DOCKERFILE_DBPORT = var.q.dbport
@@ -14,9 +15,9 @@ locals {
     SPF_S3_ENDPOINT_URL   = try(trimspace(var.spf_s3_endpoint_url), "") != "" ? base64encode(var.spf_s3_endpoint_url) : ""
     SPF_S3_MINIO_USER     = base64encode(var.q.s3user)
     SPF_S3_MINIO_PASS     = base64encode(random_password.s3.result)
-    SPF_SERVICE_AZ1       = element(data.aws_subnet.this.*.availability_zone, 0)
-    SPF_SERVICE_AZ2       = element(data.aws_subnet.this.*.availability_zone, 1)
-    SPF_SERVICE_AZ3       = element(data.aws_subnet.this.*.availability_zone, 2)
+    SPF_SERVICE_AZ1       = element(local.azs, 0)
+    SPF_SERVICE_AZ2       = element(local.azs, 1)
+    SPF_SERVICE_AZ3       = element(local.azs, 2)
     SPF_SERVICE_DBPORT    = var.q.srvport
     SPF_SERVICE_DBNAME    = var.q.srvname
     SPF_SERVICE_NAMESPACE = format("%s-%s-%s", var.q.srvprefix, data.aws_region.this.name, local.spf_gid)
