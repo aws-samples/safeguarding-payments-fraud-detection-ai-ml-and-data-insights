@@ -9,8 +9,8 @@ q = {
   special     = true
   override    = "!@#^+=-_"
   dbhost      = "localhost"
-  dbname      = "payments"
-  dbuser      = "payments"
+  dbname      = "transactions"
+  dbuser      = "postgres"
   dbport      = "5432"
   s3user      = "minioadmin"
   srvport     = "35432"

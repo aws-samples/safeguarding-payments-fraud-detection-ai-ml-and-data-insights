@@ -6,6 +6,17 @@ data "aws_service_principal" "this" {
   region       = data.aws_region.this.name
 }
 
+data "terraform_remote_state" "eks" {
+  backend = "s3"
+  config = {
+    skip_region_validation = true
+
+    region = data.aws_region.this.name
+    bucket = var.spf_backend_bucket[data.aws_region.this.name]
+    key    = format(var.spf_backend_pattern, "eks_node")
+  }
+}
+
 data "terraform_remote_state" "iam" {
   backend = "s3"
   config = {
