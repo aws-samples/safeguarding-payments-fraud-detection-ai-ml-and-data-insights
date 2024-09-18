@@ -9,6 +9,7 @@ locals {
     SPF_DOCKERFILE_DBNAME = var.q.dbname
     SPF_DOCKERFILE_DBUSER = var.q.dbuser
     SPF_DOCKERFILE_DBPASS = base64encode(random_password.db.result)
+    SPF_S3_REGION         = data.terraform_remote_state.s3.outputs.region
     SPF_S3_BUCKET         = data.terraform_remote_state.s3.outputs.id
     SPF_S3_ENDPOINT_URL   = try(trimspace(var.spf_s3_endpoint_url), "") != "" ? base64encode(var.spf_s3_endpoint_url) : ""
     SPF_S3_MINIO_USER     = base64encode(var.q.s3user)
