@@ -4,10 +4,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: kube-system
-  name: ebs-csi-controller-sa
-  labels:
-    app.kubernetes.io/name: aws-ebs-csi-driver
+  namespace: {{SPF_ECR_NAME}}
+  name: service-account
   annotations:
     {{SPF_SERVICE_PRINCIPAL}}/role-arn: {{SPF_SERVICE_ROLE}}
-automountServiceAccountToken: true
