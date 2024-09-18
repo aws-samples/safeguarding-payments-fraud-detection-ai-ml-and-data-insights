@@ -8,7 +8,7 @@ metadata:
 provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 parameters:
-  csi.storage.k8s.io/fstype: ext4
+  csi.storage.k8s.io/fstype: xfs
   type: gp2
   encrypted: "true"
 allowedTopologies:
@@ -24,7 +24,7 @@ metadata:
 provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 parameters:
-  csi.storage.k8s.io/fstype: ext4
+  csi.storage.k8s.io/fstype: xfs
   type: gp2
   encrypted: "true"
 allowedTopologies:
