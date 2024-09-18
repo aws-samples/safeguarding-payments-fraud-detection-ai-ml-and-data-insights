@@ -55,6 +55,7 @@ module "self_managed_node_group" {
   cluster_endpoint     = data.terraform_remote_state.eks.outputs.endpoint
   cluster_auth_base64  = data.terraform_remote_state.eks.outputs.certificate_authority
   cluster_service_cidr = data.terraform_remote_state.eks.outputs.service_ipv4_cidr
+  bootstrap_extra_args = format("--dns-cluster-ip=%s", cidrhost(data.terraform_remote_state.eks.outputs.service_ipv4_cidr, 10))
 
   iam_role_arn             = data.terraform_remote_state.iam_node.outputs.arn
   iam_instance_profile_arn = data.terraform_remote_state.iam_node.outputs.profile_arn
