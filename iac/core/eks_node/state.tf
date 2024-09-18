@@ -29,11 +29,11 @@ output "self_mng_image_id" {
   value = module.self_managed_node_group.*.image_id
 }
 
-output "self_mng_ags_arn" {
+output "self_mng_asg_arn" {
   value = module.self_managed_node_group.*.autoscaling_group_arn
 }
 
-output "self_mng_ags_id" {
+output "self_mng_asg_id" {
   value = module.self_managed_node_group.*.autoscaling_group_id
 }
 
@@ -42,7 +42,11 @@ output "self_mng_iam_role_arn" {
 }
 
 output "self_mng_iam_role_id" {
-  value = module.self_managed_node_group.*.iam_role_id
+  value = module.self_managed_node_group.*.iam_role_unique_id
+}
+
+output "self_mng_iam_role_name" {
+  value = module.self_managed_node_group.*.iam_role_name
 }
 
 output "self_mng_iam_profile_arn" {
@@ -51,6 +55,10 @@ output "self_mng_iam_profile_arn" {
 
 output "self_mng_iam_profile_id" {
   value = module.self_managed_node_group.*.iam_instance_profile_id
+}
+
+output "self_mng_iam_profile_unique" {
+  value = module.self_managed_node_group.*.iam_instance_profile_unique
 }
 
 output "self_mng_tpl_arn" {
