@@ -4,7 +4,7 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: ebs-sc-{{SPF_SERVICE_AZ1}}
+  name: ebs-{{SPF_SERVICE_AZ1}}
 provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 parameters:
@@ -20,7 +20,7 @@ allowedTopologies:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: ebs-sc-{{SPF_SERVICE_AZ2}}
+  name: ebs-{{SPF_SERVICE_AZ2}}
 provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 parameters:

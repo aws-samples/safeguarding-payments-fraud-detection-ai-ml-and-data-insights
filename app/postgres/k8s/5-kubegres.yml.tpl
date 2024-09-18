@@ -12,7 +12,7 @@ spec:
   port: {{SPF_DOCKERFILE_DBPORT}}
   database:
     size: 10Gi
-    storageClassName: ebs-sc-{{SPF_SERVICE_AZ1}}
+    storageClassName: ebs-{{SPF_SERVICE_AZ1}}
     volumeMount: /var/lib/postgresql/data
   env:
     - name: POSTGRES_PASSWORD

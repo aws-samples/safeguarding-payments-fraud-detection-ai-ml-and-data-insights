@@ -6,7 +6,7 @@ resource "aws_eks_fargate_profile" "this" {
   cluster_name           = data.terraform_remote_state.eks.outputs.id
   pod_execution_role_arn = data.terraform_remote_state.iam_fargate.outputs.arn
   fargate_profile_name   = element(local.namespaces, count.index)
-  subnet_ids             = data.terraform_remote_state.subnet.outputs.nat_subnet_ids
+  subnet_ids             = slice(data.terraform_remote_state.subnet.outputs.nat_subnet_ids, 0, var.q.desired_size % 3)
 
   selector {
     namespace = element(local.namespaces, count.index)
