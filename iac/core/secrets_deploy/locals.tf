@@ -14,9 +14,9 @@ locals {
     SPF_S3_ENDPOINT_URL   = try(trimspace(var.spf_s3_endpoint_url), "") != "" ? base64encode(var.spf_s3_endpoint_url) : ""
     SPF_S3_MINIO_USER     = base64encode(var.q.s3user)
     SPF_S3_MINIO_PASS     = base64encode(random_password.s3.result)
-    SPF_SERVICE_AZ1       = element(data.terraform_remote_state.eks.outputs.subnet_ids, 0)
-    SPF_SERVICE_AZ2       = element(data.terraform_remote_state.eks.outputs.subnet_ids, 1)
-    SPF_SERVICE_AZ3       = element(data.terraform_remote_state.eks.outputs.subnet_ids, 2)
+    SPF_SERVICE_AZ1       = element(data.aws_subnet.this.*.availability_zone, 0)
+    SPF_SERVICE_AZ2       = element(data.aws_subnet.this.*.availability_zone, 1)
+    SPF_SERVICE_AZ3       = element(data.aws_subnet.this.*.availability_zone, 2)
     SPF_SERVICE_DBPORT    = var.q.srvport
     SPF_SERVICE_DBNAME    = var.q.srvname
     SPF_SERVICE_NAMESPACE = format("%s-%s-%s", var.q.srvprefix, data.aws_region.this.name, local.spf_gid)
