@@ -45,9 +45,9 @@ resource "aws_eks_node_group" "this" {
 }
 
 module "self_managed_node_group" {
-  count                = var.spf_eks_node_type == "self-managed" ? 1 : 0
-  source               = "terraform-aws-modules/eks/aws//modules/self-managed-node-group"
-  version              = "20.19.0"
+  count   = var.spf_eks_node_type == "self-managed" ? 1 : 0
+  source  = "terraform-aws-modules/eks/aws//modules/self-managed-node-group"
+  version = "20.19.0"
 
   name                 = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
   cluster_name         = data.terraform_remote_state.eks.outputs.id
@@ -60,16 +60,19 @@ module "self_managed_node_group" {
   iam_role_arn             = data.terraform_remote_state.iam_node.outputs.arn
   iam_instance_profile_arn = data.terraform_remote_state.iam_node.outputs.profile_arn
 
-  subnet_ids             = local.subnet_ids
+  subnet_ids = local.subnet_ids
   vpc_security_group_ids = concat(
     [data.terraform_remote_state.eks.outputs.cluster_security_group_id],
     split(",", data.terraform_remote_state.eks.outputs.node_security_group_ids)
+  )
+  instance_type = (
+    element(split(",", try(trimspace(var.spf_eks_node_ec2), "") != ""
+    ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
   )
 
   desired_size                = var.q.desired_size
   min_size                    = var.q.min_size
   max_size                    = var.q.max_size
-  instance_type               = element(split(",", try(trimspace(var.spf_eks_node_ec2), "") != "" ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
   create_launch_template      = true
   create_autoscaling_group    = true
   create_access_entry         = true
@@ -99,9 +102,10 @@ module "self_managed_node_group" {
 }
 
 module "ebs_kms_key" {
-  count       = var.spf_eks_node_type == "self-managed" ? 1 : 0
-  source      = "terraform-aws-modules/kms/aws"
-  version     = "3.1.0"
+  count   = var.spf_eks_node_type == "self-managed" ? 1 : 0
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.1.0"
+
   description = var.q.description
   aliases     = [format("eks/%s-%s-%s/ebs", var.q.name, data.aws_region.this.name, local.spf_gid)]
 
@@ -125,11 +129,11 @@ module "ebs_kms_key" {
 }
 
 resource "aws_eks_addon" "this" {
-  count                       = length(split(",", var.q.addons))
-  cluster_name                = data.terraform_remote_state.eks.outputs.id
-  addon_name                  = element(split(",", var.q.addons), count.index)
-  addon_version               = element(split(",", var.q.addons_version), count.index)
-  service_account_role_arn    = (
+  count         = length(split(",", var.q.addons))
+  cluster_name  = data.terraform_remote_state.eks.outputs.id
+  addon_name    = element(split(",", var.q.addons), count.index)
+  addon_version = element(split(",", var.q.addons_version), count.index)
+  service_account_role_arn = (
     contains(split(",", var.q.addons_sa_role), element(split(",", var.q.addons), count.index))
     ? data.terraform_remote_state.iam_k8s.outputs.arn : null
   )

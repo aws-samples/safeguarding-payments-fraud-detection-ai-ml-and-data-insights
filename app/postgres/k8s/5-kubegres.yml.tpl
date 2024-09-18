@@ -7,7 +7,7 @@ metadata:
   namespace: {{SPF_ECR_NAME}}
   name: postgres
 spec:
-  replicas: 3
+  replicas: 2
   image: {{SPF_ECR_URI}}:latest
   port: {{SPF_DOCKERFILE_DBPORT}}
   database:

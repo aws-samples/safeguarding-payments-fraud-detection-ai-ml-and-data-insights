@@ -32,19 +32,3 @@ allowedTopologies:
   - key: topology.kubernetes.io/zone
     values:
       - {{SPF_SERVICE_AZ2}}
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: ebs-sc-{{SPF_SERVICE_AZ3}}
-provisioner: ebs.csi.aws.com
-volumeBindingMode: WaitForFirstConsumer
-parameters:
-  csi.storage.k8s.io/fstype: ext4
-  type: gp2
-  encrypted: "true"
-allowedTopologies:
-- matchLabelExpressions:
-  - key: topology.kubernetes.io/zone
-    values:
-      - {{SPF_SERVICE_AZ3}}
