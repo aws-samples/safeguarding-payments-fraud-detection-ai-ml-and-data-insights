@@ -6,6 +6,11 @@ data "aws_service_principal" "this" {
   region       = data.aws_region.this.name
 }
 
+data "aws_subnet" "this" {
+  for_each = toset(data.terraform_remote_state.eks.outputs.subnet_ids)
+  id       = each.value
+}
+
 data "terraform_remote_state" "eks" {
   backend = "s3"
   config = {

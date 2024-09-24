@@ -49,9 +49,9 @@ resource "aws_eks_identity_provider_config" "this" {
 }
 
 resource "aws_eks_access_entry" "this" {
-  count             = local.roles == [] ? 0 : length(local.roles)
-  cluster_name      = aws_eks_cluster.this.name
-  principal_arn     = format(
+  count        = local.roles == [] ? 0 : length(local.roles)
+  cluster_name = aws_eks_cluster.this.name
+  principal_arn = format(
     "arn:%s:iam::%s:role/%s",
     data.aws_partition.this.partition,
     data.aws_caller_identity.this.account_id,
@@ -62,15 +62,15 @@ resource "aws_eks_access_entry" "this" {
 }
 
 resource "aws_eks_access_policy_association" "this" {
-  count         = local.roles == [] ? 0 : length(local.roles)
-  cluster_name  = aws_eks_cluster.this.name
+  count        = local.roles == [] ? 0 : length(local.roles)
+  cluster_name = aws_eks_cluster.this.name
   principal_arn = format(
     "arn:%s:iam::%s:role/%s",
     data.aws_partition.this.partition,
     data.aws_caller_identity.this.account_id,
     element(local.roles, count.index)
   )
-  policy_arn    = format(
+  policy_arn = format(
     "arn:%s:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy",
     data.aws_partition.this.partition
   )

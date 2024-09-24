@@ -12,7 +12,7 @@ locals {
   }
   igw_filters = [
     {
-      name = local.igw_map == {} ? "availability-zone-id" : "cidr-block"
+      name   = local.igw_map == {} ? "availability-zone-id" : "cidr-block"
       values = local.igw_map == {} ? slice(data.terraform_remote_state.sg.outputs.az_ids, 0, 3) : values(local.igw_map)
     },
     {
