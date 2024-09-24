@@ -64,22 +64,19 @@ def get_secrets(secret_prefix="spf-secrets-deploy"):
     region_name = os.environ.get('AWS_REGION')
     client = boto3.client('secretsmanager', region_name=region_name)
 
-    # List all secrets and find the one that starts with the given prefix
-    response = client.list_secrets(
-        Filters=[
-            {
-                'Key': 'name',
-                'Values': [secret_prefix + '*']
-            }
-        ]
-    )
+    # List all secrets
+    response = client.list_secrets()
+    secret_list = response['SecretList']
+
+    # Filter secrets that start with the given prefix
+    matching_secrets = [secret for secret in secret_list if secret['Name'].startswith(secret_prefix)]
     
     # Check if any secrets were found
-    if not response['SecretList']:
+    if not matching_secrets:
         raise ValueError(f"No secret found with prefix: {secret_prefix}")
     
     # Get the full SecretId of the first matching secret
-    full_secret_id = response['SecretList'][0]['ARN']
+    full_secret_id = matching_secrets[0]['ARN']
     
     # Now use the full SecretId to get the secret value
     get_secret_value_response = client.get_secret_value(SecretId=full_secret_id)
