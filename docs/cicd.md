@@ -28,7 +28,7 @@ Starting at the ROOT level of this repository, run the following command:
 
 Once the build execution is successful, you should be able to login to
 [AWS Management Console](https://console.aws.amazon.com/console/home), navigate to
-[AWS CodeBuild](https://us-west-2.console.aws.amazon.com/codesuite/codebuild/projects)
+[AWS CodeBuild](https://console.aws.amazon.com/codesuite/codebuild/projects)
 service and see the newly created project named something like
 *spf-cicd-pipeline-abcd1234*.
 
