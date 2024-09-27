@@ -47,7 +47,7 @@ resource "aws_eks_node_group" "this" {
 module "self_managed_node_group" {
   count   = var.spf_eks_node_type == "self-managed" ? 1 : 0
   source  = "terraform-aws-modules/eks/aws//modules/self-managed-node-group"
-  version = "20.19.0"
+  version = "~> 20.0"
 
   name                 = format("%s-%s-%s", var.q.name, data.aws_region.this.name, local.spf_gid)
   cluster_name         = data.terraform_remote_state.eks.outputs.id
@@ -104,7 +104,7 @@ module "self_managed_node_group" {
 module "ebs_kms_key" {
   count   = var.spf_eks_node_type == "self-managed" ? 1 : 0
   source  = "terraform-aws-modules/kms/aws"
-  version = "3.1.0"
+  version = "~> 3.0"
 
   description = var.q.description
   aliases     = [format("eks/%s-%s-%s/ebs", var.q.name, data.aws_region.this.name, local.spf_gid)]
