@@ -223,9 +223,9 @@ case ${SPF_DIR} in iac*)
   "
 
   # terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.9.6/terraform_1.9.6_linux_arm64.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
-  # terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.9/terragrunt_linux_arm64; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
+  # terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.14/terragrunt_linux_arm64; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
   terraform -v > /dev/null 2>&1 || { wget -q https://releases.hashicorp.com/terraform/1.9.6/terraform_1.9.6_linux_386.zip; unzip terraform_*.zip; mv terraform ${WORKDIR}/bin/terraform; }
-  terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.9/terragrunt_linux_386; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
+  terragrunt -v > /dev/null 2>&1 || { wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.14/terragrunt_linux_386; chmod 0755 terragrunt_*; mv terragrunt_* ${WORKDIR}/bin/terragrunt; }
 
   if [ -z "${SPF_BUCKET}" ]; then
     echo "[DEBUG] SPF_BUCKET: ${SPF_BUCKET}"
@@ -252,15 +252,15 @@ case ${SPF_DIR} in iac*)
   echo "[EXEC] cd ${WORKDIR}/${SPF_DIR}/"
   cd "${WORKDIR}/${SPF_DIR}/"
 
-  echo "[EXEC] terragrunt run-all init -backend-config region=${SPF_REGION} -backend-config bucket=${SPF_BUCKET}"
-  terragrunt run-all init -backend-config region="${SPF_REGION}" -backend-config="bucket=${SPF_BUCKET}" || { echo "[ERROR] terragrunt run-all init failed. aborting..."; cd -; exit 1; }
+  echo "[EXEC] terragrunt run-all init -backend-config region=${SPF_REGION} -backend-config bucket=${SPF_BUCKET} --terragrunt-no-color"
+  terragrunt run-all init -backend-config region="${SPF_REGION}" -backend-config="bucket=${SPF_BUCKET}" --terragrunt-no-color || { echo "[ERROR] terragrunt run-all init failed. aborting..."; cd -; exit 1; }
 
   if [ -n "${SPF_CLEANUP}" ] && [ "${SPF_CLEANUP}" == "true" ]; then
-    echo "[EXEC] terragrunt run-all destroy -auto-approve -var-file default.tfvars $OPTIONS"
-    echo "Y" | terragrunt run-all destroy -auto-approve -var-file default.tfvars $OPTIONS || { echo "[ERROR] terragrunt run-all destroy failed. aborting..."; cd -; exit 1; }
+    echo "[EXEC] terragrunt run-all destroy -auto-approve -var-file default.tfvars $OPTIONS --terragrunt-no-color"
+    echo "Y" | terragrunt run-all destroy -auto-approve -var-file default.tfvars $OPTIONS --terragrunt-no-color || { echo "[ERROR] terragrunt run-all destroy failed. aborting..."; cd -; exit 1; }
   else
-    echo "[EXEC] terragrunt run-all apply -auto-approve -var-file default.tfvars $OPTIONS"
-    echo "Y" | terragrunt run-all apply -auto-approve -var-file default.tfvars $OPTIONS || { echo "[ERROR] terragrunt run-all apply failed. aborting..."; cd -; exit 1; }
+    echo "[EXEC] terragrunt run-all apply -auto-approve -var-file default.tfvars $OPTIONS --terragrunt-no-color"
+    echo "Y" | terragrunt run-all apply -auto-approve -var-file default.tfvars $OPTIONS --terragrunt-no-color || { echo "[ERROR] terragrunt run-all apply failed. aborting..."; cd -; exit 1; }
   fi
 
   echo "[EXEC] cd -"
