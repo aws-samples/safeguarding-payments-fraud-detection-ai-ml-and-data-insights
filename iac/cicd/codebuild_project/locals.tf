@@ -57,7 +57,7 @@ locals {
     {
       name  = "SPF_TFVAR_EKS_ACCESS_ROLES"
       type  = "PLAINTEXT"
-      value = data.terraform_remote_state.iam.outputs.name
+      value = ""
     },
     {
       name  = "SPF_TFVAR_EKS_NODE_TYPE"
