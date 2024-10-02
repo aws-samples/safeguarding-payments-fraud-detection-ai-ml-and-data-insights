@@ -96,12 +96,12 @@ def connect_to_postgres(DBNAME):
 
     # Get values from the secret
     DBHOST = secret["SPF_DOCKERFILE_DBHOST"]
-    DBPORT = secret["SPF_SERVICE_DBPORT"]
     DBUSER = secret["SPF_DOCKERFILE_DBUSER"]
     DBPASS = secret["SPF_DOCKERFILE_DBPASS"]
+    DBPORT = secret["SPF_SERVICE_DBPORT"]
 
     # Decoded the base64 DBPASS
-    DBPASS = base64.b64decode(DBPASS).decode('utf-8')
+    # DBPASS = base64.b64decode(DBPASS).decode('utf-8')
 
     conn = psycopg.connect(f"host={DBHOST} dbname={DBNAME} user={DBUSER} password={DBPASS} port={DBPORT}", autocommit=True)
     return conn

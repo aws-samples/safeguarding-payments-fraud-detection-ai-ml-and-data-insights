@@ -7,13 +7,13 @@ q = {
   days        = 0
   length      = 16
   special     = true
-  override    = "!#^=-_"
+  override    = "!"
   dbhost      = "localhost"
   dbname      = "transactions"
   dbuser      = "postgres"
   dbport      = "5432"
   s3user      = "minioadmin"
-  srvport     = "35432"
+  srvport     = "5432"
   srvname     = "postgres"
   srvprefix   = "spf-app-postgres"
 }
