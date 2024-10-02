@@ -13,12 +13,17 @@ locals {
     val => format("%s-%s-%s", val, data.aws_region.this.name, local.spf_gid)
     if val != ""
   }))
-  subnet_ids = slice(
+  subnets = (
     length(data.terraform_remote_state.subnet.outputs.cagw_subnet_ids) > 0 ?
     data.terraform_remote_state.subnet.outputs.cagw_subnet_ids :
     length(data.terraform_remote_state.subnet.outputs.nat_subnet_ids) > 0 ?
     data.terraform_remote_state.subnet.outputs.nat_subnet_ids :
-    data.terraform_remote_state.subnet.outputs.igw_subnet_ids,
-    0, var.q.desired_size % 3
+    data.terraform_remote_state.subnet.outputs.igw_subnet_ids
+  )
+  subnet_ids = slice(
+    local.subnets, 0,
+    var.q.desired_size > length(local.subnets)
+    ? length(local.subnets)
+    : var.q.desired_size
   )
 }
