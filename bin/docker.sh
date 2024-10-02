@@ -119,6 +119,49 @@ while [ "${DOCKERDIR}" != "${WORKDIR}" ] && [ ! -f "${DOCKERDIR}/${DOCKERFILE}" 
   DOCKERDIR="$( cd "${DOCKERDIR}/../" > /dev/null 2>&1 || exit 1; pwd -P )"
 done
 
+if [ -f "${DOCKERDIR}/.dockerdependencies" ]; then
+  for i in $(cat ${DOCKERDIR}/.dockerdependencies); do
+    while IFS="," read -r SPF_IMAGE_SOURCE SPF_IMAGE_TARGET; do
+      SPF_QUERY="repositories[?repositoryName==\`${SPF_IMAGE_TARGET}\`]"
+      echo "[EXEC] aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY}"
+      SPF_RESULT=$(aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY})
+
+      if [ "${SPF_RESULT}" == "[]" ]; then
+        echo "[EXEC] aws ecr create-repository --region ${SPF_REGION} --repository-name ${SPF_IMAGE_TARGET}"
+        SPF_RESULT=$(aws ecr create-repository --region ${SPF_REGION} \
+          --repository-name ${SPF_IMAGE_TARGET} \
+          --image-tag-mutability MUTABLE \
+          --image-scanning-configuration scanOnPush=true \
+          --encryption-configuration encryptionType=KMS
+        )
+      fi
+
+      echo "[EXEC] docker pull ${SPF_IMAGE_SOURCE}"
+      docker pull ${SPF_IMAGE_SOURCE}
+
+      echo "[EXEC] docker tag ${SPF_IMAGE_SOURCE} ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}"
+      docker tag ${SPF_IMAGE_SOURCE} ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}
+
+      echo "[EXEC] docker push ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}"
+      docker push ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}
+    done <<< "${i}"
+  done
+fi
+
+SPF_QUERY="repositories[?repositoryName==\`${SPF_REPOSITORY}\`]"
+echo "[EXEC] aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY}"
+SPF_RESULT=$(aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY})
+
+if [ "${SPF_RESULT}" == "[]" ]; then
+  echo "[EXEC] aws ecr create-repository --region ${SPF_REGION} --repository-name ${SPF_REPOSITORY}"
+  SPF_RESULT=$(aws ecr create-repository --region ${SPF_REGION} \
+    --repository-name ${SPF_REPOSITORY} \
+    --image-tag-mutability MUTABLE \
+    --image-scanning-configuration scanOnPush=true \
+    --encryption-configuration encryptionType=KMS
+  )
+fi
+
 echo "[EXEC] docker buildx build --platform ${SPF_PLATFORM} -f ${DOCKERDIR}/${DOCKERFILE} -t ${SPF_REPOSITORY}:${SPF_VERSION} ${WORKDIR}/${SPF_DIR}/"
 docker buildx build ${OPTIONS} --platform "${SPF_PLATFORM}" -f "${DOCKERDIR}/${DOCKERFILE}" -t "${SPF_REPOSITORY}:${SPF_VERSION}" "${WORKDIR}/${SPF_DIR}/" || { echo "[ERROR] docker build failed. aborting..."; exit 1; }
 

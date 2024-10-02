@@ -111,35 +111,18 @@ case ${SPF_DIR} in app*)
   # kubectl version --client > /dev/null 2>&1 || { wget -q https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl; chmod 0755 kubectl; mv kubectl ${WORKDIR}/bin/kubectl; }
   kubectl version --client > /dev/null 2>&1 || { wget -q https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl; chmod 0755 kubectl; mv kubectl ${WORKDIR}/bin/kubectl; }
 
-  if [ -n "${SPF_ECR}" ]; then
-    SPF_ECR_NAME="${SPF_ECR}"
-  else
-    SPF_ECR_NAME="spf-${SPF_DIR//\//-}"
-  fi
-
   if [ -n "${SPF_REGION}" ]; then
-    SPF_ECR_NAME="${SPF_ECR_NAME}-${SPF_REGION}"
+    SPF_ECR_SUFFIX="${SPF_ECR_SUFFIX}-${SPF_REGION}"
   fi
 
   if [ -n "${SPF_GID}" ]; then
-    SPF_ECR_NAME="${SPF_ECR_NAME}-${SPF_GID}"
+    SPF_ECR_SUFFIX="${SPF_ECR_SUFFIX}-${SPF_GID}"
   fi
 
-  SPF_QUERY="repositories[?repositoryName==\`${SPF_ECR_NAME}\`]"
-  echo "[EXEC] aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY}"
-  SPF_RESULT=$(aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY})
-
-  if [ "${SPF_RESULT}" == "[]" ]; then
-    echo "[EXEC] aws ecr create-repository --region ${SPF_REGION} --repository-name ${SPF_ECR_NAME}"
-    SPF_RESULT=$(aws ecr create-repository --region ${SPF_REGION} \
-      --repository-name ${SPF_ECR_NAME} \
-      --image-tag-mutability MUTABLE \
-      --image-scanning-configuration scanOnPush=true \
-      --encryption-configuration encryptionType=KMS
-    )
-    SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".repository.repositoryUri")
+  if [ -n "${SPF_ECR}" ]; then
+    SPF_ECR_NAME="${SPF_ECR}${SPF_ECR_SUFFIX}"
   else
-    SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".[0].repositoryUri")
+    SPF_ECR_NAME="spf-${SPF_DIR//\//-}${SPF_ECR_SUFFIX}"
   fi
 
   if [ -n "${SPF_TFVAR_EKS_ARCH}" ] && [ "${SPF_TFVAR_EKS_ARCH}" == "arm" ]; then
@@ -168,8 +151,18 @@ case ${SPF_DIR} in app*)
       kubectl config set-context --current --namespace=${SPF_ECR_NAME} || { echo "[ERROR] kubectl config set-context failed. aborting..."; exit 1; }
     fi
 
-    export SPF_ECR_URI="${SPF_ECR_URI}"
+    SPF_QUERY="repositories[?repositoryName==\`${SPF_ECR_NAME}\`]"
+    echo "[EXEC] aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY}"
+    SPF_RESULT=$(aws ecr describe-repositories --region ${SPF_REGION} --query ${SPF_QUERY})
+
+    if [ "${SPF_RESULT}" == "[]" ]; then
+      echo "[DEBUG] SPF_ECR_NAME: ${SPF_ECR_NAME}"
+      echo "[ERROR] SPF_ECR_NAME repository is missing..."; exit 1;
+    fi
+
     export SPF_ECR_NAME="${SPF_ECR_NAME}"
+    export SPF_ECR_URI=$(echo "${SPF_RESULT}" | jq -r ".[0].repositoryUri")
+    export SPF_ECR_PREFIX="${SPF_ECR_URI/$SPF_ECR_SUFFIX/}"
     echo "[EXEC] env | grep SPF_" > ${K8SDIR}/config.txt
     env | grep SPF_ > ${K8SDIR}/config.txt
 

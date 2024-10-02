@@ -1,0 +1,2 @@
+gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1,spf-app-postgres-kube-rbac-proxy
+docker.io/reactivetechio/kubegres:1.18,spf-app-postgres-kubegres
