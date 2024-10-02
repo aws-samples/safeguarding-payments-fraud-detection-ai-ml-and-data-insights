@@ -24,6 +24,6 @@ locals {
     local.subnets, 0,
     var.q.desired_size > length(local.subnets)
     ? length(local.subnets)
-    : var.q.desired_size % 3
+    : var.q.desired_size
   )
 }
