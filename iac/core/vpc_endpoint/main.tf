@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 resource "aws_vpc_endpoint" "gw" {
+  count             = length(local.gateways)
   vpc_id            = data.terraform_remote_state.sg.outputs.vpc_id
   vpc_endpoint_type = "Gateway"
   service_name      = format("com.amazonaws.%s.%s", data.aws_region.this.name, element(local.gateways, count.index))
