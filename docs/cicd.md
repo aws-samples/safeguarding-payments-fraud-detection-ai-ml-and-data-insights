@@ -116,7 +116,7 @@ aws codebuild start-build --region us-east-1 \
     --project-name spf-cicd-pipeline-abcd1234 \
     --environment-variables-override "name=SPF_DIR,value=iac/core" \
     --environment-variables-override "name=SPF_TFVAR_VPC_ID,value=vpc-1234567890abcdefg" \
-    --environment-variables-override "name=SPF_TFVAR_VPCE_MAPPING,value=autoscaling,ec2,ec2messages,ecr.dkr,ecr.api,eks,elasticloadbalancing,kms,logs,s3,sts,ssm,ssmmessages:dynamodb,s3" \
+    --environment-variables-override "name=SPF_TFVAR_VPCE_MAPPING,value=autoscaling,ec2,ec2messages,ecr.dkr,ecr.api,eks,elasticloadbalancing,kms,logs,s3,sts,ssm,ssmmessages" \
     --environment-variables-override "name=SPF_TFVAR_SUBNETS_IGW_CREATE,value=false" \
     --environment-variables-override "name=SPF_TFVAR_SUBNETS_IGW_MAPPING,value=use1-az1:10.0.0.0/20,use1-az2:10.0.16.0/20,use1-az4:10.0.32.0/20" \
     --environment-variables-override "name=SPF_TFVAR_SUBNETS_NAT_CREATE,value=true" \
