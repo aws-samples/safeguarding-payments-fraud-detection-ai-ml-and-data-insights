@@ -26,7 +26,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.69.0"
+      version = "5.70.0"
     }
   }
 }
@@ -132,7 +132,7 @@ variable "spf_vpc_id" {
 
 variable "spf_vpce_mapping" {
   type        = string
-  description = "VPC endpoints mapping (e.g. {{interface_name}},{{interface_name}}:{{gateway_name}},{{gateway_name}})"
+  description = "VPC endpoints mapping (e.g. {{interface_name}},{{interface_name}})"
   default     = ""
 }
 
