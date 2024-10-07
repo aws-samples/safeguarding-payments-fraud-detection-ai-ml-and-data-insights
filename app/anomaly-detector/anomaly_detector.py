@@ -22,25 +22,13 @@ from botocore.exceptions import ClientError
 import json
 
 
-
-# Functio to get namespace from kubeconfig file usinf the prefix of the name
-def get_namespace(prefix):
-    #config.load_kube_config()
-    config.load_incluster_config()
-    v1 = client.CoreV1Api()
-    namespaces = v1.list_namespace()
-    for ns in namespaces.items:
-        if ns.metadata.name.startswith(prefix):
-            return ns.metadata.name
-    return None
-
 # Function to get values from ConfigMap
 def get_config_map_values(config_map_name = "config-map"):
-    namespace = get_namespace("spf-app-anomaly-detector-")
     #config.load_kube_config()
     config.load_incluster_config()
     v1 = client.CoreV1Api()
-    config_map = v1.read_namespaced_config_map(config_map_name, namespace)
+    namespace = v1.read_namespace(open("/var/run/secrets/kubernetes.io/serviceaccount/namespace", "r").read())
+    config_map = v1.read_namespaced_config_map(config_map_name, namespace.metadata.name)
     return config_map.data
 
 def convert_file_to_pd(file_path):
