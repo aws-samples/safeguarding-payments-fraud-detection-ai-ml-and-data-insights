@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: MIT-0
 
 resource "aws_glue_catalog_database" "this" {
-  name = var.q.name
+  name = replace(var.q.name, "-", "_")
 }
