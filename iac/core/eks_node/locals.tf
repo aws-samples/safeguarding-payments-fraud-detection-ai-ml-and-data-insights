@@ -14,11 +14,11 @@ locals {
     if val != ""
   }))
   subnets = (
-    length(data.terraform_remote_state.subnet.outputs.cagw_subnet_ids) > 0 ?
-    data.terraform_remote_state.subnet.outputs.cagw_subnet_ids :
-    length(data.terraform_remote_state.subnet.outputs.nat_subnet_ids) > 0 ?
-    data.terraform_remote_state.subnet.outputs.nat_subnet_ids :
-    data.terraform_remote_state.subnet.outputs.igw_subnet_ids
+    length(data.terraform_remote_state.subnet.outputs.cagw_subnet_ids) > 0
+    ? data.terraform_remote_state.subnet.outputs.cagw_subnet_ids
+    : length(data.terraform_remote_state.subnet.outputs.nat_subnet_ids) > 0
+    ? data.terraform_remote_state.subnet.outputs.nat_subnet_ids
+    : data.terraform_remote_state.subnet.outputs.igw_subnet_ids
   )
   subnet_ids = slice(
     local.subnets, 0,
