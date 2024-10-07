@@ -17,11 +17,31 @@ from kubernetes import client, config
 
 from dotenv import load_dotenv
 import os
-import gzip
 import boto3
 from botocore.exceptions import ClientError
+import json
 
 
+
+# Functio to get namespace from kubeconfig file usinf the prefix of the name
+def get_namespace(prefix):
+    config.load_kube_config()
+    #config.load_incluster_config()
+    v1 = client.CoreV1Api()
+    namespaces = v1.list_namespace()
+    for ns in namespaces.items:
+        if ns.metadata.name.startswith(prefix):
+            return ns.metadata.name
+    return None
+
+# Function to get values from ConfigMap
+def get_config_map_values(config_map_name = "config-map"):
+    namespace = get_namespace("spf-app-anomaly-detector-")
+    config.load_kube_config()
+    #config.load_incluster_config()
+    v1 = client.CoreV1Api()
+    config_map = v1.read_namespaced_config_map(config_map_name, namespace)
+    return config_map.data
 
 def convert_file_to_pd(file_path):
     try:
@@ -32,19 +52,7 @@ def convert_file_to_pd(file_path):
         return
 
 def initialize_s3_client():
-    """
-    Initialize the s3 client
-    """
-    #region_name = os.environ.get("REGION")
-    #aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
-    #aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
     try:
-        #session = boto3.Session(
-        #    aws_access_key_id=aws_access_key_id,
-        #    aws_secret_access_key=aws_secret_access_key,
-        #    region_name=region_name
-        #)
-        #s3_client = session.client('s3')
         s3_client = boto3.client('s3')
         return s3_client
     except ClientError as e:
@@ -52,13 +60,7 @@ def initialize_s3_client():
         raise
 
 
-def list_s3_files(s3_client):
-    """
-    Return S3 files for a specific bucket and prefix
-    """
-    s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
-    s3_path_payment = os.environ.get("S3_PATH_PAYMENT")
-
+def list_s3_files(s3_client, s3_bucket_name, s3_path_payment):
     try:
         #s3_client = boto3.client('s3')
         response = s3_client.list_objects_v2(
@@ -78,11 +80,7 @@ def list_s3_files(s3_client):
         s3_files = response.get("Contents")
     return s3_files
 
-def download_s3_file(s3_client, s3_file, local_file_path):
-    """
-    Download the file from s3 to local
-    """
-    s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
+def download_s3_file(s3_client, s3_file, local_file_path, s3_bucket_name):
     # get local folder path
     local_folder_path = os.path.split(local_file_path)[0]
     print(local_folder_path)
@@ -91,11 +89,16 @@ def download_s3_file(s3_client, s3_file, local_file_path):
     # download file from s3 to local
     s3_client.download_file(s3_bucket_name, s3_file, local_file_path)
 
+def upload_s3_file(s3_client, local_file_path, s3_file):
+    s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
+    s3_client.upload_file(local_file_path, s3_bucket_name, s3_file)
+    print(f"File '{local_file_path}' uploaded to S3 bucket '{s3_bucket_name}'")
+
 def create_embeddings(df):
     # Separate numerical, categorical, text and timestamps features
-    numerical_features   = ["card_bin", "billing_zip", "billing_latitude", "billing_longitude", "order_price"]
+    numerical_features   = ["billing_zip", "billing_latitude", "billing_longitude", "order_price"]
     categorical_features = ["billing_state", "billing_country", "product_category"]
-    textual_features     = ["billing_city", "billing_street", "customer_email", "billing_phone"] #"customer_name","user_agent", "ip_address"
+    textual_features     = ["customer_name", "billing_city", "billing_street", "customer_email", "billing_phone", "ip_address"] 
     timestamp_features   = ["EVENT_TIMESTAMP", "LABEL_TIMESTAMP"]
 
 
@@ -137,9 +140,9 @@ def create_embeddings(df):
     return embeddings
 
 def create_embeddings_pca(df):
-    numerical_features   = ["card_bin", "billing_zip", "billing_latitude", "billing_longitude", "order_price"]
+    numerical_features   = ["billing_zip", "billing_latitude", "billing_longitude", "order_price"]
     categorical_features = ["billing_state", "billing_country", "product_category"]
-    textual_features     = ["customer_name", "billing_city", "billing_street", "customer_email", "billing_phone", "ip_address"] #"user_agent"
+    textual_features     = ["customer_name", "billing_city", "billing_street", "customer_email", "billing_phone", "ip_address"] 
     timestamp_features   = ["EVENT_TIMESTAMP", "LABEL_TIMESTAMP"]
 
 
@@ -199,25 +202,16 @@ def get_service_ip():
 
     return service_ip
 
-def connect_to_postgres():
+def connect_to_postgres(dbname, dbuser, dbpass, service_name, service_port, namespace):
     # Connect to PostgreSQL database
     #DBHOST = get_service_ip()
-    DBHOST = os.environ.get('SERVICE_NAME')+"."+os.environ.get('NAMESPACE')
-    DBPORT = os.environ.get('SERVICE_PORT')
-
-    #DBHOST = os.environ.get('DBHOST')
-    #DBPORT = os.environ.get('DBPORT')
-    DBNAME = os.environ.get('DBNAME')
-    DBUSER = os.environ.get('DBUSER')
-    DBPASS = os.environ.get('DBPASS')
-    
     try:
         dbconn = psycopg2.connect(
-            host = DBHOST,
-            port = DBPORT,
-            database = DBNAME,
-            user = DBUSER,        
-            password = DBPASS,
+            host = service_name + "." + namespace,
+            port = service_port,
+            database = dbname,
+            user = dbuser,        
+            password = dbpass,
         )
         return dbconn
     except (Exception, psycopg2.DatabaseError) as error:
@@ -234,6 +228,30 @@ def get_date_from_database():
     dbconn.close()
     return date
 
+def is_fraud_payment(embeddings, dbname, dbuser, dbpass, service_name, service_port, namespace):
+    dbconn = connect_to_postgres(dbname, dbuser, dbpass, service_name, service_port, namespace)
+    register_vector(dbconn)
+    cursor = dbconn.cursor()
+    distance = []
+    for embedding in embeddings:
+        cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM payment_data', (embedding,))
+        results = cursor.fetchall()
+        distance.append([result[0] for result in results])
+
+    cursor.close()
+    dbconn.close()
+
+def get_distance(embedding):
+    dbconn = connect_to_postgres()
+    register_vector(dbconn)
+    cursor = dbconn.cursor()
+    cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM payment_data', (embedding,))
+    results = cursor.fetchall()
+    distance = [result[0] for result in results]
+    cursor.close()
+    dbconn.close()
+    return distance
+
 def insert_to_postgres(embeddings):
     dbconn = connect_to_postgres()
 
@@ -242,7 +260,7 @@ def insert_to_postgres(embeddings):
     # Create a cursor object
     cursor = dbconn.cursor()
     # Insert values
-    print("Insert to payment table")
+    # print("Insert to payment table")
     embeddings = np.array(embeddings, dtype=float)
     file_name ="./data/" + "foo.csv"
     np.savetxt(file_name, embeddings, delimiter=",")
@@ -250,25 +268,63 @@ def insert_to_postgres(embeddings):
     for embedding in embeddings:
         cursor.execute("INSERT INTO payment_data (embedding) VALUES (%s)", (embedding, ))
         dbconn.commit()
-    
+   
     # Close the cursor and connection
     cursor.close()
     dbconn.close()
 
 
 def main():
+
     load_dotenv()
 
-    # Get dataset from the data folder
-    dataset = os.environ.get('DATASET')
-    df = pd.read_csv(dataset)
+    # Get values from ConfigMap
+    config_map_values = get_config_map_values()
 
-    # Create embeddings
-    embeddings = create_embeddings(df)
+    # Get the values from the ConfigMap
+    dbname = config_map_values.get("DBNAME")
+    dbuser = config_map_values.get("DBUSER")
+    dbpass = config_map_values.get("DBPASS")
+    service_port = config_map_values.get("SERVICE_PORT")
+    service_name = config_map_values.get("SERVICE_NAME")
+    namespace = config_map_values.get("NAMESPACE")
+    s3_bucket_name = config_map_values.get("S3_BUCKET_NAME")
+    s3_path_payment = config_map_values.get("S3_PATH_PAYMENT")
+    s3_path_model = config_map_values.get("S3_PATH_MODEL")
 
-    # Insert records to postgres
-    insert_to_postgres(embeddings)
+
+    # Local path
+    data_folder_path = "./data/"
+    
+    # Initialize the s3 client
+    s3_client = initialize_s3_client()
+    # get S3 file details
+    s3_files = list_s3_files(s3_client=s3_client, s3_bucket_name=s3_bucket_name, s3_path_payment=s3_path_payment)
+    
+    # get date from database
+    #processing_date = get_date_from_database()
    
+    # get csv file names only and last modified must be greater than the date from database
+    csv_s3_keys = []
+    for s3_file in s3_files:
+        #if s3_file["Key"].endswith(".csv") and s3_file["LastModified"].date() > processing_date:
+        if s3_file["Key"].endswith(".csv"):    
+            csv_s3_keys.append(s3_file["Key"])
+
+    # for every S3 file
+    for csv_s3_key in csv_s3_keys:
+        # set local file path
+        local_file_path = os.path.join(data_folder_path, csv_s3_key)
+        # download s3 file to local file path
+        download_s3_file(s3_client, csv_s3_key, local_file_path, s3_bucket_name)
+        # Convert file to pandas dataframe
+        df = convert_file_to_pd(local_file_path)
+        if df is not None:
+            embeddings = create_embeddings(df)
+            embeddings = np.array(embeddings, dtype=float)
+            is_fraud_payment(embeddings, dbname, dbuser, dbpass, service_name, service_port, namespace)
+            csv_s3_key = csv_s3_key.replace(s3_path_payment, s3_path_model)
+            upload_s3_file(s3_client, local_file_path, csv_s3_key)
 
     
 if __name__ == '__main__':
