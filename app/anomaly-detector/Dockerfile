@@ -21,6 +21,6 @@ COPY init.sql /docker-entrypoint-initdb.d/
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY payments_worker.py .
+COPY anomaly_detector.py .
 
-CMD [ "python", "-u", "./payments_worker.py" ]
+CMD [ "python", "-u", "./anomaly_detector.py" ]
