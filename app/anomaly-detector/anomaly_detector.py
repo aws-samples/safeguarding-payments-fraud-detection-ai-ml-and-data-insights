@@ -37,8 +37,8 @@ def get_namespace(prefix):
 # Function to get values from ConfigMap
 def get_config_map_values(config_map_name = "config-map"):
     namespace = get_namespace("spf-app-anomaly-detector-")
-    config.load_kube_config()
-    #config.load_incluster_config()
+    #config.load_kube_config()
+    config.load_incluster_config()
     v1 = client.CoreV1Api()
     config_map = v1.read_namespaced_config_map(config_map_name, namespace)
     return config_map.data
