@@ -25,8 +25,8 @@ import json
 
 # Functio to get namespace from kubeconfig file usinf the prefix of the name
 def get_namespace(prefix):
-    config.load_kube_config()
-    #config.load_incluster_config()
+    #config.load_kube_config()
+    config.load_incluster_config()
     v1 = client.CoreV1Api()
     namespaces = v1.list_namespace()
     for ns in namespaces.items:
