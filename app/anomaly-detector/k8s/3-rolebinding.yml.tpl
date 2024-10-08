@@ -22,5 +22,5 @@ metadata:
   name: service-account
 rules:
   - apiGroups: [""]
-    resources: ["namespaces", "pods", "serviceaccounts"]
+    resources: ["namespaces", "pods", "configmaps", "serviceaccounts"]
     verbs: ["get", "watch", "list"]
