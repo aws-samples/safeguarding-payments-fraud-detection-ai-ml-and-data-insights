@@ -5,12 +5,22 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   namespace: {{SPF_ECR_NAME}}
-  name: cluster-role-binding
-subjects:
-- kind: ServiceAccount
-  namespace: {{SPF_ECR_NAME}}
   name: service-account
 roleRef:
-  kind: ClusterRole 
-  name: cluster-role
   apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: service-account
+subjects:
+  - kind: ServiceAccount
+    namespace: {{SPF_ECR_NAME}}
+    name: service-account
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: {{SPF_ECR_NAME}}
+  name: service-account
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "pods", "serviceaccounts"]
+    verbs: ["get", "watch", "list"]
