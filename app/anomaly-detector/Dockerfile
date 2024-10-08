@@ -19,7 +19,7 @@ WORKDIR /usr/src/app
 COPY init.sql /docker-entrypoint-initdb.d/
 
 COPY requirements.txt ./
-RUN pip install -r requirements.txt  --no-cache-dir --use-deprecated=backtrack-on-build-failures
+RUN pip install -r requirements.txt --no-cache-dir
 
 COPY anomaly_detector.py .
 
