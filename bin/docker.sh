@@ -137,13 +137,13 @@ if [ -f "${DOCKERDIR}/.dockerdependencies" ]; then
       fi
 
       echo "[EXEC] docker pull ${SPF_IMAGE_SOURCE}"
-      docker pull ${SPF_IMAGE_SOURCE}
+      docker pull ${SPF_IMAGE_SOURCE} || { echo "[ERROR] docker pull ${SPF_IMAGE_SOURCE} failed. aborting..."; exit 1; }
 
       echo "[EXEC] docker tag ${SPF_IMAGE_SOURCE} ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}"
-      docker tag ${SPF_IMAGE_SOURCE} ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}
+      docker tag ${SPF_IMAGE_SOURCE} ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}  || { echo "[ERROR] docker tag ${SPF_IMAGE_SOURCE} failed. aborting..."; exit 1; }
 
       echo "[EXEC] docker push ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}"
-      docker push ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION}
+      docker push ${ENDPOINT}/${SPF_IMAGE_TARGET}:${SPF_VERSION} || { echo "[ERROR] docker push ${SPF_IMAGE_TARGET} failed. aborting..."; exit 1; }
     done <<< "${i}"
   done
 fi
