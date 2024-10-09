@@ -1,7 +1,7 @@
 # Copyright (C) Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-FROM public.ecr.aws/docker/library/python:3
+FROM public.ecr.aws/docker/library/python:3.10
 
 WORKDIR /usr/src/app
 
@@ -19,8 +19,8 @@ WORKDIR /usr/src/app
 COPY init.sql /docker-entrypoint-initdb.d/
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt --no-cache-dir
 
-COPY payments_worker.py .
+COPY anomaly_detector.py .
 
-CMD [ "python", "-u", "./payments_worker.py" ]
+CMD [ "python", "-u", "./anomaly_detector.py" ]

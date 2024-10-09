@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 resource "aws_glue_catalog_table" "this" {
-  name          = var.q.name
+  name          = replace(var.q.name, "-", "_")
   database_name = data.terraform_remote_state.glue.outputs.name
   owner         = var.q.owner
   parameters    = var.params
