@@ -59,7 +59,7 @@ def insert_to_postgres(embeddings, table_name):
                 pass
     print('\nSuccess!')
 
-def get_secrets(secret_prefix="spf-secrets-deploy"):
+def get_secrets(secret_prefix="spf-secrets-deploy"): # nosec B107
     # Create a Secrets Manager client
     region_name = os.environ.get('AWS_REGION')
     client = boto3.client('secretsmanager', region_name=region_name)
