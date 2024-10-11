@@ -22,7 +22,7 @@ RUN pip install -r requirements.txt --no-cache-dir
 
 # Copy python scripts
 COPY anomaly_detector.py .
-COPY docs/embeddings_loader.py .
+COPY embeddings_loader.py .
 
 # Copy init script and SQL file
 COPY init.sql /docker-entrypoint-initdb.d/
