@@ -32,7 +32,7 @@ COPY anomaly_detector.py .
 COPY embeddings_loader.py .
 
 # Copy init script and SQL file
-COPY init.sql /docker-entrypoint-initdb.d/
-COPY init.sh /docker-entrypoint-initdb.d/
+COPY 01-init.sql /docker-entrypoint-initdb.d/
+COPY 02-init.sh /docker-entrypoint-initdb.d/
 
 CMD [ "python", "-u", "./anomaly_detector.py" ]
