@@ -16,11 +16,16 @@ WORKDIR /usr/src/app
 # ENV POSTGRES_PASSWORD $(echo -n "${SPF_DOCKERFILE_DBPASS}" | base64 --decode)
 # ENV PGPASSWORD $(echo -n "${SPF_DOCKERFILE_DBPASS}" | base64 --decode)
 
-COPY init.sql /docker-entrypoint-initdb.d/
-
+# Copy Requirements and install dependencies
 COPY requirements.txt ./
 RUN pip install -r requirements.txt --no-cache-dir
 
+# Copy python scripts
 COPY anomaly_detector.py .
+COPY docs/embeddings_loader.py .
+
+# Copy init script and SQL file
+COPY init.sql /docker-entrypoint-initdb.d/
+COPY init.sh /docker-entrypoint-initdb.d/
 
 CMD [ "python", "-u", "./anomaly_detector.py" ]
