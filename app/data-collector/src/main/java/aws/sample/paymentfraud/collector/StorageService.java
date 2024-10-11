@@ -5,6 +5,7 @@ import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.json.JSONObject;
@@ -82,7 +83,7 @@ public class StorageService {
                 .bucket(getCollectorConfig().getConfig(CollectorConfig.Configs.S3_BUCKET))
                 .key(stateFileName)
                 .build();
-
+        LOGGER.info("Head Object Request - " + headObjectRequest);
         try {
             HeadObjectResponse response = s3.headObject(headObjectRequest); // if no exception is thrown that means the file exists
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
@@ -93,10 +94,12 @@ public class StorageService {
             ResponseInputStream<GetObjectResponse> stateResponse = s3.getObject(getObjectRequest);
             return stateResponse.readAllBytes();
         } catch (NoSuchKeyException e) {
+            LOGGER.info("State file " + stateFileName + " does not exist");
             return null; // Object does not exist
         }
         catch (Exception e) {
-            throw e;
+            LOGGER.log(Level.SEVERE, "Error occurred while retrieving state file", e);
+            return null; // Object does not exist
         }
     }
 

@@ -74,6 +74,11 @@ spec:
                 configMapKeyRef:
                   name: data-collector-config
                   key: state_filename
+            - name: TEST_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: data-collector-config
+                  key: test_mode
             - name: MINIO_HOST
               valueFrom:
                 secretKeyRef:
