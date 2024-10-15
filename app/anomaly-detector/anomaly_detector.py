@@ -19,17 +19,55 @@ from dotenv import load_dotenv
 import os
 import boto3
 from botocore.exceptions import ClientError
-import json
 
+
+
+def load_kubernetes_config():
+    try:
+        # Try to load in-cluster configuration
+        config.load_incluster_config()
+    except config.ConfigException:
+        # If that fails, try to load kubeconfig file
+        try:
+            config.load_kube_config()
+        except config.ConfigException:
+            print("Failed to load Kubernetes configuration")
+            return False
+    return True
+
+def get_namespace(prefix):
+    if not load_kubernetes_config():
+        return None
+
+    v1 = client.CoreV1Api()
+    try:
+        namespaces = v1.list_namespace()
+        for ns in namespaces.items:
+            if ns.metadata.name.startswith(prefix):
+                return ns.metadata.name
+    except client.ApiException as e:
+        print(f"Error listing namespaces: {e}")
+    return None
 
 # Function to get values from ConfigMap
 def get_config_map_values(config_map_name = "config-map"):
-    #config.load_kube_config()
-    config.load_incluster_config()
+    if not load_kubernetes_config():
+        return None
+
     v1 = client.CoreV1Api()
-    namespace = v1.read_namespace(open("/var/run/secrets/kubernetes.io/serviceaccount/namespace", "r").read())
-    config_map = v1.read_namespaced_config_map(config_map_name, namespace.metadata.name)
-    return config_map.data
+    namespace = get_namespace("spf-app-anomaly-detector")
+
+    if not namespace:
+        print("Failed to find namespace")
+        return None
+
+    try:
+        config_map = v1.read_namespaced_config_map(config_map_name, namespace)
+        return config_map.data
+    except client.ApiException as e:
+        print(f"Error reading ConfigMap: {e}")
+        return None
+
 
 def convert_file_to_pd(file_path):
     try:
@@ -77,8 +115,7 @@ def download_s3_file(s3_client, s3_file, local_file_path, s3_bucket_name):
     # download file from s3 to local
     s3_client.download_file(s3_bucket_name, s3_file, local_file_path)
 
-def upload_s3_file(s3_client, local_file_path, s3_file):
-    s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
+def upload_s3_file(s3_client, s3_bucket_name, local_file_path, s3_file):
     s3_client.upload_file(local_file_path, s3_bucket_name, s3_file)
     print(f"File '{local_file_path}' uploaded to S3 bucket '{s3_bucket_name}'")
 
@@ -312,7 +349,7 @@ def main():
             embeddings = np.array(embeddings, dtype=float)
             is_fraud_payment(embeddings, dbname, dbuser, dbpass, service_name, service_port, namespace)
             csv_s3_key = csv_s3_key.replace(s3_path_payment, s3_path_model)
-            upload_s3_file(s3_client, local_file_path, csv_s3_key)
+            upload_s3_file(s3_client, s3_bucket_name,local_file_path, csv_s3_key)
 
     
 if __name__ == '__main__':

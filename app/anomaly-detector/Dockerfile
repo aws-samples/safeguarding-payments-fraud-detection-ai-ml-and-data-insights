@@ -16,11 +16,23 @@ WORKDIR /usr/src/app
 # ENV POSTGRES_PASSWORD $(echo -n "${SPF_DOCKERFILE_DBPASS}" | base64 --decode)
 # ENV PGPASSWORD $(echo -n "${SPF_DOCKERFILE_DBPASS}" | base64 --decode)
 
-COPY init.sql /docker-entrypoint-initdb.d/
-
+# Copy requirements and install dependencies
 COPY requirements.txt ./
 RUN pip install -r requirements.txt --no-cache-dir
 
+# Download embeddings from S3
+RUN curl -LJO https://ws-assets-prod-iad-r-iad-ed304a55c2ca1aee.s3.us-east-1.amazonaws.com/8fc42c16-64b9-4b11-ae2b-20fe38ea021c/embeddings_anomalies.csv
+RUN curl -LJO https://ws-assets-prod-iad-r-iad-ed304a55c2ca1aee.s3.us-east-1.amazonaws.com/8fc42c16-64b9-4b11-ae2b-20fe38ea021c/embeddings_transactions_01.csv
+RUN curl -LJO https://ws-assets-prod-iad-r-iad-ed304a55c2ca1aee.s3.us-east-1.amazonaws.com/8fc42c16-64b9-4b11-ae2b-20fe38ea021c/embeddings_transactions_02.csv
+RUN curl -LJO https://ws-assets-prod-iad-r-iad-ed304a55c2ca1aee.s3.us-east-1.amazonaws.com/8fc42c16-64b9-4b11-ae2b-20fe38ea021c/embeddings_transactions_03.csv
+
+# Copy python scripts
+COPY *.csv .
 COPY anomaly_detector.py .
+COPY embeddings_loader.py .
+
+# Copy init script and SQL file
+COPY 01-init.sql /docker-entrypoint-initdb.d/
+COPY 02-init.sh /docker-entrypoint-initdb.d/
 
 CMD [ "python", "-u", "./anomaly_detector.py" ]

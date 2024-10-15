@@ -17,3 +17,4 @@ data:
   s3_bucket: "{{SPF_S3_BUCKET}}"
   collector_folder: "data-collector"
   state_filename: "collector-state.txt"
+  test_mode: "true"
