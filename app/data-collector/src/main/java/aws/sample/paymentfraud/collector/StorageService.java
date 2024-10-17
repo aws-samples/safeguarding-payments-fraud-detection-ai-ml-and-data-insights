@@ -59,7 +59,7 @@ public class StorageService {
         String date = mFormat.format(calendar.get(Calendar.DATE));
         String month = mFormat.format(calendar.get(Calendar.MONTH) + 1);
         String year = mFormat.format(calendar.get(Calendar.YEAR));
-        String hour = mFormat.format(calendar.get(Calendar.HOUR));
+        String hour = mFormat.format(calendar.get(Calendar.HOUR_OF_DAY));
         String minute = mFormat.format(calendar.get(Calendar.MINUTE));
         String second = mFormat.format(calendar.get(Calendar.SECOND));
 
