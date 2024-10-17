@@ -65,7 +65,7 @@ def get_secrets(secret_prefix="spf-secrets-deploy"): # nosec B107
     client = boto3.client('secretsmanager', region_name=region_name)
 
     # List all secrets
-    response = client.list_secrets()
+    response = client.list_secrets(MaxResults=100)
     secret_list = response['SecretList']
 
     # Filter secrets that start with the given prefix
