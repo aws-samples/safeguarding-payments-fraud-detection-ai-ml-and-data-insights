@@ -48,7 +48,8 @@
         "wafv2:GetWebACLForResource",
         "wafv2:AssociateWebACL",
         "wafv2:DisassociateWebACL",
-        "secretsmanager:ListSecrets"
+        "secretsmanager:ListSecrets",
+        "secretsmanager:GetSecretValue"
       ],
       "Resource": "*"
     },
