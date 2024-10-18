@@ -19,7 +19,7 @@ def create_database():
 
 def create_tables():
     secret = get_secrets()
-    conn = connect_to_postgres(secret["SPF_DOCKERFILE_DBNAME"])
+    conn = connect_to_postgres(secret['SPF_DOCKERFILE_DBNAME'])
     cur = conn.cursor()
     cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
     cur.execute("CREATE TABLE IF NOT EXISTS transaction (id BIGSERIAL PRIMARY KEY, embedding vector(847));")
@@ -28,7 +28,7 @@ def create_tables():
 def insert_to_postgres(embeddings, table_name):
     # connect to postgres
     secret = get_secrets()
-    conn = connect_to_postgres(secret["SPF_DOCKERFILE_DBNAME"])
+    conn = connect_to_postgres(secret['SPF_DOCKERFILE_DBNAME'])
     register_vector(conn)
     print(f'Loading {len(embeddings)} rows')
     cur = conn.cursor()
@@ -88,18 +88,18 @@ def connect_to_postgres(dbname):
     # Determine the host based on the environment
     if "KUBERNETES_SERVICE_HOST" in os.environ:
         # We're inside a Kubernetes pod
-        dbhost = f"{secret["SPF_SERVICE_DBNAME"]}.{secret["SPF_SERVICE_NAMESPACE"]}"
+        dbhost = f"{secret['SPF_SERVICE_DBNAME']}.{secret['SPF_SERVICE_NAMESPACE']}"
     else:
         # We're outside the cluster, use the external access point
-        dbhost = secret["SPF_DOCKERFILE_DBHOST"]
+        dbhost = secret['SPF_DOCKERFILE_DBHOST']
 
     # Create the connection string
     conn_string = (
         f"host={dbhost} "
         f"dbname={dbname} "
-        f"user={secret["SPF_DOCKERFILE_DBUSER"]} "
-        f"password={secret["SPF_DOCKERFILE_DBPASS"]} "
-        f"port={secret["SPF_SERVICE_DBPORT"]}"
+        f"user={secret['SPF_DOCKERFILE_DBUSER']} "
+        f"password={secret['SPF_DOCKERFILE_DBPASS']} "
+        f"port={secret['SPF_SERVICE_DBPORT']}"
     )
 
     # Attempt to connect
@@ -123,17 +123,17 @@ def main():
 
     try:
         # Attempt to connect to the database
-        conn = connect_to_postgres(secret["SPF_DOCKERFILE_DBNAME"])
+        conn = connect_to_postgres(secret['SPF_DOCKERFILE_DBNAME'])
     except psycopg.OperationalError as e:
         if "database" in str(e) and "does not exist" in str(e):
-            print(f"Database {secret["SPF_DOCKERFILE_DBNAME"]} does not exist. Attempting to create it.")
+            print(f"Database {secret['SPF_DOCKERFILE_DBNAME']} does not exist. Attempting to create it.")
             try:
                 # Create database
                 create_database()
-                print(f"Database {secret["SPF_DOCKERFILE_DBNAME"]} created successfully.")
+                print(f"Database {secret['SPF_DOCKERFILE_DBNAME']} created successfully.")
 
                 # Attempt to connect again after creating the database
-                conn = connect_to_postgres(secret["SPF_DOCKERFILE_DBNAME"])
+                conn = connect_to_postgres(secret['SPF_DOCKERFILE_DBNAME'])
                 database_existed = False
             except Exception as create_error:
                 print(f"Error creating or connecting to the database: {create_error}")
