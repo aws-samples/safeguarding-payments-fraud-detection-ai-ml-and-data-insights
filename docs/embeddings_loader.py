@@ -53,10 +53,10 @@ def insert_to_postgres(embeddings, table_name):
 def get_secrets(secret_prefix="spf-secrets-deploy"): # nosec B107
     # Create a Secrets Manager client
     region_name = os.environ.get('AWS_REGION')
-    cli = boto3.client('secretsmanager', region_name=region_name)
+    client = boto3.client('secretsmanager', region_name=region_name)
 
     # List all secrets
-    response = cli.list_secrets(MaxResults=100)
+    response = client.list_secrets(MaxResults=100)
     secret_list = response['SecretList']
 
     # Filter secrets that start with the given prefix
@@ -70,7 +70,7 @@ def get_secrets(secret_prefix="spf-secrets-deploy"): # nosec B107
     full_secret_id = matching_secrets[0]['ARN']
     
     # Now use the full SecretId to get the secret value
-    get_secret_value_response = cli.get_secret_value(SecretId=full_secret_id)
+    get_secret_value_response = client.get_secret_value(SecretId=full_secret_id)
 
     if 'SecretString' in get_secret_value_response:
         secret_string = get_secret_value_response['SecretString']
