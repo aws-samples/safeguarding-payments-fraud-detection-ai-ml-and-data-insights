@@ -8,6 +8,7 @@ import os
 import boto3
 from botocore.exceptions import ClientError
 import json
+from kubernetes import client, config
 
 
 def create_database():
@@ -95,13 +96,30 @@ def connect_to_postgres(DBNAME):
     secret = get_secrets()
 
     # Get values from the secret
-    DBHOST = secret["SPF_DOCKERFILE_DBHOST"]
     DBUSER = secret["SPF_DOCKERFILE_DBUSER"]
     DBPASS = secret["SPF_DOCKERFILE_DBPASS"]
     DBPORT = secret["SPF_SERVICE_DBPORT"]
+    DBSERVICE = secret["SPF_SERVICE_DBNAME"]
+    DBNAMESPACE = secret["SPF_SERVICE_NAMESPACE"]
 
-    conn = psycopg.connect(f"host={DBHOST} dbname={DBNAME} user={DBUSER} password={DBPASS} port={DBPORT}", autocommit=True)
-    return conn
+    # Determine the host based on the environment
+    if "KUBERNETES_SERVICE_HOST" in os.environ:
+        # We're inside a Kubernetes pod
+        DBHOST = DBSERVICE + "." + DBNAMESPACE
+    else:
+        # We're outside the cluster, use the external access point
+        DBHOST = secret["SPF_DOCKERFILE_DBHOST"]
+
+    # Create the connection string
+    conn_string = f"host={DBHOST} dbname={DBNAME} user={DBUSER} password={DBPASS} port={DBPORT}"
+
+    # Attempt to connect
+    try:
+        conn = psycopg.connect(conn_string, autocommit=True)
+        return conn
+    except psycopg.Error as e:
+        print(f"Unable to connect to the database: {e}")
+        raise
 
 def check_if_records_exist(conn, table_name):
     cur = conn.cursor()
