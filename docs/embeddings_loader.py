@@ -130,52 +130,61 @@ def check_if_records_exist(conn, table_name):
 def main():
     load_dotenv()
 
-    # Check if records already exist in the database
     secret = get_secrets()
     DBNAME = secret["SPF_DOCKERFILE_DBNAME"]
-    
+
+    database_existed = True
     try:
+        # Attempt to connect to the database
         conn = connect_to_postgres(DBNAME)
     except psycopg.OperationalError as e:
-        print(f"Error connecting to the database: {e}")
-        sys.exit(1)  # Exit the program with an error code
+        if "database" in str(e) and "does not exist" in str(e):
+            print(f"Database {DBNAME} does not exist. Attempting to create it.")
+            try:
+                # Create database
+                create_database()
+                print(f"Database {DBNAME} created successfully.")
+
+                # Attempt to connect again after creating the database
+                conn = connect_to_postgres(DBNAME)
+                database_existed = False
+            except Exception as create_error:
+                print(f"Error creating or connecting to the database: {create_error}")
+                sys.exit(1)
+        else:
+            print(f"Error connecting to the database: {e}")
+            sys.exit(1)
 
     try:
-        if check_if_records_exist(conn, "transaction") or check_if_records_exist(conn, "transaction_anomalies"):
-            print("Records already exist in the database. Skipping insertion.")
-            return
-    except Exception as e:
-        print(f"Error checking if records exist: {e}")
-        print("Continuing with execution...")
-
-    try:
-        # Create database
-        create_database()
+        if database_existed:
+            if check_if_records_exist(conn, "transaction") or check_if_records_exist(conn, "transaction_anomalies"):
+                print("Records already exist in the database. Skipping insertion.")
+                return
 
         # Create tables
         create_tables()
 
         embeddings_anomalies_files = os.environ.get('EMBEDDINGS_ANOMALIES_FILES')
         embeddings_transactions_files = os.environ.get('EMBEDDINGS_TRANSACTIONS_FILES')
-        
+
         embeddings_anomalies_files = embeddings_anomalies_files.split(',')
         embeddings_transactions_files = embeddings_transactions_files.split(',')
 
         for url in embeddings_anomalies_files:
             df = pd.read_csv(url)
             embeddings = df.to_numpy()
-            insert_to_postgres(embeddings,"transaction_anomalies")
+            insert_to_postgres(embeddings, "transaction_anomalies")
 
-        embeddings = []
         for url in embeddings_transactions_files:
             df = pd.read_csv(url)
             embeddings = df.to_numpy()
-            insert_to_postgres(embeddings,"transaction")
+            insert_to_postgres(embeddings, "transaction")
 
     except Exception as e:
         print(f"An error occurred during execution: {e}")
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 if __name__ == '__main__':
     main()
