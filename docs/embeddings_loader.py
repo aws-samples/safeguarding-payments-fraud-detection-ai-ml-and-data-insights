@@ -1,14 +1,8 @@
-import sys
+import sys, os
+import json, psycopg, boto3
 import pandas as pd
-import numpy as np
 from pgvector.psycopg import register_vector
-import psycopg
 from dotenv import load_dotenv
-import os
-import boto3
-from botocore.exceptions import ClientError
-import json
-from kubernetes import client, config
 
 
 def create_database():
@@ -25,24 +19,20 @@ def create_database():
 
 def create_tables():
     secret = get_secrets()
-    DBNAME = secret["SPF_DOCKERFILE_DBNAME"]
-
-    conn = connect_to_postgres(DBNAME)
+    conn = connect_to_postgres(secret["SPF_DOCKERFILE_DBNAME"])
     cur = conn.cursor()
     cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
     cur.execute("CREATE TABLE IF NOT EXISTS transaction (id BIGSERIAL PRIMARY KEY, embedding vector(847));")
     cur.execute("CREATE TABLE IF NOT EXISTS transaction_anomalies (id BIGSERIAL PRIMARY KEY, embedding vector(847));")
 
-
 def insert_to_postgres(embeddings, table_name):
     # connect to postgres
     secret = get_secrets()
-    DBNAME = secret["SPF_DOCKERFILE_DBNAME"]
-    conn = connect_to_postgres(DBNAME)
+    conn = connect_to_postgres(secret["SPF_DOCKERFILE_DBNAME"])
     register_vector(conn)
     print(f'Loading {len(embeddings)} rows')
     cur = conn.cursor()
-    # build the copy stament using table_name
+    # build the copy statement using table_name
     copy_statement = f"COPY {table_name} (embedding) FROM STDIN WITH (FORMAT BINARY)"
 
     with cur.copy(copy_statement) as copy:
@@ -63,10 +53,10 @@ def insert_to_postgres(embeddings, table_name):
 def get_secrets(secret_prefix="spf-secrets-deploy"): # nosec B107
     # Create a Secrets Manager client
     region_name = os.environ.get('AWS_REGION')
-    client = boto3.client('secretsmanager', region_name=region_name)
+    cli = boto3.client('secretsmanager', region_name=region_name)
 
     # List all secrets
-    response = client.list_secrets(MaxResults=100)
+    response = cli.list_secrets(MaxResults=100)
     secret_list = response['SecretList']
 
     # Filter secrets that start with the given prefix
@@ -80,7 +70,7 @@ def get_secrets(secret_prefix="spf-secrets-deploy"): # nosec B107
     full_secret_id = matching_secrets[0]['ARN']
     
     # Now use the full SecretId to get the secret value
-    get_secret_value_response = client.get_secret_value(SecretId=full_secret_id)
+    get_secret_value_response = cli.get_secret_value(SecretId=full_secret_id)
 
     if 'SecretString' in get_secret_value_response:
         secret_string = get_secret_value_response['SecretString']
@@ -91,27 +81,26 @@ def get_secrets(secret_prefix="spf-secrets-deploy"): # nosec B107
 
     return secret_dict
 
-def connect_to_postgres(DBNAME):
+def connect_to_postgres(dbname):
     # Get secrets from aws secrets manager
     secret = get_secrets()
-
-    # Get values from the secret
-    DBUSER = secret["SPF_DOCKERFILE_DBUSER"]
-    DBPASS = secret["SPF_DOCKERFILE_DBPASS"]
-    DBPORT = secret["SPF_SERVICE_DBPORT"]
-    DBSERVICE = secret["SPF_SERVICE_DBNAME"]
-    DBNAMESPACE = secret["SPF_SERVICE_NAMESPACE"]
 
     # Determine the host based on the environment
     if "KUBERNETES_SERVICE_HOST" in os.environ:
         # We're inside a Kubernetes pod
-        DBHOST = DBSERVICE + "." + DBNAMESPACE
+        dbhost = f"{secret["SPF_SERVICE_DBNAME"]}.{secret["SPF_SERVICE_NAMESPACE"]}"
     else:
         # We're outside the cluster, use the external access point
-        DBHOST = secret["SPF_DOCKERFILE_DBHOST"]
+        dbhost = secret["SPF_DOCKERFILE_DBHOST"]
 
     # Create the connection string
-    conn_string = f"host={DBHOST} dbname={DBNAME} user={DBUSER} password={DBPASS} port={DBPORT}"
+    conn_string = (
+        f"host={dbhost} "
+        f"dbname={dbname} "
+        f"user={secret["SPF_DOCKERFILE_DBUSER"]} "
+        f"password={secret["SPF_DOCKERFILE_DBPASS"]} "
+        f"port={secret["SPF_SERVICE_DBPORT"]}"
+    )
 
     # Attempt to connect
     try:
@@ -129,24 +118,22 @@ def check_if_records_exist(conn, table_name):
 
 def main():
     load_dotenv()
-
     secret = get_secrets()
-    DBNAME = secret["SPF_DOCKERFILE_DBNAME"]
-
     database_existed = True
+
     try:
         # Attempt to connect to the database
-        conn = connect_to_postgres(DBNAME)
+        conn = connect_to_postgres(secret["SPF_DOCKERFILE_DBNAME"])
     except psycopg.OperationalError as e:
         if "database" in str(e) and "does not exist" in str(e):
-            print(f"Database {DBNAME} does not exist. Attempting to create it.")
+            print(f"Database {secret["SPF_DOCKERFILE_DBNAME"]} does not exist. Attempting to create it.")
             try:
                 # Create database
                 create_database()
-                print(f"Database {DBNAME} created successfully.")
+                print(f"Database {secret["SPF_DOCKERFILE_DBNAME"]} created successfully.")
 
                 # Attempt to connect again after creating the database
-                conn = connect_to_postgres(DBNAME)
+                conn = connect_to_postgres(secret["SPF_DOCKERFILE_DBNAME"])
                 database_existed = False
             except Exception as create_error:
                 print(f"Error creating or connecting to the database: {create_error}")
