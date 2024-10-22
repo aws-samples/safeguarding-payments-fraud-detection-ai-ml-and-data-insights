@@ -4,22 +4,17 @@ from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
 from timeit import default_timer as timer
 import datetime
-
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
-
 import psycopg2
 from pgvector.psycopg2 import register_vector
-
 from kubernetes import client, config
-
 from dotenv import load_dotenv
 import os
 import boto3
 from botocore.exceptions import ClientError
-
 
 
 def load_kubernetes_config():
@@ -259,7 +254,7 @@ def is_fraud_payment(embeddings, dbname, dbuser, dbpass, service_name, service_p
     cursor = dbconn.cursor()
     distance = []
     for embedding in embeddings:
-        cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM payment_data', (embedding,))
+        cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies', (embedding,))
         results = cursor.fetchall()
         distance.append([result[0] for result in results])
 
@@ -270,7 +265,7 @@ def get_distance(embedding):
     dbconn = connect_to_postgres()
     register_vector(dbconn)
     cursor = dbconn.cursor()
-    cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM payment_data', (embedding,))
+    cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies', (embedding,))
     results = cursor.fetchall()
     distance = [result[0] for result in results]
     cursor.close()
@@ -285,13 +280,13 @@ def insert_to_postgres(embeddings):
     # Create a cursor object
     cursor = dbconn.cursor()
     # Insert values
-    # print("Insert to payment table")
+    # print("Insert to transaction_anomalies table")
     embeddings = np.array(embeddings, dtype=float)
     file_name ="./data/" + "foo.csv"
     np.savetxt(file_name, embeddings, delimiter=",")
 
     for embedding in embeddings:
-        cursor.execute("INSERT INTO payment_data (embedding) VALUES (%s)", (embedding, ))
+        cursor.execute("INSERT INTO transaction_anomalies (embedding) VALUES (%s)", (embedding, ))
         dbconn.commit()
    
     # Close the cursor and connection
