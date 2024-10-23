@@ -151,8 +151,8 @@ def main():
         # Create tables
         create_tables()
 
-        embeddings_anomalies_files = os.environ.get('EMBEDDINGS_ANOMALIES_FILES')
-        embeddings_transactions_files = os.environ.get('EMBEDDINGS_TRANSACTIONS_FILES')
+        embeddings_anomalies_files = os.environ.get('EMBEDDINGS_ANOMALIES_FILES', 'embeddings_anomalies.csv')
+        embeddings_transactions_files = os.environ.get('EMBEDDINGS_TRANSACTIONS_FILES', 'embeddings_transactions_01.csv,embeddings_transactions_02.csv,embeddings_transactions_03.csv')
 
         embeddings_anomalies_files = embeddings_anomalies_files.split(',')
         embeddings_transactions_files = embeddings_transactions_files.split(',')
