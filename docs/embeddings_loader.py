@@ -136,6 +136,8 @@ def main():
     if database_missing:
         try:
             # Reconnect without database name
+            if conn:
+                conn.close()
             conn = connect_to_postgres(host,
                 secret['SPF_DOCKERFILE_PORT'],
                 secret['SPF_DOCKERFILE_USER'],
