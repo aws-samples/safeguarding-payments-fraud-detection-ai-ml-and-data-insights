@@ -115,25 +115,24 @@ def main():
             host = secret['SPF_DOCKERFILE_DBHOST']
     except Exception as e:
         print(f"Error retrieving secrets: {e}")
-        sys.exit(1)
 
-    try:
-        # Attempt to connect to the database
-        conn = connect_to_postgres(host,
-            secret['SPF_DOCKERFILE_PORT'],
-            secret['SPF_DOCKERFILE_USER'],
-            secret['SPF_DOCKERFILE_PASS'],
-            secret['SPF_DOCKERFILE_DBNAME']
-        )
-    except psycopg.OperationalError as e:
-        if "database" in str(e) and "does not exist" in str(e):
-            print(f"Database {secret['SPF_DOCKERFILE_DBNAME']} does not exist")
-            database_missing = True
-        else:
-            print(f"Error connecting to the database: {e}")
-            sys.exit(1)
+    if secret:
+        try:
+            # Attempt to connect to the database
+            conn = connect_to_postgres(host,
+                secret['SPF_DOCKERFILE_PORT'],
+                secret['SPF_DOCKERFILE_USER'],
+                secret['SPF_DOCKERFILE_PASS'],
+                secret['SPF_DOCKERFILE_DBNAME']
+            )
+        except psycopg.OperationalError as e:
+            if "database" in str(e) and "does not exist" in str(e):
+                print(f"Database {secret['SPF_DOCKERFILE_DBNAME']} does not exist")
+                database_missing = True
+            else:
+               print(f"Error connecting to the database: {e}")
 
-    if database_missing:
+    if conn and database_missing:
         try:
             # Reconnect without database name
             if conn:
@@ -159,13 +158,13 @@ def main():
             )
         except Exception as e:
             print(f"Error creating the database: {e}")
-            sys.exit(1)
 
-    if check_if_records_exist(conn, "transaction") or check_if_records_exist(conn, "transaction_anomalies"):
-        print("Records already exist in the database. Skipping insertion.")
-        table_missing = False
+    if conn:
+        if check_if_records_exist(conn, "transaction") or check_if_records_exist(conn, "transaction_anomalies"):
+            print("Records already exist in the database. Skipping insertion.")
+            table_missing = False
 
-    if table_missing:
+    if conn and table_missing:
         try:
             create_tables(conn)
 
