@@ -1,3 +1,2 @@
 gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1,spf-app-postgres-kube-rbac-proxy
 public.ecr.aws/i9v8v9r9/reactive-tech/kubegres:1.18,spf-app-postgres-kubegres
-registry.k8s.io/metrics-server/metrics-server:v0.7.2,spf-app-postgres-metrics-server
