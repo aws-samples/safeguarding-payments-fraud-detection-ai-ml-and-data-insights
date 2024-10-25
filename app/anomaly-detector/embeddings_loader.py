@@ -132,7 +132,7 @@ def main():
             else:
                print(f"Error connecting to the database: {e}")
 
-    if conn and database_missing:
+    if database_missing:
         try:
             # Reconnect without database name
             if conn:
