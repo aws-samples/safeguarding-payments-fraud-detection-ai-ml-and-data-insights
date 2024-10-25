@@ -120,9 +120,9 @@ def main():
         try:
             # Attempt to connect to the database
             conn = connect_to_postgres(host,
-                secret['SPF_DOCKERFILE_PORT'],
-                secret['SPF_DOCKERFILE_USER'],
-                secret['SPF_DOCKERFILE_PASS'],
+                secret['SPF_DOCKERFILE_DBPORT'],
+                secret['SPF_DOCKERFILE_DBUSER'],
+                secret['SPF_DOCKERFILE_DBPASS'],
                 secret['SPF_DOCKERFILE_DBNAME']
             )
         except psycopg.OperationalError as e:
@@ -138,9 +138,9 @@ def main():
             if conn:
                 conn.close()
             conn = connect_to_postgres(host,
-                secret['SPF_DOCKERFILE_PORT'],
-                secret['SPF_DOCKERFILE_USER'],
-                secret['SPF_DOCKERFILE_PASS']
+                secret['SPF_DOCKERFILE_DBPORT'],
+                secret['SPF_DOCKERFILE_DBUSER'],
+                secret['SPF_DOCKERFILE_DBPASS']
             )
 
             # Create database
@@ -151,9 +151,9 @@ def main():
             if conn:
                 conn.close()
             conn = connect_to_postgres(host,
-                secret['SPF_DOCKERFILE_PORT'],
-                secret['SPF_DOCKERFILE_USER'],
-                secret['SPF_DOCKERFILE_PASS'],
+                secret['SPF_DOCKERFILE_DBPORT'],
+                secret['SPF_DOCKERFILE_DBUSER'],
+                secret['SPF_DOCKERFILE_DBPASS'],
                 secret['SPF_DOCKERFILE_DBNAME']
             )
         except Exception as e:
