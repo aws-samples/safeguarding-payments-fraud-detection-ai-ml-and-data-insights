@@ -3,7 +3,6 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
 from timeit import default_timer as timer
-import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -15,6 +14,7 @@ from dotenv import load_dotenv
 import os
 import boto3
 from botocore.exceptions import ClientError
+from concurrent.futures import ProcessPoolExecutor
 
 
 def load_kubernetes_config():
@@ -114,6 +114,10 @@ def upload_s3_file(s3_client, s3_bucket_name, local_file_path, s3_file):
     s3_client.upload_file(local_file_path, s3_bucket_name, s3_file)
     print(f"File '{local_file_path}' uploaded to S3 bucket '{s3_bucket_name}'")
 
+def encode_batch(batch):
+    model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
+    return model.encode(batch)
+
 def create_embeddings(df):
     # Separate numerical, categorical, text and timestamps features
     numerical_features   = ["billing_zip", "billing_latitude", "billing_longitude", "order_price"]
@@ -146,20 +150,19 @@ def create_embeddings(df):
     print(combined_features.head())
 
     # Generate embedings for textual features
-    print("create embeddings")
-    # Batch procesing
-    model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
-    batch_size = 1000  # Adjust based on your available memory and dataset size
-    text_embeddings = []
+    start = timer()
+    # Parallel procesing
+    batch_size = 1000
+    num_workers = 4  # Adjust based on your pod's CPU resources
 
-    for i in range(0, len(df), batch_size):
-        batch = df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
-        batch_embeddings = model.encode(batch)
-        text_embeddings.extend(batch_embeddings)
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        batches = [df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
+                    for i in range(0, len(df), batch_size)]
+    text_embeddings = list(executor.map(encode_batch, batches))
 
-    text_embeddings = np.array(text_embeddings)
-    print("End embeddings")
-
+    text_embeddings = np.concatenate(text_embeddings)
+    end = timer()
+    print(f"Embeddings generated in {end - start:.2f} seconds")
 
     # Concatenate embeddings
     embeddings = np.concatenate([combined_features.values, text_embeddings], axis=1)
@@ -202,17 +205,14 @@ def create_embeddings_pca(df):
     )
 
     # Generate text embeddings
-    # Batch procesing
-    model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
-    batch_size = 1000  # Adjust based on your available memory and dataset size
-    text_embeddings = []
+    # Parallel procesing
+    batch_size = 1000
+    num_workers = 4  # Adjust based on your pod's CPU resources
 
-    for i in range(0, len(df), batch_size):
-        batch = df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
-        batch_embeddings = model.encode(batch)
-        text_embeddings.extend(batch_embeddings)
-
-    text_embeddings = np.array(text_embeddings)
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        batches = [df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
+                    for i in range(0, len(df), batch_size)]
+    text_embeddings = list(executor.map(encode_batch, batches))
 
     # Combine numerical and categorical embeddings
     embeddings = np.concatenate([combined_features.values, text_embeddings], axis=1)
@@ -223,22 +223,6 @@ def create_embeddings_pca(df):
     print("Embbeddings:")
     print(embeddings[:5,:])
     return embeddings
-
-def get_service_ip():
-    # Load Kubernetes configuration
-    #config.load_kube_config()
-    config.load_incluster_config()
-
-    # Create a Kubernetes API client
-    api_client = client.CoreV1Api()
-
-    # Get the service IP address
-    service_name = os.environ.get('SERVICE_NAME')
-    name_space = os.environ.get('NAMESPACE')
-    service = api_client.read_namespaced_service(name=service_name, namespace=name_space)
-    service_ip = service.spec.cluster_ip
-
-    return service_ip
 
 def connect_to_postgres(dbname, dbuser, dbpass, service_name, service_port, namespace):
     # Connect to PostgreSQL database
@@ -358,15 +342,21 @@ def main():
         # Convert file to pandas dataframe
         df = convert_file_to_pd(local_file_path)
         if df is not None:
+            start = timer()
             embeddings = create_embeddings(df)
             embeddings = np.array(embeddings, dtype=float)
             is_fraud_payment(embeddings, dbname, dbuser, dbpass, service_name, service_port, namespace)
             csv_s3_key = csv_s3_key.replace(s3_path_payment, s3_path_model)
             upload_s3_file(s3_client, s3_bucket_name,local_file_path, csv_s3_key)
+            end = timer()
+
+            # Print time to process a file
+            print(f"File '{csv_s3_key}' processed in {start - end:.2f} seconds")
 
     
 if __name__ == '__main__':
     start = timer()
     main()
     end = timer()
-    print(end - start)
+    # Print total time in seconds
+    print(f"Total time to process all files: {end - start:.2f} seconds")

@@ -5,6 +5,7 @@ import psycopg
 import boto3
 import pandas as pd
 from pgvector.psycopg import register_vector
+from timeit import default_timer as timer
 
 ANOMALIES='embeddings_anomalies.csv'
 TRANSACTIONS=(
@@ -170,6 +171,7 @@ def main():
 
     if conn and table_missing:
         try:
+            print("Creating tables and inserting data...")
             create_tables(conn)
 
             anomalies = os.environ.get('EMBEDDINGS_ANOMALIES_FILES', ANOMALIES)
@@ -190,4 +192,7 @@ def main():
         conn.close()
 
 if __name__ == '__main__':
+    start = timer()
     main()
+    end = timer()
+    print(f"Total time to insert vectors: {end - start:.2f} seconds")
