@@ -149,27 +149,31 @@ def create_embeddings(df):
     combined_features = pd.concat([df[numerical_features], encoded_categorical_features, df[new_timestamp_features]], axis=1)
     print(combined_features.head())
 
-    # Generate embedings for textual features
+    # Generate embeddings for textual features
     start = timer()
-    # Parallel procesing
+    # Parallel processing
     batch_size = 1000
     num_workers = 4  # Adjust based on your pod's CPU resources
 
+    # First, create the batches
+    batches = [df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
+            for i in range(0, len(df), batch_size)]
+
+    # Then process them within the context manager
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        batches = [df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
-                    for i in range(0, len(df), batch_size)]
-    text_embeddings = list(executor.map(encode_batch, batches))
+        # Add progress tracking
+        total_batches = len(batches)
+        text_embeddings = []
+        for i, result in enumerate(executor.map(encode_batch, batches)):
+            text_embeddings.append(result)
+            if (i + 1) % 10 == 0:  # Print progress every 10 batches
+                print(f"Processed {i + 1}/{total_batches} batches")
 
     text_embeddings = np.concatenate(text_embeddings)
     end = timer()
     print(f"Embeddings generated in {end - start:.2f} seconds")
 
-    # Concatenate embeddings
-    embeddings = np.concatenate([combined_features.values, text_embeddings], axis=1)
-    #embeddings = np.concatenate([combined_features.values], axis=1)
 
-    print(embeddings.shape)
-    return embeddings
 
 def create_embeddings_pca(df):
     numerical_features   = ["billing_zip", "billing_latitude", "billing_longitude", "order_price"]
@@ -353,7 +357,6 @@ def main():
             # Print time to process a file
             print(f"File '{csv_s3_key}' processed in {start - end:.2f} seconds")
 
-    
 if __name__ == '__main__':
     start = timer()
     main()
