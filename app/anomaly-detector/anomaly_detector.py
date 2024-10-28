@@ -123,7 +123,7 @@ def upload_s3_file(s3_client, s3_bucket_name, local_file_path, s3_file):
     Uploads a file to an S3 bucket.
     """
     s3_client.upload_file(local_file_path, s3_bucket_name, s3_file)
-    print(f"File '{local_file_path}' uploaded to S3 bucket '{s3_bucket_name}'")
+    print(f"File '{local_file_path}' uploaded to s3 path '{s3_bucket_name}/{s3_file}'")
 
 def encode_batch(batch):
     """
