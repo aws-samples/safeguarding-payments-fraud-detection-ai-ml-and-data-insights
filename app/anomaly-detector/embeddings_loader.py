@@ -99,6 +99,7 @@ def insert_to_postgres(conn, table_name, embeddings):
     print('\nSuccess!')
 
 def main():
+    conn = None
     database_missing = False
     table_missing = True
 
