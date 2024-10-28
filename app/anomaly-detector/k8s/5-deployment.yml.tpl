@@ -22,11 +22,11 @@ spec:
         image: {{SPF_ECR_URI}}:latest
         resources:
           limits:
+            cpu: 4
+            memory: 8Gi
+          requests:
             cpu: 2
             memory: 4Gi
-          requests:
-            cpu: 500m
-            memory: 2Gi
         stdin: true
         envFrom:
           - configMapRef:

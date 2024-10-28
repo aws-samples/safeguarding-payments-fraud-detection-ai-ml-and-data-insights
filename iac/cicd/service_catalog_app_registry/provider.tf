@@ -100,7 +100,7 @@ variable "spf_eks_node_arch" {
 variable "spf_eks_node_ec2" {
   type        = string
   description = "EKS node family (one or many, separated by comma)"
-  default     = "t3.medium,t3.xlarge"
+  default     = "t3.xlarge,t3.medium"
 }
 
 variable "spf_eks_node_ebs" {
