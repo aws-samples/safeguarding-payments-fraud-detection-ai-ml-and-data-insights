@@ -197,6 +197,16 @@ def create_embeddings(df):
     end1 = timer()
     print(f"Embeddings generated in {end1 - start1:.2f} seconds")
 
+    # Combine numerical and categorical embeddings
+    embeddings = concatenate([combined_features.values, text_embeddings], axis=1)
+
+    print(df.head())
+
+    print("Embeddings Shape:", embeddings.shape)
+    print("Embeddings:")
+    print(embeddings[:5,:])
+    return embeddings
+
 def connect_to_postgres(dbname, dbuser, dbpass, service_name, service_port, namespace):
     """
     Connects to a PostgreSQL database using the provided configuration.
