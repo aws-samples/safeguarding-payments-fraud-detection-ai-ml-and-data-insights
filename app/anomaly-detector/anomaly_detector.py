@@ -147,8 +147,17 @@ def create_embeddings(df):
 
     # Generate embedings for textual features
     print("create embeddings")
+    # Batch procesing
     model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
-    text_embeddings = model.encode(df[textual_features].fillna("").sum(axis=1).tolist())
+    batch_size = 1000  # Adjust based on your available memory and dataset size
+    text_embeddings = []
+
+    for i in range(0, len(df), batch_size):
+        batch = df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
+        batch_embeddings = model.encode(batch)
+        text_embeddings.extend(batch_embeddings)
+
+    text_embeddings = np.array(text_embeddings)
     print("End embeddings")
 
 
@@ -193,8 +202,17 @@ def create_embeddings_pca(df):
     )
 
     # Generate text embeddings
+    # Batch procesing
     model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
-    text_embeddings = model.encode(df[textual_features].fillna("").sum(axis=1).tolist())
+    batch_size = 1000  # Adjust based on your available memory and dataset size
+    text_embeddings = []
+
+    for i in range(0, len(df), batch_size):
+        batch = df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
+        batch_embeddings = model.encode(batch)
+        text_embeddings.extend(batch_embeddings)
+
+    text_embeddings = np.array(text_embeddings)
 
     # Combine numerical and categorical embeddings
     embeddings = np.concatenate([combined_features.values, text_embeddings], axis=1)
