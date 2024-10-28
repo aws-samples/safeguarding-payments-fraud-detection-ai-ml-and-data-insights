@@ -5,4 +5,4 @@
 
 # Run python script to create database objects and insert records if required
 echo "Running python script to create database objects and insert records if required"
-time python3 embeddings_loader.py
+python3 -u embeddings_loader.py

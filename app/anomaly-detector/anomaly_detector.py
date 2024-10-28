@@ -1,21 +1,42 @@
+"""
+This script detects anomalies in payment data by leveraging the PCA
+(Principal Component Analysis) and Sentence Transformers, then
+calculates the cosine similarity between the transformed data and
+the model. Anomalies are identified as data points that have a cosine
+similarity below a specified threshold.
+"""
+
+from os import path, makedirs
+from timeit import default_timer as timer
+from concurrent.futures import ProcessPoolExecutor
+import boto3
 import pandas as pd
 import numpy as np
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
-from timeit import default_timer as timer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.decomposition import PCA
 import psycopg2
 from pgvector.psycopg2 import register_vector
 from kubernetes import client, config
-from dotenv import load_dotenv
-import os
-import boto3
 from botocore.exceptions import ClientError
-from concurrent.futures import ProcessPoolExecutor
 
+def get_config_map_values(config_map_name = "config-map"):
+    if not load_kubernetes_config():
+        return None
+
+    v1 = client.CoreV1Api()
+    namespace = get_namespace("spf-app-anomaly-detector")
+
+    if not namespace:
+        print("Failed to find namespace")
+        return None
+
+    try:
+        config_map = v1.read_namespaced_config_map(config_map_name, namespace)
+        return config_map.data
+    except client.ApiException as e:
+        print(f"Error reading ConfigMap: {e}")
+        return None
 
 def load_kubernetes_config():
     try:
@@ -44,26 +65,6 @@ def get_namespace(prefix):
         print(f"Error listing namespaces: {e}")
     return None
 
-# Function to get values from ConfigMap
-def get_config_map_values(config_map_name = "config-map"):
-    if not load_kubernetes_config():
-        return None
-
-    v1 = client.CoreV1Api()
-    namespace = get_namespace("spf-app-anomaly-detector")
-
-    if not namespace:
-        print("Failed to find namespace")
-        return None
-
-    try:
-        config_map = v1.read_namespaced_config_map(config_map_name, namespace)
-        return config_map.data
-    except client.ApiException as e:
-        print(f"Error reading ConfigMap: {e}")
-        return None
-
-
 def convert_file_to_pd(file_path):
     try:
         df = pd.read_csv(file_path)
@@ -74,24 +75,22 @@ def convert_file_to_pd(file_path):
 
 def initialize_s3_client():
     try:
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client("s3")
         return s3_client
     except ClientError as e:
         print(f"Error: {e}")
         raise
 
-
 def list_s3_files(s3_client, s3_bucket_name, s3_path_payment):
     try:
-        #s3_client = boto3.client('s3')
         response = s3_client.list_objects_v2(
             Bucket=s3_bucket_name,
             Prefix=s3_path_payment,
             MaxKeys=100
         )
     except ClientError as e:
-        error_code = e.response['Error']['Code']
-        if error_code == 'NoSuchBucket':
+        error_code = e.response["Error"]["Code"]
+        if error_code == "NoSuchBucket":
             print(f"Error: Bucket '{s3_bucket_name}' does not exist.")
         else:
             print(f"Error: {e}")
@@ -103,10 +102,10 @@ def list_s3_files(s3_client, s3_bucket_name, s3_path_payment):
 
 def download_s3_file(s3_client, s3_file, local_file_path, s3_bucket_name):
     # get local folder path
-    local_folder_path = os.path.split(local_file_path)[0]
+    local_folder_path = path.split(local_file_path)[0]
     print(local_folder_path)
     # create local folder if not exists
-    os.makedirs(local_folder_path, exist_ok=True)
+    makedirs(local_folder_path, exist_ok=True)
     # download file from s3 to local
     s3_client.download_file(s3_bucket_name, s3_file, local_file_path)
 
@@ -122,9 +121,8 @@ def create_embeddings(df):
     # Separate numerical, categorical, text and timestamps features
     numerical_features   = ["billing_zip", "billing_latitude", "billing_longitude", "order_price"]
     categorical_features = ["billing_state", "billing_country", "product_category"]
-    textual_features     = ["customer_name", "billing_city", "billing_street", "customer_email", "billing_phone", "ip_address"] 
+    textual_features     = ["customer_name", "billing_city", "billing_street", "customer_email", "billing_phone", "ip_address"]
     timestamp_features   = ["EVENT_TIMESTAMP", "LABEL_TIMESTAMP"]
-
 
     # Feature scaling for numerical values
     scaler = StandardScaler()
@@ -150,7 +148,7 @@ def create_embeddings(df):
     print(combined_features.head())
 
     # Generate embeddings for textual features
-    start = timer()
+    start1 = timer()
     # Parallel processing
     batch_size = 1000
     num_workers = 4  # Adjust based on your pod's CPU resources
@@ -170,17 +168,14 @@ def create_embeddings(df):
                 print(f"Processed {i + 1}/{total_batches} batches")
 
     text_embeddings = np.concatenate(text_embeddings)
-    end = timer()
-    print(f"Embeddings generated in {end - start:.2f} seconds")
-
-
+    end1 = timer()
+    print(f"Embeddings generated in {end1 - start1:.2f} seconds")
 
 def create_embeddings_pca(df):
     numerical_features   = ["billing_zip", "billing_latitude", "billing_longitude", "order_price"]
     categorical_features = ["billing_state", "billing_country", "product_category"]
-    textual_features     = ["customer_name", "billing_city", "billing_street", "customer_email", "billing_phone", "ip_address"] 
+    textual_features     = ["customer_name", "billing_city", "billing_street", "customer_email", "billing_phone", "ip_address"]
     timestamp_features   = ["EVENT_TIMESTAMP", "LABEL_TIMESTAMP"]
-
 
     # Preprocess timestamp features
     for col in timestamp_features:
@@ -220,7 +215,7 @@ def create_embeddings_pca(df):
 
     # Combine numerical and categorical embeddings
     embeddings = np.concatenate([combined_features.values, text_embeddings], axis=1)
-   
+
     print(df.head())
 
     print("Embeddings Shape:", embeddings.shape)
@@ -236,7 +231,7 @@ def connect_to_postgres(dbname, dbuser, dbpass, service_name, service_port, name
             host = service_name + "." + namespace,
             port = service_port,
             database = dbname,
-            user = dbuser,        
+            user = dbuser,
             password = dbpass,
         )
         return dbconn
@@ -260,7 +255,7 @@ def is_fraud_payment(embeddings, dbname, dbuser, dbpass, service_name, service_p
     cursor = dbconn.cursor()
     distance = []
     for embedding in embeddings:
-        cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies', (embedding,))
+        cursor.execute("SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies", (embedding,))
         results = cursor.fetchall()
         distance.append([result[0] for result in results])
 
@@ -271,7 +266,7 @@ def get_distance(embedding):
     dbconn = connect_to_postgres()
     register_vector(dbconn)
     cursor = dbconn.cursor()
-    cursor.execute('SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies', (embedding,))
+    cursor.execute("SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies", (embedding,))
     results = cursor.fetchall()
     distance = [result[0] for result in results]
     cursor.close()
@@ -294,16 +289,12 @@ def insert_to_postgres(embeddings):
     for embedding in embeddings:
         cursor.execute("INSERT INTO transaction_anomalies (embedding) VALUES (%s)", (embedding, ))
         dbconn.commit()
-   
+
     # Close the cursor and connection
     cursor.close()
     dbconn.close()
 
-
 def main():
-
-    load_dotenv()
-
     # Get values from ConfigMap
     config_map_values = get_config_map_values()
 
@@ -318,46 +309,45 @@ def main():
     s3_path_payment = config_map_values.get("S3_PATH_PAYMENT")
     s3_path_model = config_map_values.get("S3_PATH_MODEL")
 
-
     # Local path
     data_folder_path = "./data/"
-    
+
     # Initialize the s3 client
     s3_client = initialize_s3_client()
     # get S3 file details
     s3_files = list_s3_files(s3_client=s3_client, s3_bucket_name=s3_bucket_name, s3_path_payment=s3_path_payment)
-    
+
     # get date from database
     #processing_date = get_date_from_database()
-   
+
     # get csv file names only and last modified must be greater than the date from database
     csv_s3_keys = []
     for s3_file in s3_files:
         #if s3_file["Key"].endswith(".csv") and s3_file["LastModified"].date() > processing_date:
-        if s3_file["Key"].endswith(".csv"):    
+        if s3_file["Key"].endswith(".csv"):
             csv_s3_keys.append(s3_file["Key"])
 
     # for every S3 file
     for csv_s3_key in csv_s3_keys:
         # set local file path
-        local_file_path = os.path.join(data_folder_path, csv_s3_key)
+        local_file_path = path.join(data_folder_path, csv_s3_key)
         # download s3 file to local file path
         download_s3_file(s3_client, csv_s3_key, local_file_path, s3_bucket_name)
         # Convert file to pandas dataframe
         df = convert_file_to_pd(local_file_path)
         if df is not None:
-            start = timer()
+            start1 = timer()
             embeddings = create_embeddings(df)
             embeddings = np.array(embeddings, dtype=float)
             is_fraud_payment(embeddings, dbname, dbuser, dbpass, service_name, service_port, namespace)
             csv_s3_key = csv_s3_key.replace(s3_path_payment, s3_path_model)
             upload_s3_file(s3_client, s3_bucket_name,local_file_path, csv_s3_key)
-            end = timer()
+            end1 = timer()
 
             # Print time to process a file
-            print(f"File '{csv_s3_key}' processed in {start - end:.2f} seconds")
+            print(f"File '{csv_s3_key}' processed in {end1 - start1:.2f} seconds")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start = timer()
     main()
     end = timer()

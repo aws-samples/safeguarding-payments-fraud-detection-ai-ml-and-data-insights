@@ -105,9 +105,9 @@ def insert_to_postgres(conn, table_name, embeddings):
     print(f"Loading {len(embeddings)} rows")
     cur = conn.cursor()
     # build the copy statement using table_name
-    copy_statement = f"COPY {table_name} (embedding) FROM STDIN WITH (FORMAT BINARY)"
+    query = f"COPY {table_name} (embedding) FROM STDIN WITH (FORMAT BINARY)"
 
-    with cur.copy(copy_statement) as copy:
+    with cur.copy(query) as copy:
         copy.set_types(["vector"])
 
         for i, embedding in enumerate(embeddings):
