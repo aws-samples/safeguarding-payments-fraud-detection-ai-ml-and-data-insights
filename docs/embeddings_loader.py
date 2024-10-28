@@ -160,10 +160,13 @@ def main():
         except Exception as e:
             print(f"Error creating the database: {e}")
 
-    if conn:
-        if check_if_records_exist(conn, "transaction") or check_if_records_exist(conn, "transaction_anomalies"):
-            print("Records already exist in the database. Skipping insertion.")
-            table_missing = False
+    elif conn:
+        try:
+            if check_if_records_exist(conn, "transaction") or check_if_records_exist(conn, "transaction_anomalies"):
+                print("Records already exist in the database. Skipping insertion.")
+                table_missing = False
+        except Exception as e:
+            print(f"Error checking the tables: {e}")
 
     if conn and table_missing:
         try:
