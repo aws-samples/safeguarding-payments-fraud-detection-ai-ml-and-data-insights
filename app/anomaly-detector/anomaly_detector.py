@@ -227,19 +227,27 @@ def connect_to_database(dbname, dbuser, dbpass, service_name, service_port, name
         print(f"Error while connecting to PostgreSQL: {e}")
         raise
 
-def is_transaction_anomaly(conn, embeddings):
+def is_transaction_anomaly(conn, embeddings, df):
     """
-    Checks if the given embeddings are anomalies based on the transaction anomalies table.
+    Checks if the given embeddings are anomalies based on the transaction anomalies table
+    and returns the original dataframe with anomaly scores.
     """
     cursor = conn.cursor()
-    distance = []
+    scores = []
     query = "SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies"
+
     for embedding in embeddings:
         cursor.execute(query, (embedding,))
         results = cursor.fetchall()
-        distance.append([result[0] for result in results])
+        scores.append(results[0][0])
+
     if cursor:
         cursor.close()
+
+    # Add the scores as a new column to the dataframe
+    df['anomaly_score'] = scores
+    return df
+
 
 def main():
     """
@@ -288,11 +296,26 @@ def main():
         df = read_csv(local_file_path)
         if df is not None:
             start1 = timer()
+
+            # Create embeddings
             embeddings = create_embeddings(df)
             embeddings = array(embeddings, dtype=float)
-            is_transaction_anomaly(conn, embeddings)
-            csv_s3_key = csv_s3_key.replace(s3_path_payment, s3_path_model)
-            upload_s3_file(s3_client, s3_bucket_name, local_file_path, csv_s3_key)
+
+            # Get DataFrame with anomaly scores
+            df_with_scores = is_transaction_anomaly(conn, embeddings, df)
+
+            # Create output filename for the scored data
+            output_filename = path.splitext(local_file_path)[0] + '_scored.csv'
+
+            # Save the scored DataFrame to CSV
+            df_with_scores.to_csv(output_filename, index=False)
+
+            # Upload the scored file to S3
+            scored_s3_key = csv_s3_key.replace(s3_path_payment, s3_path_model)
+            scored_s3_key = path.splitext(scored_s3_key)[0] + '_scored.csv'
+            upload_s3_file(s3_client, s3_bucket_name, output_filename, scored_s3_key)
+            print(f"Scored file saved as '{scored_s3_key}' in S3")
+
             end1 = timer()
 
             # Print time to process a file
