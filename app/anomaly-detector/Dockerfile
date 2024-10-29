@@ -32,9 +32,10 @@ COPY anomaly_detector.py .
 COPY embeddings_loader.py .
 
 # Preload data with init script
-# COPY init.sh /docker-entrypoint-initdb.d/
-COPY init.sh .
-RUN chmod +x init.sh
-ENTRYPOINT ["./init.sh"]
+COPY init.sh /docker-entrypoint-initdb.d/
+RUN chmod +x /docker-entrypoint-initdb.d/init.sh
+# COPY init.sh .
+# RUN chmod +x init.sh
+# ENTRYPOINT ["./init.sh"]
 
 CMD [ "python", "-u", "./anomaly_detector.py" ]
