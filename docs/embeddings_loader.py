@@ -70,7 +70,7 @@ def create_database(conn, dbname):
     cur.execute(f"SELECT 1 FROM pg_database WHERE datname = '{dbname}';")
     if cur.fetchone() is None:
         print(f"Database '{dbname}' does not exist. Creating it...")
-        cur.execute("CREATE DATABASE transactions;")
+        cur.execute(f"CREATE DATABASE {dbname};")
 
 def create_tables(conn):
     """
