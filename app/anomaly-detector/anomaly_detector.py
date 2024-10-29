@@ -10,7 +10,7 @@ from os import path, makedirs
 from timeit import default_timer as timer
 from concurrent.futures import ProcessPoolExecutor
 from boto3 import client as boto3_client
-from panda import get_dummies, to_datetime, concat, read_csv
+from pandas import get_dummies, to_datetime, concat, read_csv
 from numpy import concatenate, array
 from psycopg2 import connect
 from sklearn.preprocessing import StandardScaler
