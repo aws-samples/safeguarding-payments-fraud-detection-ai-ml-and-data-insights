@@ -203,10 +203,6 @@ def create_embeddings(df):
     # Combine numerical and categorical embeddings
     embeddings = concatenate([combined_features.values, text_embeddings], axis=1)
 
-    print("Embeddings Head")
-    print(embeddings.head())
-    print("Embeddings Shape")
-    print(embeddings.shape)
     print("Embeddings")
     print(embeddings[:5,:])
     return embeddings
