@@ -178,7 +178,7 @@ def create_embeddings(df):
     start1 = default_timer()
     # Parallel processing
     batch_size = 1000
-    num_workers = 4  # Adjust based on your pod's CPU resources
+    num_workers = 3  # Adjust based on your pod's CPU resources
 
     # First, create the batches
     batches = [
