@@ -1,13 +1,13 @@
 """
 This script detects anomalies in payments data using several machine learning techniques.
 It reads input data from S3 bucket and transforms into embeddings using Standard Scaler
-and Sentence Transformer, then compares them to model data stored in PostgreSQL. Enriched
-data set with cosine similarity as anomaly signal (between 0 and 1) is stored as output
-data into S3 bucket.
+and Sentence Transformer, then compares them to model data stored in PostgreSQL. Finally,
+enriched dataset with cosine similarity as anomaly signal (between 0 and 1) is stored as
+output data into S3 bucket.
 """
 
 from os import path, makedirs
-from timeit import default_timer as timer
+from timeit import default_timer
 from concurrent.futures import ProcessPoolExecutor
 from boto3 import client as boto3_client
 from pandas import get_dummies, to_datetime, concat, read_csv
@@ -175,7 +175,7 @@ def create_embeddings(df):
     print(combined_features.head())
 
     # Generate embeddings for textual features
-    start1 = timer()
+    start1 = default_timer()
     # Parallel processing
     batch_size = 1000
     num_workers = 4  # Adjust based on your pod's CPU resources
@@ -197,7 +197,7 @@ def create_embeddings(df):
                 print(f"Processed {i + 1}/{total_batches} batches")
 
     text_embeddings = concatenate(text_embeddings)
-    end1 = timer()
+    end1 = default_timer()
     print(f"Embeddings generated in {end1 - start1:.2f} seconds")
 
     # Combine numerical and categorical embeddings
@@ -295,7 +295,7 @@ def main():
         # Convert file to pandas dataframe
         df = read_csv(local_file_path)
         if df is not None:
-            start1 = timer()
+            start1 = default_timer()
 
             # Create embeddings
             embeddings = create_embeddings(df)
@@ -316,7 +316,7 @@ def main():
             upload_s3_file(s3_client, s3_bucket_name, output_filename, scored_s3_key)
             print(f"Scored file saved as '{scored_s3_key}' in S3")
 
-            end1 = timer()
+            end1 = default_timer()
 
             # Print time to process a file
             print(f"File '{csv_s3_key}' processed in {end1 - start1:.2f} seconds")
@@ -325,8 +325,8 @@ def main():
         conn.close()
 
 if __name__ == "__main__":
-    start = timer()
+    start = default_timer()
     main()
-    end = timer()
+    end = default_timer()
     # Print total time in seconds
     print(f"Total time to process all files: {end - start:.2f} seconds")

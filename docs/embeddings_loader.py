@@ -1,13 +1,13 @@
 """
 This script loads embeddings data into a PostgreSQL database using the pgvector extension.
-It reads the embeddings data from CSV files, creates a PostgreSQL database and table (if missing),
-and inserts the data into the table using the pgvector extension.
+It reads the embeddings data from CSV files, creates a PostgreSQL database and transaction
+tables (if missing), and loads embeddings data into corresponding tables.
 """
 
 from os import environ
 from json import loads
 from timeit import default_timer
-import boto3
+from boto3 import client as boto3_client
 from psycopg import connect
 from pandas import read_csv
 from pgvector.psycopg import register_vector
@@ -25,7 +25,7 @@ def get_secrets(secret_prefix="spf-secrets-deploy"): # nosec B107
     """
     # Create a Secrets Manager client
     region_name = environ.get("AWS_REGION")
-    client = boto3.client("secretsmanager", region_name=region_name)
+    client = boto3_client("secretsmanager", region_name=region_name)
 
     # List all secrets
     response = client.list_secrets(MaxResults=100)
@@ -105,9 +105,9 @@ def insert_to_postgres(conn, table_name, embeddings):
     print(f"Loading {len(embeddings)} rows")
     cur = conn.cursor()
     # build the copy statement using table_name
-    copy_statement = f"COPY {table_name} (embedding) FROM STDIN WITH (FORMAT BINARY)"
+    query = f"COPY {table_name} (embedding) FROM STDIN WITH (FORMAT BINARY)"
 
-    with cur.copy(copy_statement) as copy:
+    with cur.copy(query) as copy:
         copy.set_types(["vector"])
 
         for i, embedding in enumerate(embeddings):
