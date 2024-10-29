@@ -1,8 +1,9 @@
 """
-This script is responsible for detecting anomalies in payment data
-using a combination of Standard Scaler and Sentence Transformer models.
-It reads payment data from a PostgreSQL database, preprocesses the data,
-and applies Standard Scaler and Sentence Transformer transformations.
+This script detects anomalies in payments data using several machine learning techniques.
+It reads input data from S3 bucket and transforms into embeddings using Standard Scaler
+and Sentence Transformer, then compares them to model data stored in PostgreSQL. Enriched
+data set with cosine similarity as anomaly signal (between 0 and 1) is stored as output
+data into S3 bucket.
 """
 
 from os import path, makedirs
@@ -180,8 +181,10 @@ def create_embeddings(df):
     num_workers = 4  # Adjust based on your pod's CPU resources
 
     # First, create the batches
-    batches = [df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
-            for i in range(0, len(df), batch_size)]
+    batches = [
+        df[textual_features].fillna("").sum(axis=1).iloc[i:i+batch_size].tolist()
+        for i in range(0, len(df), batch_size)
+    ]
 
     # Then process them within the context manager
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
@@ -200,28 +203,26 @@ def create_embeddings(df):
     # Combine numerical and categorical embeddings
     embeddings = concatenate([combined_features.values, text_embeddings], axis=1)
 
-    print(df.head())
-
-    print("Embeddings Shape:", embeddings.shape)
-    print("Embeddings:")
+    print("Embeddings Head")
+    print(embeddings.head())
+    print("Embeddings Shape")
+    print(embeddings.shape)
+    print("Embeddings")
     print(embeddings[:5,:])
     return embeddings
 
-def connect_to_postgres(dbname, dbuser, dbpass, service_name, service_port, namespace):
+def connect_to_database(dbname, dbuser, dbpass, service_name, service_port, namespace):
     """
     Connects to a PostgreSQL database using the provided configuration.
     """
-    # Connect to PostgreSQL database
-    #DBHOST = get_service_ip()
     try:
-        conn = connect(
+        return connect(
             host = service_name + "." + namespace,
             port = service_port,
             database = dbname,
             user = dbuser,
             password = dbpass,
         )
-        return conn
     except Exception as e:
         print(f"Error while connecting to PostgreSQL: {e}")
         raise
@@ -274,7 +275,7 @@ def main():
             csv_s3_keys.append(s3_file["Key"])
 
     # connect to postgres and register pgvector if missing
-    conn = connect_to_postgres(dbname, dbuser, dbpass, service_name, service_port, namespace)
+    conn = connect_to_database(dbname, dbuser, dbpass, service_name, service_port, namespace)
     register_vector(conn)
 
     # for every S3 file
@@ -291,7 +292,7 @@ def main():
             embeddings = array(embeddings, dtype=float)
             is_transaction_anomaly(conn, embeddings)
             csv_s3_key = csv_s3_key.replace(s3_path_payment, s3_path_model)
-            upload_s3_file(s3_client, s3_bucket_name,local_file_path, csv_s3_key)
+            upload_s3_file(s3_client, s3_bucket_name, local_file_path, csv_s3_key)
             end1 = timer()
 
             # Print time to process a file
