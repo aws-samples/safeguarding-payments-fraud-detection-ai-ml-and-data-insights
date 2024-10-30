@@ -11,7 +11,7 @@ spec:
   image: {{SPF_ECR_URI}}:latest
   port: {{SPF_DOCKERFILE_DBPORT}}
   database:
-    size: 10Gi
+    size: 20Gi
     storageClassName: ebs-{{SPF_SERVICE_AZ1}}
     volumeMount: /var/lib/postgresql/data
   env:
@@ -25,6 +25,13 @@ spec:
         secretKeyRef:
           name: postgres-secret
           key: POSTGRES_REPLICATION_PASSWORD
+  resources:
+    limits:
+      cpu: 1
+      memory: 4Gi
+    requests:
+      cpu: 1
+      memory: 2Gi
   scheduler:
     affinity:
       nodeAffinity:

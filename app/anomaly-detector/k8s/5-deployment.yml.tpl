@@ -22,12 +22,16 @@ spec:
         image: {{SPF_ECR_URI}}:latest
         resources:
           limits:
-            cpu: 2
-            memory: 4Gi
+            cpu: 3
+            memory: 6Gi
           requests:
-            cpu: 500m
+            cpu: 1
             memory: 2Gi
         stdin: true
         envFrom:
           - configMapRef:
               name: config-map
+      initContainers:
+      - name: anomaly-detector-init
+        image: {{SPF_ECR_URI}}:latest
+        command: ['python3', '-u', 'embeddings_loader.py']
