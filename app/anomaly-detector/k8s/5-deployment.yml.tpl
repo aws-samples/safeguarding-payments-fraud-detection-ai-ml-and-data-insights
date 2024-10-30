@@ -33,5 +33,5 @@ spec:
               name: config-map
       initContainers:
       - name: anomaly-detector-init
-        image: public.ecr.aws/docker/library/python:3.10
+        image: {{SPF_ECR_URI}}:latest
         command: ['python3', '-u', 'embeddings_loader.py']
