@@ -31,3 +31,7 @@ spec:
         envFrom:
           - configMapRef:
               name: config-map
+      initContainers:
+      - name: anomaly-detector-init
+        image: public.ecr.aws/docker/library/python:3.10
+        command: ['python3', '-u', 'embeddings_loader.py']

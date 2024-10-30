@@ -28,14 +28,10 @@ RUN curl -LJO https://ws-assets-prod-iad-r-iad-ed304a55c2ca1aee.s3.us-east-1.ama
 
 # Copy python scripts
 COPY *.csv .
-COPY anomaly_detector.py .
-COPY embeddings_loader.py .
+COPY *.py .
+COPY *.sh .
 
 # Preload data with init script
-COPY init.sh /docker-entrypoint-initdb.d/
-RUN chmod +x /docker-entrypoint-initdb.d/init.sh
-# COPY init.sh .
-# RUN chmod +x init.sh
-# ENTRYPOINT ["./init.sh"]
+# COPY init.sh /docker-entrypoint-initdb.d/
 
-CMD [ "python", "-u", "./anomaly_detector.py" ]
+CMD [ "python3", "-u", "anomaly_detector.py" ]
