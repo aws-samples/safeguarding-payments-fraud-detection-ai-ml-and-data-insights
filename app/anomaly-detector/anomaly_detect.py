@@ -186,6 +186,9 @@ async def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
     conn = f"host={dbhost} port={dbport} dbname={dbname} user={dbuser} password={dbpass}"
     try:
         return await AsyncConnectionPool(conn, min_size=1, max_size=20)
+        # pool = AsyncConnectionPool(conn, min_size=1, max_size=20)
+        # await pool.open()
+        # return pool
     except Exception as e:
         print(f"Failed to connect to database: {e}")
         return None
@@ -202,6 +205,10 @@ async def is_transaction_anomaly(conn_pool, embeddings, df):
     Checks if the given embeddings are anomalies based on the transaction anomalies table
     and returns the original dataframe with anomaly scores.
     """
+    if conn_pool is None:
+        print("Connection pool is None. Cannot perform transaction anomaly check.")
+        return df
+
     scores = []
     query = "SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies"
 
@@ -210,7 +217,7 @@ async def is_transaction_anomaly(conn_pool, embeddings, df):
             for embedding in embeddings:
                 await acur.execute(query, (embedding,))
                 result = await acur.fetchone()
-                scores.append(result[0])
+                scores.append(result[0] if result else None)
 
     df['anomaly_score'] = scores
     return df
@@ -245,7 +252,7 @@ async def main():
                 csv_s3_keys.append(s3_file["Key"])
 
         # connect to postgres
-        conn_pool = connect_to_database(
+        conn_pool = await connect_to_database(
             config_map_values.get("DBNAME"),
             config_map_values.get("DBUSER"),
             config_map_values.get("DBPASS"),
@@ -291,6 +298,8 @@ async def main():
 
                 # Print time to process a file
                 print(f"File '{csv_s3_key}' processed in {end1 - start1:.2f} seconds")
+    except Exception as e:
+        print(f"An error occurred: {e}")
     finally:
         # Ensure the pool is closed even if an exception occurs
         if conn_pool:
