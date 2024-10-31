@@ -8,7 +8,7 @@ output data into S3 bucket.
 
 from asyncio import run
 from timeit import default_timer
-from os import path, makedirs
+from os import environ, path, makedirs
 from concurrent.futures import ProcessPoolExecutor
 from psycopg_pool import AsyncConnectionPool
 from boto3 import client as boto3_client
@@ -251,13 +251,20 @@ async def main():
             if s3_file["Key"].endswith(".csv"):
                 csv_s3_keys.append(s3_file["Key"])
 
+        # determine the host and port based on the environment
+        if "KUBERNETES_SERVICE_HOST" in environ:
+            host = config_map_values.get("SPF_SERVICE_DBNAME") + "." + config_map_values.get("SPF_SERVICE_NAMESPACE")
+            port = config_map_values.get("SERVICE_PORT")
+        else:
+            host = config_map_values.get("DBHOST")
+            port = config_map_values.get("DBPORT")
+
         # connect to postgres
         conn_pool = await connect_to_database(
             config_map_values.get("DBNAME"),
             config_map_values.get("DBUSER"),
             config_map_values.get("DBPASS"),
-            config_map_values.get("SERVICE_NAME") + "." + config_map_values.get("NAMESPACE"),
-            config_map_values.get("SERVICE_PORT")
+            host, port
         )
         if conn_pool is None:
             print("Failed to establish database connection")
