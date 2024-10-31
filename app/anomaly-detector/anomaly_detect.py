@@ -215,7 +215,7 @@ async def is_transaction_anomaly(conn_pool, embeddings, df):
     async with conn_pool.connection() as aconn:
         async with aconn.cursor() as acur:
             for embedding in embeddings:
-                await acur.execute(query, (embedding,))
+                await acur.execute(query, (embedding.tolist(),))
                 result = await acur.fetchone()
                 scores.append(result[0] if result else None)
 
