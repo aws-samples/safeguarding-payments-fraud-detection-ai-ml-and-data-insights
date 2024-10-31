@@ -142,6 +142,7 @@ def create_embeddings(df):
 
     # One-hot encoding for categorical features
     encoded_categorical_features = get_dummies(df[categorical_features], drop_first=True)
+    encoded_categorical_features = encoded_categorical_features.astype(float)
 
     # Preprocess timestamp features
     for col in timestamp_features:
@@ -149,14 +150,14 @@ def create_embeddings(df):
         for unit in ['year', 'month', 'day', 'hour', 'minute', 'second']:
             df[f"{col}_{unit}"] = getattr(df[col].dt, unit)
 
-    new_timestamp_features = [
-        col for col in df.columns
-        if col.startswith("EVENT_TIMESTAMP_") or col.startswith("LABEL_TIMESTAMP_")
-    ]
+    # new_timestamp_features = [
+    #     float(col) for col in df.columns
+    #     if col.startswith("EVENT_TIMESTAMP_") or col.startswith("LABEL_TIMESTAMP_")
+    # ]
 
     # Combine numerical, categorical and timestamp features
     combined_features = concat([
-        df[numerical_features], encoded_categorical_features, df[new_timestamp_features]
+        df[numerical_features], encoded_categorical_features #, df[new_timestamp_features]
     ], axis=1)
     print(combined_features.head())
 

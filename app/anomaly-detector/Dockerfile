@@ -29,4 +29,4 @@ RUN pip install -r requirements.txt --no-cache-dir
 # Preload data with init script
 # COPY init.sh /docker-entrypoint-initdb.d/
 
-CMD [ "python3", "-u", "anomaly_detector.py" ]
+CMD [ "python3", "-u", "anomaly_detect.py" ]
