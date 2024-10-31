@@ -19,7 +19,7 @@ from sentence_transformers import SentenceTransformer
 from kubernetes import client as k8s_client, config as k8s_config
 
 # Global variable for the model
-model = None
+MODEL = None
 
 def get_config_map_values(config_map_name = "config-map"):
     """
@@ -151,15 +151,15 @@ def process_dataframe(df):
     return combined_features, df[textual_features]
 
 def initialize_model():
-    global model
-    if model is None:
-        model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
+    global MODEL
+    if MODEL is None:
+        MODEL = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
 
 def encode_batch(batch):
-    global model
-    if model is None:
+    global MODEL
+    if MODEL is None:
         initialize_model()
-    return model.encode(batch)
+    return MODEL.encode(batch)
 
 def create_embeddings(textual_features, batch_size=1000, num_workers=3):
     """
