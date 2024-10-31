@@ -18,6 +18,9 @@ from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
 from kubernetes import client as k8s_client, config as k8s_config
 
+# Global variable for the model
+model = None
+
 def get_config_map_values(config_map_name = "config-map"):
     """
     Retrieves configuration values from a Kubernetes ConfigMap.
@@ -146,17 +149,23 @@ def process_dataframe(df):
 
     return combined_features, df[textual_features]
 
-def encode_batch(model, batch):
-    """
-    Encodes a batch of textual data using the Sentence Transformer model.
-    """
+def initialize_model():
+    global model
+    if model is None:
+        model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
+
+def encode_batch(batch):
+    global model
+    if model is None:
+        initialize_model()
     return model.encode(batch)
 
 def create_embeddings(textual_features, batch_size=1000, num_workers=3):
     """
     Creates embeddings for textual features using the Sentence Transformer model.
     """
-    model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
+    # Initialize model
+    initialize_model()
 
     # Create batches
     batches = [
@@ -166,8 +175,7 @@ def create_embeddings(textual_features, batch_size=1000, num_workers=3):
 
     # Process each batch within the context manager
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        # Pass the model as an argument to encode_batch
-        text_embeddings = list(executor.map(lambda batch: encode_batch(model, batch), batches))
+        text_embeddings = list(executor.map(encode_batch, batches))
 
     return concatenate(text_embeddings)
 
@@ -178,7 +186,7 @@ def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
     conn = f"host={dbhost} port={dbport} dbname={dbname} user={dbuser} password={dbpass}"
     return ConnectionPool(conn, min_size=1, max_size=20)
 
-async def close_connection_pool(conn_pool):
+async def disconnect_from_database(conn_pool):
     """
     Closes the connection pool.
     """
@@ -278,7 +286,7 @@ async def main():
                 print(f"File '{csv_s3_key}' processed in {end1 - start1:.2f} seconds")
     finally:
         # Ensure the pool is closed even if an exception occurs
-        await close_connection_pool(conn_pool)
+        await disconnect_from_database(conn_pool)
 
 if __name__ == "__main__":
     start = default_timer()
