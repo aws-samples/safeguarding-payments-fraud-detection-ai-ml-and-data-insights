@@ -17,7 +17,6 @@ from numpy import concatenate
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
 from kubernetes import client as k8s_client, config as k8s_config
-from botocore.exceptions import ClientError
 
 def get_config_map_values(config_map_name = "config-map"):
     """
@@ -100,6 +99,7 @@ def download_s3_file(s3_client, s3_bucket_name, s3_file, local_file_path):
     makedirs(local_folder_path, exist_ok=True)
     # download file from s3 to local
     s3_client.download_file(s3_bucket_name, s3_file, local_file_path)
+    print(f"File '{local_file_path}' downloaded from s3 path '{s3_bucket_name}/{s3_file}'")
 
 def upload_s3_file(s3_client, s3_bucket_name, local_file_path, s3_file):
     """
@@ -146,14 +146,17 @@ def process_dataframe(df):
 
     return combined_features, df[textual_features]
 
+def encode_batch(model, batch):
+    """
+    Encodes a batch of textual data using the Sentence Transformer model.
+    """
+    return model.encode(batch)
+
 def create_embeddings(textual_features, batch_size=1000, num_workers=3):
     """
     Creates embeddings for textual features using the Sentence Transformer model.
     """
     model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
-
-    def encode_batch(batch):
-        return model.encode(batch)
 
     # Create batches
     batches = [
@@ -163,7 +166,8 @@ def create_embeddings(textual_features, batch_size=1000, num_workers=3):
 
     # Process each batch within the context manager
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        text_embeddings = list(executor.map(encode_batch, batches))
+        # Pass the model as an argument to encode_batch
+        text_embeddings = list(executor.map(lambda batch: encode_batch(model, batch), batches))
 
     return concatenate(text_embeddings)
 
@@ -203,6 +207,8 @@ async def main():
     """
     Main function to execute the anomaly detection process.
     """
+
+    conn_pool = None
     try:
         # Get values from ConfigMap
         config_map_values = get_config_map_values()
