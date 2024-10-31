@@ -185,10 +185,9 @@ async def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
     """
     conn = f"host={dbhost} port={dbport} dbname={dbname} user={dbuser} password={dbpass}"
     try:
-        return await AsyncConnectionPool(conn, min_size=1, max_size=20)
-        # pool = AsyncConnectionPool(conn, min_size=1, max_size=20)
-        # await pool.open()
-        # return pool
+        pool = AsyncConnectionPool(conn, min_size=1, max_size=20)
+        await pool.open()
+        return pool
     except Exception as e:
         print(f"Failed to connect to database: {e}")
         return None
