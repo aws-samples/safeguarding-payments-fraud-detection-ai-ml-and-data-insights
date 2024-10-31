@@ -245,7 +245,7 @@ async def main():
             config_map_values.get("DBNAME"),
             config_map_values.get("DBUSER"),
             config_map_values.get("DBPASS"),
-            config_map_values.get("SERVICE_PORT") + "." + config_map_values.get("NAMESPACE"),
+            config_map_values.get("SERVICE_NAME") + "." + config_map_values.get("NAMESPACE"),
             config_map_values.get("SERVICE_PORT")
         )
 
