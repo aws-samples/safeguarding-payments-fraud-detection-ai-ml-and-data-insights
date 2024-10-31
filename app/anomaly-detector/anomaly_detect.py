@@ -253,7 +253,7 @@ async def main():
 
         # determine the host and port based on the environment
         if "KUBERNETES_SERVICE_HOST" in environ:
-            host = config_map_values.get("SPF_SERVICE_DBNAME") + "." + config_map_values.get("SPF_SERVICE_NAMESPACE")
+            host = config_map_values.get("SERVICE_NAME") + "." + config_map_values.get("NAMESPACE")
             port = config_map_values.get("SERVICE_PORT")
         else:
             host = config_map_values.get("DBHOST")
