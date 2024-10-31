@@ -6,7 +6,7 @@ enriched dataset with cosine similarity as anomaly signal (between 0 and 1) is s
 output data into S3 bucket.
 """
 
-from os import path, makedirs
+from os import environ, path, makedirs
 from timeit import default_timer
 from concurrent.futures import ProcessPoolExecutor
 from boto3 import client as boto3_client
@@ -194,14 +194,14 @@ def create_embeddings(df):
     print(embeddings[:5,:])
     return embeddings
 
-def connect_to_database(dbname, dbuser, dbpass, service_name, service_port, namespace):
+def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
     """
     Connects to a PostgreSQL database using the provided configuration.
     """
     try:
         return connect(
-            host = service_name + "." + namespace,
-            port = service_port,
+            host = dbhost,
+            port = dbport,
             database = dbname,
             user = dbuser,
             password = dbpass,
@@ -239,12 +239,6 @@ def main():
     config_map_values = get_config_map_values()
 
     # Get the values from the ConfigMap
-    dbname = config_map_values.get("DBNAME")
-    dbuser = config_map_values.get("DBUSER")
-    dbpass = config_map_values.get("DBPASS")
-    service_port = config_map_values.get("SERVICE_PORT")
-    service_name = config_map_values.get("SERVICE_NAME")
-    namespace = config_map_values.get("NAMESPACE")
     s3_bucket_name = config_map_values.get("S3_BUCKET_NAME")
     s3_path_payment = config_map_values.get("S3_PATH_PAYMENT")
     s3_path_model = config_map_values.get("S3_PATH_MODEL")
@@ -266,7 +260,18 @@ def main():
             csv_s3_keys.append(s3_file["Key"])
 
     # connect to postgres and register pgvector if missing
-    conn = connect_to_database(dbname, dbuser, dbpass, service_name, service_port, namespace)
+    if "KUBERNETES_SERVICE_HOST" in environ:
+        host = config_map_values.get("SERVICE_NAME") + "." + config_map_values.get("NAMESPACE")
+        port = config_map_values.get("SERVICE_PORT")
+    else:
+        host = config_map_values.get("DBHOST")
+        port = config_map_values.get("DBPORT")
+    conn = connect_to_database(
+        config_map_values.get("DBNAME"),
+        config_map_values.get("DBUSER"),
+        config_map_values.get("DBPASS"),
+        host, port
+    )
     register_vector(conn)
 
     # for every S3 file
