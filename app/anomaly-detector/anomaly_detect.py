@@ -11,27 +11,12 @@ from timeit import default_timer
 from os import path, makedirs
 from concurrent.futures import ProcessPoolExecutor
 from psycopg_pool import AsyncConnectionPool
-from psycopg.adapt import adapt, Adapter
-from psycopg.types.string import StrDumper
 from boto3 import client as boto3_client
 from pandas import get_dummies, to_datetime, concat, read_csv
 from numpy import concatenate, ndarray
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
 from kubernetes import client as k8s_client, config as k8s_config
-
-# Custom adapter for numpy arrays and mixed-type lists
-class MixedTypeAdapter(Adapter):
-    def __init__(self, adapted):
-        self.adapted = adapted
-
-    def dump(self, obj):
-        if isinstance(obj, ndarray):
-            obj = obj.tolist()
-        return StrDumper().dump(str(obj))
-
-# Register the adapter
-adapt(ndarray, MixedTypeAdapter)
 
 # Global variable for the model
 MODEL = None
