@@ -73,17 +73,6 @@ def get_namespace(prefix):
         print(f"Error listing namespaces: {e}")
     return None
 
-def initialize_s3_client():
-    """
-    Initializes an S3 client using Amazon S3 service.
-    """
-    try:
-        s3_client = boto3_client("s3")
-        return s3_client
-    except ClientError as e:
-        print(f"Error: {e}")
-        raise
-
 def list_s3_files(s3_client, s3_bucket_name, s3_path_payment):
     """
     Lists all files in the specified S3 bucket and path.
@@ -156,12 +145,8 @@ def create_embeddings(df):
     # Preprocess timestamp features
     for col in timestamp_features:
         df[col] = to_datetime(df[col])
-        df[col + "_year"] =df[col].dt.year
-        df[col + "_month"] =df[col].dt.month
-        df[col + "_day"] =df[col].dt.day
-        df[col + "_hour"] =df[col].dt.hour
-        df[col + "_minute"] =df[col].dt.minute
-        df[col + "_second"] =df[col].dt.second
+        for unit in ['year', 'month', 'day', 'hour', 'minute', 'second']:
+            df[f"{col}_{unit}"] = getattr(df[col].dt, unit)
 
     new_timestamp_features = [
         col for col in df.columns
@@ -244,7 +229,6 @@ def is_transaction_anomaly(conn, embeddings, df):
     df['anomaly_score'] = scores
     return df
 
-
 def main():
     """
     Main function to execute the anomaly detection process.
@@ -267,7 +251,8 @@ def main():
     data_folder_path = "./data/"
 
     # Initialize the s3 client
-    s3_client = initialize_s3_client()
+    s3_client = boto3_client("s3")
+
     # get S3 file details
     s3_files = list_s3_files(s3_client, s3_bucket_name, s3_path_payment)
 
