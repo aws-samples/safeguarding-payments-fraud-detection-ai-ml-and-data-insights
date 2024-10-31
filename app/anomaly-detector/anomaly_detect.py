@@ -10,7 +10,7 @@ from asyncio import run
 from timeit import default_timer
 from os import path, makedirs
 from concurrent.futures import ProcessPoolExecutor
-from psycopg_pool import ConnectionPool
+from psycopg_pool import AsyncConnectionPool
 from boto3 import client as boto3_client
 from pandas import get_dummies, to_datetime, concat, read_csv
 from numpy import concatenate
@@ -179,12 +179,16 @@ def create_embeddings(textual_features, batch_size=1000, num_workers=3):
 
     return concatenate(text_embeddings)
 
-def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
+async def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
     """
     Connects to a PostgreSQL database using the provided configuration.
     """
     conn = f"host={dbhost} port={dbport} dbname={dbname} user={dbuser} password={dbpass}"
-    return ConnectionPool(conn, min_size=1, max_size=20)
+    try:
+        return await AsyncConnectionPool(conn, min_size=1, max_size=20)
+    except Exception as e:
+        print(f"Failed to connect to database: {e}")
+        return None
 
 async def disconnect_from_database(conn_pool):
     """
@@ -248,6 +252,9 @@ async def main():
             config_map_values.get("SERVICE_NAME") + "." + config_map_values.get("NAMESPACE"),
             config_map_values.get("SERVICE_PORT")
         )
+        if conn_pool is None:
+            print("Failed to establish database connection")
+            return
 
         # for every S3 file
         for csv_s3_key in csv_s3_keys:
@@ -286,7 +293,8 @@ async def main():
                 print(f"File '{csv_s3_key}' processed in {end1 - start1:.2f} seconds")
     finally:
         # Ensure the pool is closed even if an exception occurs
-        await disconnect_from_database(conn_pool)
+        if conn_pool:
+            await disconnect_from_database(conn_pool)
 
 if __name__ == "__main__":
     start = default_timer()
