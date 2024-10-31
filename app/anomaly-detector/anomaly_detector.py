@@ -96,7 +96,7 @@ def list_s3_files(s3_client, s3_bucket_name, s3_path_payment):
 
     return []
 
-def download_s3_file(s3_client, s3_file, local_file_path, s3_bucket_name):
+def download_s3_file(s3_client, s3_bucket_name, s3_file, local_file_path):
     """
     Downloads a file from an S3 bucket to a local path.
     """
@@ -107,6 +107,7 @@ def download_s3_file(s3_client, s3_file, local_file_path, s3_bucket_name):
     makedirs(local_folder_path, exist_ok=True)
     # download file from s3 to local
     s3_client.download_file(s3_bucket_name, s3_file, local_file_path)
+    print(f"File '{local_file_path}' downloaded from s3 path '{s3_bucket_name}/{s3_file}'")
 
 def upload_s3_file(s3_client, s3_bucket_name, local_file_path, s3_file):
     """
@@ -272,7 +273,7 @@ def main():
         # set local file path
         local_file_path = path.join(data_folder_path, csv_s3_key)
         # download s3 file to local file path
-        download_s3_file(s3_client, csv_s3_key, local_file_path, s3_bucket_name)
+        download_s3_file(s3_client, s3_bucket_name, csv_s3_key, local_file_path)
         # Convert file to pandas dataframe
         df = read_csv(local_file_path)
         if df is not None:
