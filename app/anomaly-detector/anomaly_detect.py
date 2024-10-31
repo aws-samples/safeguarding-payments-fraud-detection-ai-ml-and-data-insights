@@ -181,7 +181,7 @@ async def main():
     s3_path_payment = config_map_values.get("S3_PATH_PAYMENT")
     s3_path_model = config_map_values.get("S3_PATH_MODEL")
 
-    local_path = "temp_data"
+    local_path = "./data/"
     output_file = "file.csv"
 
     s3_client = boto3_client('s3')
