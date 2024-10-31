@@ -7,15 +7,15 @@ output data into S3 bucket.
 """
 
 from os import makedirs, path
-from concurrent.futures import ProcessPoolExecutor
 from asyncio import run
+from concurrent.futures import ProcessPoolExecutor
+from psycopg_pool import ConnectionPool
 from boto3 import client as boto3_client
 from pandas import concat, to_datetime, get_dummies, read_csv
 from numpy import concatenate
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
 from kubernetes import client as k8s_client, config as k8s_config
-from psycopg_pool import ConnectionPool
 
 def get_config_map_values(config_map_name = "config-map"):
     """
@@ -196,7 +196,7 @@ async def main():
         config_map_values.get("DBNAME"),
         config_map_values.get("DBUSER"),
         config_map_values.get("DBPASS"),
-        f"{config_map_values.get("SERVICE_PORT")}.{config_map_values.get("NAMESPACE")}",
+        config_map_values.get("SERVICE_PORT") + "." + config_map_values.get("NAMESPACE"),
         config_map_values.get("SERVICE_PORT")
     )
     df2 = await is_transaction_anomaly(conn_pool, embeddings, df)
