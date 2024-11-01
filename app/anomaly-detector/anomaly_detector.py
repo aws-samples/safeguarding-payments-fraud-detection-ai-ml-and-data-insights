@@ -210,10 +210,10 @@ def is_transaction_anomaly(conn, embeddings, df):
     """
     cursor = conn.cursor()
     scores = []
-    query = "SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies"
+    query = "SELECT MAX(1 - (embedding <=> %s::vector)) FROM transaction_anomalies"
 
     for embedding in embeddings:
-        cursor.execute(query, (embedding,))
+        cursor.execute(query, (embedding.tolist(),))
         results = cursor.fetchall()
         scores.append(results[0][0])
 
