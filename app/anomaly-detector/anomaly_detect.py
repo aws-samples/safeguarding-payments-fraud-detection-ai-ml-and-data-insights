@@ -6,11 +6,10 @@ enriched dataset with cosine similarity as anomaly signal (between 0 and 1) is s
 output data into S3 bucket.
 """
 
-from asyncio import run
 from timeit import default_timer
 from os import environ, path, makedirs
 from concurrent.futures import ProcessPoolExecutor
-from psycopg_pool import AsyncConnectionPool
+from psycopg import connect
 from boto3 import client as boto3_client
 from pandas import get_dummies, to_datetime, concat, read_csv
 from numpy import concatenate
@@ -180,54 +179,44 @@ def create_embeddings(textual_features, batch_size=1000, num_workers=5):
 
     return concatenate(text_embeddings)
 
-async def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
+def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
     """
-    Connects to a PostgreSQL database using the provided configuration.
+    Connects to the database using the provided configuration.
     """
-    conn = f"host={dbhost} port={dbport} dbname={dbname} user={dbuser} password={dbpass}"
     try:
-        async with AsyncConnectionPool(conn, min_size=1, max_size=20) as pool:
-            return pool
+        return connect(f"host={dbhost} port={dbport} dbname={dbname} user={dbuser} password={dbpass}")
     except Exception as e:
-        print(f"Failed to connect to database: {e}")
-        return None
+        print(f"Error while connecting to database: {e}")
+        raise
 
-async def disconnect_from_database(conn_pool):
-    """
-    Closes the connection pool.
-    """
-    if conn_pool:
-        await conn_pool.close()
-
-async def is_transaction_anomaly(conn_pool, embeddings, df):
+def is_transaction_anomaly(conn, embeddings, df):
     """
     Checks if the given embeddings are anomalies based on the transaction anomalies table
     and returns the original dataframe with anomaly scores.
     """
-    if conn_pool is None:
-        print("Connection pool is None. Cannot perform transaction anomaly check.")
+    if conn is None:
+        print("Connection is None. Cannot perform transaction anomaly check.")
         return df
 
     scores = []
     # Add explicit cast to vector type
     query = "SELECT MAX(1 - (embedding <=> %s::vector)) FROM transaction_anomalies"
 
-    async with conn_pool.connection() as aconn:
-        async with aconn.cursor() as acur:
-            for embedding in embeddings:
-                await acur.execute(query, (embedding.tolist(),))
-                result = await acur.fetchone()
-                scores.append(result[0] if result else None)
+    with conn.cursor() as cursor:
+        for embedding in embeddings:
+            cursor.execute(query, (embedding,))
+            result = cursor.fetchone()
+            scores.append(result[0] if result else None)
 
     df['anomaly_score'] = scores
     return df
 
-async def main():
+def main():
     """
     Main function to execute the anomaly detection process.
     """
 
-    conn_pool = None
+    conn = None
     try:
         # Get values from ConfigMap
         config_map_values = get_config_map_values()
@@ -259,14 +248,14 @@ async def main():
             host = config_map_values.get("DBHOST")
             port = config_map_values.get("DBPORT")
 
-        # connect to postgres
-        conn_pool = await connect_to_database(
+        # connect to database
+        conn = connect_to_database(
             config_map_values.get("DBNAME"),
             config_map_values.get("DBUSER"),
             config_map_values.get("DBPASS"),
             host, port
         )
-        if conn_pool is None:
+        if conn is None:
             print("Failed to establish database connection")
             return
 
@@ -287,7 +276,7 @@ async def main():
                 embeddings = concatenate([combined_features.values, text_embeddings], axis=1)
 
                 # Get DataFrame with anomaly scores
-                df_with_scores = await is_transaction_anomaly(conn_pool, embeddings, df)
+                df_with_scores = is_transaction_anomaly(conn, embeddings, df)
 
                 # Create output filename for the scored data
                 output_filename = path.splitext(local_file_path)[0] + '_scored.csv'
@@ -309,12 +298,12 @@ async def main():
         print(f"An error occurred: {e}")
     finally:
         # Ensure the pool is closed even if an exception occurs
-        if conn_pool:
-            await disconnect_from_database(conn_pool)
+        if conn:
+            conn.close()
 
 if __name__ == "__main__":
     start = default_timer()
-    run(main())
+    main()
     end = default_timer()
     # Print total time in seconds
     print(f"Total time to process all files: {end - start:.2f} seconds")
