@@ -12,10 +12,9 @@ from concurrent.futures import ProcessPoolExecutor
 from boto3 import client as boto3_client
 from pandas import get_dummies, to_datetime, concat, read_csv
 from numpy import concatenate, array
-from psycopg2 import connect
+from psycopg import connect
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
-from pgvector.psycopg2 import register_vector
 from kubernetes import client as k8s_client, config as k8s_config
 from botocore.exceptions import ClientError
 
@@ -199,13 +198,7 @@ def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
     Connects to a PostgreSQL database using the provided configuration.
     """
     try:
-        return connect(
-            host = dbhost,
-            port = dbport,
-            database = dbname,
-            user = dbuser,
-            password = dbpass,
-        )
+        return connect(f"host={dbhost} port={dbport} dbname={dbname} user={dbuser} password={dbpass}")
     except Exception as e:
         print(f"Error while connecting to PostgreSQL: {e}")
         raise
@@ -272,7 +265,6 @@ def main():
         config_map_values.get("DBPASS"),
         host, port
     )
-    register_vector(conn)
 
     # for every S3 file
     for csv_s3_key in csv_s3_keys:
