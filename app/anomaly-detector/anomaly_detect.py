@@ -160,7 +160,7 @@ def encode_batch(batch):
         initialize_model()
     return MODEL.encode(batch)
 
-def create_embeddings(textual_features, batch_size=1000, num_workers=6):
+def create_embeddings(textual_features, batch_size=1000, num_workers=3):
     """
     Creates embeddings for textual features using the Sentence Transformer model.
     """
