@@ -138,14 +138,14 @@ def process_dataframe(df):
         for unit in ['year', 'month', 'day', 'hour', 'minute', 'second']:
             df[f"{col}_{unit}"] = getattr(df[col].dt, unit)
 
-    # new_timestamp_features = [
-    #     float(col) for col in df.columns
-    #     if col.startswith("EVENT_TIMESTAMP_") or col.startswith("LABEL_TIMESTAMP_")
-    # ]
+    new_timestamp_features = [
+        col for col in df.columns
+        if col.startswith("EVENT_TIMESTAMP_") or col.startswith("LABEL_TIMESTAMP_")
+    ]
 
     # Combine numerical, categorical and timestamp features
     combined_features = concat([
-        df[numerical_features], encoded_categorical_features #, df[new_timestamp_features]
+        df[numerical_features], encoded_categorical_features, df[new_timestamp_features]
     ], axis=1)
 
     return combined_features, df[textual_features]
@@ -210,7 +210,8 @@ async def is_transaction_anomaly(conn_pool, embeddings, df):
         return df
 
     scores = []
-    query = "SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies"
+    # Add explicit cast to vector type
+    query = "SELECT MAX(1 - (embedding <=> %s::vector)) FROM transaction_anomalies"
 
     async with conn_pool.connection() as aconn:
         async with aconn.cursor() as acur:
