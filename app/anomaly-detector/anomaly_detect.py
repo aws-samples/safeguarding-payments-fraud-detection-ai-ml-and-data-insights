@@ -204,7 +204,7 @@ def is_transaction_anomaly(conn, embeddings, df):
 
     with conn.cursor() as cursor:
         for embedding in embeddings:
-            cursor.execute(query, (embedding,))
+            cursor.execute(query, (embedding.tolist(),))
             result = cursor.fetchone()
             scores.append(result[0] if result else None)
 
