@@ -6,16 +6,15 @@ enriched dataset with cosine similarity as anomaly signal (between 0 and 1) is s
 output data into S3 bucket.
 """
 
-from os import path, makedirs
+from os import environ, path, makedirs
 from timeit import default_timer
 from concurrent.futures import ProcessPoolExecutor
 from boto3 import client as boto3_client
 from pandas import get_dummies, to_datetime, concat, read_csv
 from numpy import concatenate, array
-from psycopg2 import connect
+from psycopg import connect
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
-from pgvector.psycopg2 import register_vector
 from kubernetes import client as k8s_client, config as k8s_config
 from botocore.exceptions import ClientError
 
@@ -73,17 +72,6 @@ def get_namespace(prefix):
         print(f"Error listing namespaces: {e}")
     return None
 
-def initialize_s3_client():
-    """
-    Initializes an S3 client using Amazon S3 service.
-    """
-    try:
-        s3_client = boto3_client("s3")
-        return s3_client
-    except ClientError as e:
-        print(f"Error: {e}")
-        raise
-
 def list_s3_files(s3_client, s3_bucket_name, s3_path_payment):
     """
     Lists all files in the specified S3 bucket and path.
@@ -107,7 +95,7 @@ def list_s3_files(s3_client, s3_bucket_name, s3_path_payment):
 
     return []
 
-def download_s3_file(s3_client, s3_file, local_file_path, s3_bucket_name):
+def download_s3_file(s3_client, s3_bucket_name, s3_file, local_file_path):
     """
     Downloads a file from an S3 bucket to a local path.
     """
@@ -118,6 +106,7 @@ def download_s3_file(s3_client, s3_file, local_file_path, s3_bucket_name):
     makedirs(local_folder_path, exist_ok=True)
     # download file from s3 to local
     s3_client.download_file(s3_bucket_name, s3_file, local_file_path)
+    print(f"File '{local_file_path}' downloaded from s3 path '{s3_bucket_name}/{s3_file}'")
 
 def upload_s3_file(s3_client, s3_bucket_name, local_file_path, s3_file):
     """
@@ -152,16 +141,13 @@ def create_embeddings(df):
 
     # One-hot encoding for categorical features
     encoded_categorical_features = get_dummies(df[categorical_features], drop_first=True)
+    encoded_categorical_features = encoded_categorical_features.astype(float)
 
     # Preprocess timestamp features
     for col in timestamp_features:
         df[col] = to_datetime(df[col])
-        df[col + "_year"] =df[col].dt.year
-        df[col + "_month"] =df[col].dt.month
-        df[col + "_day"] =df[col].dt.day
-        df[col + "_hour"] =df[col].dt.hour
-        df[col + "_minute"] =df[col].dt.minute
-        df[col + "_second"] =df[col].dt.second
+        for unit in ['year', 'month', 'day', 'hour', 'minute', 'second']:
+            df[f"{col}_{unit}"] = getattr(df[col].dt, unit)
 
     new_timestamp_features = [
         col for col in df.columns
@@ -207,18 +193,12 @@ def create_embeddings(df):
     print(embeddings[:5,:])
     return embeddings
 
-def connect_to_database(dbname, dbuser, dbpass, service_name, service_port, namespace):
+def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
     """
     Connects to a PostgreSQL database using the provided configuration.
     """
     try:
-        return connect(
-            host = service_name + "." + namespace,
-            port = service_port,
-            database = dbname,
-            user = dbuser,
-            password = dbpass,
-        )
+        return connect(f"host={dbhost} port={dbport} dbname={dbname} user={dbuser} password={dbpass}")
     except Exception as e:
         print(f"Error while connecting to PostgreSQL: {e}")
         raise
@@ -230,10 +210,10 @@ def is_transaction_anomaly(conn, embeddings, df):
     """
     cursor = conn.cursor()
     scores = []
-    query = "SELECT MAX(1 - (embedding <=> %s)) FROM transaction_anomalies"
+    query = "SELECT MAX(1 - (embedding <=> %s::vector)) FROM transaction_anomalies"
 
     for embedding in embeddings:
-        cursor.execute(query, (embedding,))
+        cursor.execute(query, (embedding.tolist(),))
         results = cursor.fetchall()
         scores.append(results[0][0])
 
@@ -244,7 +224,6 @@ def is_transaction_anomaly(conn, embeddings, df):
     df['anomaly_score'] = scores
     return df
 
-
 def main():
     """
     Main function to execute the anomaly detection process.
@@ -253,12 +232,6 @@ def main():
     config_map_values = get_config_map_values()
 
     # Get the values from the ConfigMap
-    dbname = config_map_values.get("DBNAME")
-    dbuser = config_map_values.get("DBUSER")
-    dbpass = config_map_values.get("DBPASS")
-    service_port = config_map_values.get("SERVICE_PORT")
-    service_name = config_map_values.get("SERVICE_NAME")
-    namespace = config_map_values.get("NAMESPACE")
     s3_bucket_name = config_map_values.get("S3_BUCKET_NAME")
     s3_path_payment = config_map_values.get("S3_PATH_PAYMENT")
     s3_path_model = config_map_values.get("S3_PATH_MODEL")
@@ -267,7 +240,8 @@ def main():
     data_folder_path = "./data/"
 
     # Initialize the s3 client
-    s3_client = initialize_s3_client()
+    s3_client = boto3_client("s3")
+
     # get S3 file details
     s3_files = list_s3_files(s3_client, s3_bucket_name, s3_path_payment)
 
@@ -279,15 +253,25 @@ def main():
             csv_s3_keys.append(s3_file["Key"])
 
     # connect to postgres and register pgvector if missing
-    conn = connect_to_database(dbname, dbuser, dbpass, service_name, service_port, namespace)
-    register_vector(conn)
+    if "KUBERNETES_SERVICE_HOST" in environ:
+        host = config_map_values.get("SERVICE_NAME") + "." + config_map_values.get("NAMESPACE")
+        port = config_map_values.get("SERVICE_PORT")
+    else:
+        host = config_map_values.get("DBHOST")
+        port = config_map_values.get("DBPORT")
+    conn = connect_to_database(
+        config_map_values.get("DBNAME"),
+        config_map_values.get("DBUSER"),
+        config_map_values.get("DBPASS"),
+        host, port
+    )
 
     # for every S3 file
     for csv_s3_key in csv_s3_keys:
         # set local file path
         local_file_path = path.join(data_folder_path, csv_s3_key)
         # download s3 file to local file path
-        download_s3_file(s3_client, csv_s3_key, local_file_path, s3_bucket_name)
+        download_s3_file(s3_client, s3_bucket_name, csv_s3_key, local_file_path)
         # Convert file to pandas dataframe
         df = read_csv(local_file_path)
         if df is not None:
