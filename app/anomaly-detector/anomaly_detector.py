@@ -11,12 +11,13 @@ from timeit import default_timer
 from concurrent.futures import ProcessPoolExecutor
 from boto3 import client as boto3_client
 from pandas import get_dummies, to_datetime, concat, read_csv
-from numpy import concatenate, array
+from numpy import concatenate, array, ndarray, pad
 from psycopg import connect
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
 from kubernetes import client as k8s_client, config as k8s_config
 from botocore.exceptions import ClientError
+from warnings import warn
 
 def get_config_map_values(config_map_name = "config-map"):
     """
@@ -203,7 +204,7 @@ def connect_to_database(dbname, dbuser, dbpass, dbhost, dbport):
         print(f"Error while connecting to PostgreSQL: {e}")
         raise
 
-def is_transaction_anomaly(conn, embeddings, df):
+def is_transaction_anomaly(conn, df, embeddings, target_dim=847):
     """
     Checks if the given embeddings are anomalies based on the transaction anomalies table
     and returns the original dataframe with anomaly scores.
@@ -212,13 +213,35 @@ def is_transaction_anomaly(conn, embeddings, df):
     scores = []
     query = "SELECT MAX(1 - (embedding <=> %s::vector)) FROM transaction_anomalies"
 
-    for embedding in embeddings:
-        cursor.execute(query, (embedding.tolist(),))
-        results = cursor.fetchall()
-        scores.append(results[0][0])
+    # Ensure embeddings are the target dimensions
+    if isinstance(embeddings, ndarray):
+        current_dim = embeddings.shape[1]
+        if current_dim != target_dim:
+            warn(f"Adjusting embeddings from {current_dim} to {target_dim} dimensions")
+            if current_dim < target_dim:
+                # Pad embeddings to target dimensions
+                padding_size = target_dim - current_dim
+                embeddings = pad(
+                    embeddings,
+                    ((0, 0), (0, padding_size)),
+                    mode='constant',
+                    constant_values=0
+                )
+            elif current_dim > target_dim:
+                # Truncate to target dimensions
+                embeddings = embeddings[:, :target_dim]
 
-    if cursor:
-        cursor.close()
+    try:
+        for embedding in embeddings:
+            cursor.execute(query, (embedding.tolist(),))
+            results = cursor.fetchall()
+            scores.append(results[0][0])
+    except Exception as e:
+        print(f"Error processing embeddings: {str(e)}")
+        raise
+    finally:
+        if cursor:
+            cursor.close()
 
     # Add the scores as a new column to the dataframe
     df['anomaly_score'] = scores
@@ -282,7 +305,7 @@ def main():
             embeddings = array(embeddings, dtype=float)
 
             # Get DataFrame with anomaly scores
-            df_with_scores = is_transaction_anomaly(conn, embeddings, df)
+            df_with_scores = is_transaction_anomaly(conn, df, embeddings)
 
             # Create output filename for the scored data
             output_filename = path.splitext(local_file_path)[0] + '_scored.csv'
