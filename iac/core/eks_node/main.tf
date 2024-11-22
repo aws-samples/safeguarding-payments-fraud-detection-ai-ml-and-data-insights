@@ -70,7 +70,7 @@ module "self_managed_node_group" {
     ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
   )
   network_interfaces = [{
-    associated_carrier_ip_address = true
+    associate_carrier_ip_address = true
   }]
 
   desired_size                = var.q.desired_size
