@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 
 provider "aws" {
-  allowed_account_ids    = try(split(",", var.spf_account), null)
+  allowed_account_ids    = try(trimspace(var.spf_account), "") != "" ? split(",", var.spf_account) : null
   skip_region_validation = true
 
   default_tags {
