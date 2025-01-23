@@ -6,7 +6,7 @@ data "aws_partition" "this" {}
 data "aws_caller_identity" "this" {}
 
 provider "aws" {
-  allowed_account_ids    = try(split(",", var.spf_account), null)
+  allowed_account_ids    = try(trimspace(var.spf_account), "") != "" ? split(",", var.spf_account) : null
   skip_region_validation = true
 
   default_tags {
@@ -15,7 +15,7 @@ provider "aws" {
       environment    = "default"
       contact        = "github.com/eistrati"
       globalId       = var.spf_gid
-      awsApplication = try(var.spf_app_arn, null)
+      awsApplication = try(trimspace(var.spf_app_arn), "") != "" ? var.spf_app_arn : null
     }
   }
 }

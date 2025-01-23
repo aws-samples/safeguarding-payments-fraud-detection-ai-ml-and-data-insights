@@ -239,7 +239,7 @@ case ${SPF_DIR} in iac*)
     KEY=$(echo $LINE | cut -d"=" -f1)
     BACK=${LINE/$KEY=/}
     FRONT=$(echo ${KEY/SPF_TFVAR_/} | tr "[:upper:]" "[:lower:]")
-    OPTIONS=" ${OPTIONS} -var spf_${FRONT}=${BACK}"
+    if [ -n "${BACK}" ]; then OPTIONS=" ${OPTIONS} -var spf_${FRONT}=${BACK}"; fi
   done <<< "$SPF_TFVARS"
 
   echo "[EXEC] cd ${WORKDIR}/${SPF_DIR}/"
