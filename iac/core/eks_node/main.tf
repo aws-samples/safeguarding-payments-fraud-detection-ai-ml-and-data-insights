@@ -70,7 +70,7 @@ module "self_managed_node_group" {
     ? var.spf_eks_node_ec2 : var.q.instance_types), 0)
   )
   network_interfaces = [{
-    associate_carrier_ip_address = true
+    associate_carrier_ip_address = length(data.terraform_remote_state.subnet.outputs.cagw_subnet_ids) > 0 ? true : false
   }]
 
   desired_size                = var.q.desired_size
